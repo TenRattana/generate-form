@@ -13,16 +13,20 @@ export const CustomDropdown = ({
   reset, 
   selectedValue,
 }) => {
-  const [value, setValue] = useState( "");
+  const [value, setValue] = useState("");
   const [option, setOption] = useState([]);
-  
+
   useEffect(() => {
-    setOption(
-      data.map((item) => ({
-        label: item[label + "Name"],
-        value: item[label + "ID"],
-      }))
-    );
+    if (data && Array.isArray(data)) {
+      setOption(
+        data.map((item) => ({
+          label: item[label + "Name"] || "",
+          value: item[label + "ID"] || "",
+        }))
+      );
+    } else {
+      setOption([]);
+    }
   }, [data, label]);
 
   useEffect(() => {
@@ -32,12 +36,16 @@ export const CustomDropdown = ({
   }, [reset]);
 
   useEffect(() => {
-    setValue(selectedValue || "");
+    if (selectedValue) {
+      setValue(selectedValue);
+    } else {
+      setValue("");
+    }
   }, [selectedValue]);
 
   const handleDropdownChange = (newValue) => {
     setValue(newValue);
-    updatedropdown(fieldName, newValue.value);
+    updatedropdown(fieldName, newValue);
   };
 
   const handleClear = () => {

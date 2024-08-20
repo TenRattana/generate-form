@@ -9,7 +9,7 @@ const palette = {
   dark: "#000000",
   warning: "rgba(255, 193, 7, 1)",
   danger: "rgba(214, 61, 57, 1)",
-  pramaryLight:'rgba(90, 154, 230, 1)',
+  primaryLight:'rgba(90, 154, 230, 1)',
   transparent:'rgba(100, 100, 100, 0.5)'
 };
 

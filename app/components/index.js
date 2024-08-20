@@ -6,3 +6,4 @@ export { default as Radios } from "./Radios";
 export { default as Textareas } from "./Textareas";
 export { default as Checkboxs } from "./Checkboxs";
 export { default as Inputs } from "./Inputs";
+export * from './useResponsive'

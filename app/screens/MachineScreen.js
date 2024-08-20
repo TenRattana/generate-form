@@ -3,7 +3,7 @@ import { StyleSheet, SafeAreaView, ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { colors, spacing } from "../../theme";
-import { CustomTable, CustomDropdown } from "../components";
+import { CustomTable, CustomDropdown, useResponsive } from "../components";
 import validator from "validator";
 
 const MachineScreen = () => {
@@ -20,6 +20,7 @@ const MachineScreen = () => {
   const [resetDropdown, setResetDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const responsive = useResponsive();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,7 +69,7 @@ const MachineScreen = () => {
         if (!isEditing && key === "machineId") {
           return true;
         }
-        return value !== "" && value !== "" && String(value).trim() !== "";
+        return value !== "" && String(value).trim() !== "";
       }) && Object.values(error).every((err) => err === "")
     );
   };
@@ -133,14 +134,14 @@ const MachineScreen = () => {
           displayOrder: String(machineData.DisplayOrder) || "",
         });
       } else if (action === "del") {
-        const response1 = await axios.post("DeleteMachine", {
+        await axios.post("DeleteMachine", {
           MachineID: item,
         });
-        const response2 = await axios.post("GetMachines");
-        setMachine(response2.data || []);
+        const response = await axios.post("GetMachines");
+        setMachine(response.data || []);
       }
     } catch (error) {
-      console.error("Error fetching machine data:", error);
+      console.error("Error handling action:", error);
     }
     setIsLoading(false);
   };
@@ -167,6 +168,45 @@ const MachineScreen = () => {
     "Edit",
     "Delete",
   ];
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor:
+        responsive === "large"
+          ? "lightblue"
+          : responsive === "medium"
+          ? "lightgreen"
+          : "lightcoral",
+    },
+    text: {
+      fontSize: responsive === "large" ? 24 : responsive === "medium" ? 20 : 16,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    buttonContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    containerButton: {
+      width: responsive === "large" ? 300 : responsive === "medium" ? 250 : 200,
+      marginVertical: "1%",
+      marginHorizontal: "2%",
+      alignSelf: "center",
+    },
+    containerInput: {
+      backgroundColor: "darkgray",
+    },
+    errorText: {
+      top: -12,
+      marginLeft: 8,
+      color: "red",
+    },
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -242,6 +282,7 @@ const MachineScreen = () => {
 
         <Card>
           <Card.Title>List Machine</Card.Title>
+          <Card.Divider />
           <CustomTable
             Tabledata={tableData}
             Tablehead={tableHead}
@@ -254,33 +295,5 @@ const MachineScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  containerButton: {
-    width: 200,
-    marginVertical: 10,
-    marginHorizontal: 50,
-    alignSelf: "center",
-  },
-  containerInput: {
-    backgroundColor: colors.dark,
-  },
-  errorText: {
-    top: -12,
-    marginLeft: spacing.sm,
-    color: colors.error,
-  },
-});
 
 export default MachineScreen;

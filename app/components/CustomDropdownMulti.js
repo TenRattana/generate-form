@@ -2,6 +2,7 @@ import React, { useState , useEffect } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { colors, spacing, fonts } from "../../theme";
 
 export const CustomDropdownMulti = ({
     fieldName,
@@ -78,14 +79,8 @@ export const CustomDropdownMulti = ({
 
 const styles = StyleSheet.create({
   dropdown: {
+    margin: spacing.sm,
     height: 50,
-    borderRadius: 12,
-    padding: 12,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
     borderBottomColor: "gray",
     borderBottomWidth: 0.5,
   },

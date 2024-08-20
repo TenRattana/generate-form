@@ -15,7 +15,7 @@ const QuestionDetailScreen = () => {
   const [question, setQuestion] = useState([]);
   const [option, setOption] = useState([]);
   const [formState, setFormState] = useState({
-    mqotionId: "",
+    mqoptionId: "",
     moptionId: "",
     questionId: "",
     optionId: [],
@@ -49,6 +49,8 @@ const QuestionDetailScreen = () => {
 
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
+    console.log(formState);
+    
     
     if (fieldName === "description" && validator.isEmpty(value.trim())) {
       errorMessage = "The Description field is required.";
@@ -74,7 +76,7 @@ const QuestionDetailScreen = () => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "mqotionId") {
+        if (!isEditing && key === "mqoptionId") {
           return true;
         }
         return value !== "" && value !== "" && String(value).trim() !== "";
@@ -84,8 +86,7 @@ const QuestionDetailScreen = () => {
 
   const resetForm = () => {
     setFormState({
-      mqotionId: "",
-      moptionId: "",
+      mqoptionId: "",
       questionId: "",
       optionId: "",
       displayOrder: "",
@@ -98,7 +99,7 @@ const QuestionDetailScreen = () => {
   const saveData = async () => {
     setIsLoading(true);
     const data = {
-      MQOtionID: formState.mqotionId,
+      MQOptionID: formState.mqoptionId,
       MOptionID: formState.moptionId,
       QuestionID: formState.questionId,
       OptionID: formState.optionId,
@@ -111,7 +112,7 @@ const QuestionDetailScreen = () => {
         headers: { "Content-Type": "application/json" },
       });
       setFormState({
-        mqotionId: "",
+        mqoptionId: "",
         moptionId: "",
         questionId: "",
         optionId: "",
@@ -131,15 +132,17 @@ const QuestionDetailScreen = () => {
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
+    console.log(item);
+    
     try {
       if (action === "edit") {
         const response = await axios.post("GetQuestionDetail", {
-          MQOtionID: item,
+          MQOptionID: item,
         });
         const questionDetailData = response.data[0] || {};
 
         setFormState({
-          mqotionId: questionDetailData.ID,
+          mqoptionId: questionDetailData.ID,
           moptionId: questionDetailData.MOptionID,
           questionId: questionDetailData.QuestionID,
           optionId: questionDetailData.OptionID,
@@ -169,7 +172,7 @@ const QuestionDetailScreen = () => {
       o ? o.OptionName : "",
       item.Description,
       item.DisplayOrder,
-      item.ID,
+      item.MQOptionID,
       item.ID,
     ];
   });

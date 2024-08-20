@@ -6,8 +6,8 @@ import { colors, spacing } from "../../theme";
 import {
   CustomTable,
   CustomDropdown,
-  CustomDropdownMulti,
 } from "../components";
+import CustomTablemulti from '../components/CustomTablemulti'
 import validator from "validator";
 
 const QuestionDetailScreen = () => {
@@ -207,14 +207,14 @@ const QuestionDetailScreen = () => {
             <Text style={styles.errorText}>{error.questionId}</Text>
           ) : ""}
 
-          <CustomDropdownMulti
-            fieldName="optionId"
-            title="Option"
-            label="Option"
-            data={option}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.optionId}
+          <CustomTablemulti
+            // fieldName="optionId"
+            // title="Option"
+            // label="Option"
+            // data={option}
+            // updatedropdown={handleChange}
+            // reset={resetDropdown}
+            // selectedValue={formState.optionId}
           />
           {error.optionId ? (
             <Text style={styles.errorText}>{error.optionId}</Text>

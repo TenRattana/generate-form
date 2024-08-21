@@ -1,4 +1,4 @@
-import { StyleSheet, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { StyleSheet, ScrollView, Text, View } from "react-native";
 import React, { useState, useEffect } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
@@ -219,90 +219,88 @@ const QuestionDetailScreen = () => {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <Card>
-          <Card.Title>Create Question Detail</Card.Title>
-          <Card.Divider />
+    <ScrollView style={styles.scrollView}>
+      <Card>
+        <Card.Title>Create Question Detail</Card.Title>
+        <Card.Divider />
 
-          <CustomDropdown
-            fieldName="questionId"
-            title="Question"
-            label="Question"
-            data={question}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.questionId}
+        <CustomDropdown
+          fieldName="questionId"
+          title="Question"
+          label="Question"
+          data={question}
+          updatedropdown={handleChange}
+          reset={resetDropdown}
+          selectedValue={formState.questionId}
+        />
+        {error.questionId ? (
+          <Text style={styles.errorText}>{error.questionId}</Text>
+        ) : (
+          false
+        )}
+
+        <CustomDropdownMulti
+          fieldName="optionId"
+          title="Option"
+          label="Option"
+          data={option}
+          updatedropdown={handleChange}
+          reset={resetDropdown}
+          selectedValue={formState.optionId}
+        />
+        {error.optionId ? (
+          <Text style={styles.errorText}>{error.optionId}</Text>
+        ) : (
+          false
+        )}
+
+        <Input
+          placeholder="Enter Description"
+          label="Description"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) => handleChange("description", text)}
+          value={formState.description}
+        />
+        {error.description ? (
+          <Text style={styles.errorText}>{error.description}</Text>
+        ) : (
+          false
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Create"
+            type="outline"
+            titleStyle={styles.text}
+            containerStyle={styles.containerButton}
+            disabled={!isFormValid()}
+            onPress={saveData}
+            loading={isLoading}
           />
-          {error.questionId ? (
-            <Text style={styles.errorText}>{error.questionId}</Text>
-          ) : (
-            false
-          )}
-
-          <CustomDropdownMulti
-            fieldName="optionId"
-            title="Option"
-            label="Option"
-            data={option}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.optionId}
+          <Button
+            title="Reset"
+            type="outline"
+            titleStyle={styles.text}
+            containerStyle={styles.containerButton}
+            onPress={resetForm}
           />
-          {error.optionId ? (
-            <Text style={styles.errorText}>{error.optionId}</Text>
-          ) : (
-            false
-          )}
+        </View>
+      </Card>
 
-          <Input
-            placeholder="Enter Description"
-            label="Description"
-            labelStyle={styles.text}
-            inputStyle={styles.text}
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleChange("description", text)}
-            value={formState.description}
-          />
-          {error.description ? (
-            <Text style={styles.errorText}>{error.description}</Text>
-          ) : (
-            false
-          )}
-
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Create"
-              type="outline"
-              titleStyle={styles.text}
-              containerStyle={styles.containerButton}
-              disabled={!isFormValid()}
-              onPress={saveData}
-              loading={isLoading}
-            />
-            <Button
-              title="Reset"
-              type="outline"
-              titleStyle={styles.text}
-              containerStyle={styles.containerButton}
-              onPress={resetForm}
-            />
-          </View>
-        </Card>
-
-        <Card>
-          <Card.Title>List Option</Card.Title>
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            flexArr={[1, 3, 3, 5, 1, 1, 1]}
-            editIndex={4}
-            delIndex={5}
-            handleAction={handleAction}
-          />
-        </Card>
-      </ScrollView>
-    </SafeAreaView>
+      <Card>
+        <Card.Title>List Option</Card.Title>
+        <CustomTable
+          Tabledata={tableData}
+          Tablehead={tableHead}
+          flexArr={[1, 3, 3, 5, 1, 1]}
+          editIndex={4}
+          delIndex={5}
+          handleAction={handleAction}
+        />
+      </Card>
+    </ScrollView>
   );
 };
 

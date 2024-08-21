@@ -160,31 +160,31 @@ export const CustomTable = ({
   return responsive === "small" ? (
     rowsData
   ) : (
-    <ScrollView style={styles.containerTable}>
-      <Table>
-        <Row
-          data={Tablehead}
-          style={styles.head}
-          textStyle={styles.textHead}
-          flexArr={flexArr}
-        />
-        <Rows
-          data={rowsData.map((row) =>
-            row.map((cell, cellIndex) =>
-              cellIndex === editIndex || cellIndex === delIndex ? (
-                cell
-              ) : (
-                <Text key={cellIndex} style={styles.text}>
-                  {cell}
-                </Text>
+      <ScrollView style={styles.containerTable}>
+        <Table>
+          <Row
+            data={Tablehead}
+            style={styles.head}
+            textStyle={styles.textHead}
+            flexArr={flexArr}
+          />
+          <Rows
+            data={rowsData.map((row) =>
+              row.map((cell, cellIndex) =>
+                cellIndex === editIndex || cellIndex === delIndex ? (
+                  cell
+                ) : (
+                  <Text key={cellIndex} style={styles.text}>
+                    {cell}
+                  </Text>
+                )
               )
-            )
-          )}
-          style={styles.row}
-          textStyle={styles.text}
-          flexArr={flexArr}
-        />
-      </Table>
-    </ScrollView>
+            )}
+            style={styles.row}
+            textStyle={styles.text}
+            flexArr={flexArr}
+          />
+        </Table>
+      </ScrollView>
   );
 };

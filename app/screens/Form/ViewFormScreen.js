@@ -14,6 +14,7 @@ const ViewFormScreen = () => {
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
   const [form, setForm] = useState([]);
+  const [formName, setFormName] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,6 +23,7 @@ const ViewFormScreen = () => {
           axios.post("GetForm", { formQR: "Registration Form" }),
         ]);
         setForm(formResponse.data || []);
+        setFormName(formResponse.data[0].FormName);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -117,7 +119,7 @@ const ViewFormScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-          <Text style={styles.sectionHead}>{form[0].FormName}</Text>
+      <Text style={styles.sectionHead}>{formName}</Text>
 
       {form.map((item, index) => (
         <View key={index} style={styles.section}>
@@ -164,10 +166,10 @@ const ViewFormScreen = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    marginBottom: 30
+    marginBottom: 30,
   },
   section: {
-    padding:'2%',
+    padding: "2%",
     marginBottom: 20,
     borderRadius: 5,
     backgroundColor: "white",
@@ -177,7 +179,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     marginVertical: 5,
-    marginBottom: 20
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
@@ -213,7 +215,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 50,
     alignSelf: "center",
-    marginBottom: 20
+    marginBottom: 20,
   },
 });
 

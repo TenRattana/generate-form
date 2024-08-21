@@ -1,12 +1,20 @@
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import { Table, TableWrapper, Row, Cell } from "react-native-table-component";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import { Table, Row, Rows, TableWrapper } from "react-native-table-component";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors, spacing, fonts } from "../../theme";
 import { useResponsive } from "./useResponsive";
 
 export const CustomTable = ({
   Tabledata,
   Tablehead,
+  flexArr,
   editIndex,
   delIndex,
   handleAction,
@@ -15,22 +23,32 @@ export const CustomTable = ({
 
   const styles = StyleSheet.create({
     containerTable: {
-      width: responsive === "small" ? "100%" : "90%",
+      width: responsive === "small" ? "100%" : "95%",
       alignSelf: "center",
+      marginVertical: 10,
+      borderRadius: 10,
     },
     head: {
-      height: responsive === "small" ? 30 : responsive === "medium" ? 40 : 50,
-      backgroundColor: colors.secondary,
+      height: responsive === "small" ? 40 : responsive === "medium" ? 50 : 60,
+      borderBottomWidth: 2,
     },
     headerCell: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
+      paddingVertical: spacing.sm,
     },
     row: {
       flexDirection: "row",
-      height: responsive === "small" ? 30 : responsive === "medium" ? 40 : 50,
-      backgroundColor: colors.secondary2,
+      height: responsive === "small" ? 60 : responsive === "medium" ? 50 : 60,
+      borderBottomWidth: 1,
+      borderColor: colors.background,
+    },
+    cardRow: {
+      padding: spacing.md,
+      marginVertical: spacing.sm,
+      borderRadius: 5,
+      borderWidth: 1,
     },
     titleStyled: {
       color: colors.palette.danger,
@@ -38,8 +56,8 @@ export const CustomTable = ({
         responsive === "small"
           ? fonts.xsm
           : responsive === "medium"
-          ? fonts.md
-          : fonts.xmd,
+          ? fonts.sm
+          : fonts.xsm,
     },
     titleStylew: {
       color: colors.palette.primaryLight,
@@ -47,40 +65,49 @@ export const CustomTable = ({
         responsive === "small"
           ? fonts.xsm
           : responsive === "medium"
-          ? fonts.md
-          : fonts.xmd,
-      
+          ? fonts.sm
+          : fonts.xsm,
     },
     text: {
       fontSize:
         responsive === "small"
-          ? fonts.sm
-          : responsive === "medium"
           ? fonts.xsm
-          : fonts.md,
-      alignSelf: "center",
-      color: colors.dark,
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      color: colors.text,
+      alignSelf: responsive === "small" ? "flex-start" : "center",
     },
-    textHead:{
+    textHead: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
       fontWeight: "bold",
+      color: colors.text,
+      alignSelf: responsive === "small" ? "flex-start" : "center",
     },
     button: {
       paddingVertical:
-        responsive === "small" ? 8 : responsive === "medium" ? 10 : 12,
+        responsive === "small"
+          ? spacing.sm
+          : responsive === "medium"
+          ? spacing.md
+          : spacing.lg,
       paddingHorizontal:
-        responsive === "small" ? 15 : responsive === "medium" ? 20 : 25,
+        responsive === "small"
+          ? spacing.md
+          : responsive === "medium"
+          ? spacing.lg
+          : spacing.xl,
       alignItems: "center",
       justifyContent: "center",
     },
   });
 
-  const renderHeader = (header) => (
-    <View style={styles.headerCell}>
-      <Text style={[styles.text , styles.textHead]}>{header}</Text>
-    </View>
-  );
-
-  const Element = (data, action, handleAction) => {
+  const renderActionButton = (data, action) => {
     const handlePress = () => {
       handleAction(action, data);
     };
@@ -88,45 +115,75 @@ export const CustomTable = ({
     if (action === "edit") {
       return (
         <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <Text style={styles.titleStylew}>Edit</Text>
+          <AntDesign name="edit" size={20} color={colors.palette.primary} />
         </TouchableOpacity>
       );
     } else if (action === "del") {
       return (
         <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <Text style={styles.titleStyled}>Delete</Text>
+          <AntDesign name="delete" size={20} color={colors.palette.danger} />
         </TouchableOpacity>
       );
     }
     return null;
   };
 
-  return (
-    <View>
-      <Table borderStyle={{ borderWidth: 1 }} style={styles.containerTable}>
-        <Row
-          data={Tablehead.map((header) => renderHeader(header))}
-          style={styles.head}
-          textStyle={styles.text}
-        />
-
-        {Tabledata.map((rowData, index) => (
-          <TableWrapper key={index} style={styles.row}>
-            {rowData.map((cellData, cellIndex) => (
-              <Cell
-                key={cellIndex}
-                data={
-                  cellIndex === editIndex
-                    ? Element(cellData, "edit", handleAction)
-                    : cellIndex === delIndex
-                    ? Element(cellData, "del", handleAction)
-                    : cellData
-                }
-                textStyle={styles.text}
-              />
-            ))}
-          </TableWrapper>
+  const rowsData = Tabledata.map((rowData, index) =>
+    responsive === "small" ? (
+      <View key={index} style={styles.cardRow}>
+        {Tablehead.map((header, i) => (
+          <View key={i} style={{ marginBottom: spacing.xs }}>
+            <Text style={styles.titleStyled}>{header}:</Text>
+            <Text style={styles.text}>{rowData[i]}</Text>
+          </View>
         ))}
+        <View style={{ flexDirection: "row", marginTop: spacing.md }}>
+          {editIndex >= 0 && renderActionButton(rowData[editIndex], "edit")}
+          {delIndex >= 0 && renderActionButton(rowData[delIndex], "del")}
+        </View>
+      </View>
+    ) : (
+      rowData.map((cellData, cellIndex) =>
+        cellIndex === editIndex ? (
+          renderActionButton(cellData, "edit")
+        ) : cellIndex === delIndex ? (
+          renderActionButton(cellData, "del")
+        ) : (
+          <Text key={cellIndex} style={styles.text}>
+            {cellData}
+          </Text>
+        )
+      )
+    )
+  );
+
+  return responsive === "small" ? (
+    rowsData
+  ) : (
+    <View style={styles.containerTable}>
+      <Table>
+        <Row
+          data={Tablehead}
+          style={styles.head}
+          textStyle={styles.textHead}
+          flexArr={flexArr}
+        />
+        <Rows
+          data={rowsData.map((row) =>
+            row.map((cell, cellIndex) =>
+              cellIndex === editIndex || cellIndex === delIndex ? (
+                cell
+              ) : (
+                <Text key={cellIndex} style={styles.text}>
+                  {cell}
+                </Text>
+              )
+            )
+          )}
+          style={styles.row}
+          textStyle={styles.text}
+          flexArr={flexArr}
+        />
       </Table>
     </View>
   );

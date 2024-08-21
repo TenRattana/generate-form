@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { StyleSheet, ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing } from "../../theme";
+import { colors, spacing, fonts } from "../../theme";
 import { CustomTable, CustomDropdown, useResponsive } from "../components";
 import validator from "validator";
 
@@ -170,129 +170,137 @@ const MachineScreen = () => {
   ];
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor:
-        responsive === "large"
-          ? "lightblue"
-          : responsive === "medium"
-          ? "lightgreen"
-          : "lightcoral",
-    },
-    text: {
-      fontSize: responsive === "large" ? 24 : responsive === "medium" ? 20 : 16,
-    },
     scrollView: {
       flex: 1,
     },
+    text: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      color: colors.text,
+    },
     buttonContainer: {
-      flexDirection: "row",
+      flexDirection: responsive === "large" ? "row" : "column",
       justifyContent: "center",
       alignItems: "center",
     },
     containerButton: {
-      width: responsive === "large" ? 300 : responsive === "medium" ? 250 : 200,
+      width: responsive === "large" ? 300 : "90%",
       marginVertical: "1%",
       marginHorizontal: "2%",
-      alignSelf: "center",
     },
     containerInput: {
       backgroundColor: "darkgray",
+      marginVertical: spacing.md,
     },
     errorText: {
-      top: -12,
-      marginLeft: 8,
-      color: "red",
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      marginLeft: spacing.xs,
+      top: -spacing.xxs,
+      color: colors.danger,
     },
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <Card>
-          <Card.Title>Create Machine</Card.Title>
-          <Card.Divider />
+    <ScrollView style={styles.scrollView}>
+      <Card>
+        <Card.Title>Create Machine</Card.Title>
+        <Card.Divider />
 
-          <CustomDropdown
-            fieldName="machineGroupId"
-            title="Machine Group"
-            label="MGroup"
-            data={machineGroup}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.machineGroupId}
+        <CustomDropdown
+          fieldName="machineGroupId"
+          title="Machine Group"
+          label="MGroup"
+          data={machineGroup}
+          updatedropdown={handleChange}
+          reset={resetDropdown}
+          selectedValue={formState.machineGroupId}
+        />
+
+        {error.machineGroupId && (
+          <Text style={styles.errorText}>{error.machineGroupId}</Text>
+        )}
+
+        <Input
+          placeholder="Enter Machine Name"
+          label="Machine Name"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) => handleChange("machineName", text)}
+          value={formState.machineName}
+        />
+        {error.machineName && (
+          <Text style={styles.errorText}>{error.machineName}</Text>
+        )}
+
+        <Input
+          placeholder="Enter Description"
+          label="Description"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) => handleChange("description", text)}
+          value={formState.description}
+        />
+        {error.description && (
+          <Text style={styles.errorText}>{error.description}</Text>
+        )}
+
+        <Input
+          placeholder="Enter Display Order"
+          label="Display Order"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) => handleChange("displayOrder", text)}
+          value={formState.displayOrder}
+        />
+        {error.displayOrder && (
+          <Text style={styles.errorText}>{error.displayOrder}</Text>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Create"
+            type="outline"
+            titleStyle={styles.text}
+            containerStyle={styles.containerButton}
+            disabled={!isFormValid()}
+            onPress={saveData}
+            loading={isLoading}
           />
-
-          {error.machineGroupId && (
-            <Text style={styles.errorText}>{error.machineGroupId}</Text>
-          )}
-
-          <Input
-            placeholder="Enter Machine Name"
-            label="Machine Name"
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleChange("machineName", text)}
-            value={formState.machineName}
+          <Button
+            title="Reset"
+            type="outline"
+            titleStyle={styles.text}
+            containerStyle={styles.containerButton}
+            onPress={resetForm}
           />
-          {error.machineName && (
-            <Text style={styles.errorText}>{error.machineName}</Text>
-          )}
+        </View>
+      </Card>
 
-          <Input
-            placeholder="Enter Description"
-            label="Description"
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleChange("description", text)}
-            value={formState.description}
-          />
-          {error.description && (
-            <Text style={styles.errorText}>{error.description}</Text>
-          )}
-
-          <Input
-            placeholder="Enter Display Order"
-            label="Display Order"
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleChange("displayOrder", text)}
-            value={formState.displayOrder}
-          />
-          {error.displayOrder && (
-            <Text style={styles.errorText}>{error.displayOrder}</Text>
-          )}
-
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Create"
-              type="outline"
-              containerStyle={styles.containerButton}
-              disabled={!isFormValid()}
-              onPress={saveData}
-              loading={isLoading}
-            />
-            <Button
-              title="Reset"
-              type="outline"
-              containerStyle={styles.containerButton}
-              onPress={resetForm}
-            />
-          </View>
-        </Card>
-
-        <Card>
-          <Card.Title>List Machine</Card.Title>
-          <Card.Divider />
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            editIndex={4}
-            delIndex={5}
-            handleAction={handleAction}
-          />
-        </Card>
-      </ScrollView>
-    </SafeAreaView>
+      <Card>
+        <Card.Title>List Machine</Card.Title>
+        <Card.Divider />
+        <CustomTable
+          Tabledata={tableData}
+          Tablehead={tableHead}
+          flexArr={[2, 2, 3, 1, 1, 1]}
+          editIndex={4}
+          delIndex={5}
+          handleAction={handleAction}
+        />
+      </Card>
+    </ScrollView>
   );
 };
 

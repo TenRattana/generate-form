@@ -2,12 +2,8 @@ import { StyleSheet, SafeAreaView, ScrollView, Text, View } from "react-native";
 import React, { useState, useEffect } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing } from "../../theme";
-import {
-  CustomTable,
-  CustomDropdown,
-} from "../components";
-import CustomTablemulti from '../components/CustomTablemulti'
+import { colors, spacing, fonts } from "../../theme";
+import { CustomTable, CustomDropdown, useResponsive } from "../components";
 import validator from "validator";
 
 const QuestionDetailScreen = () => {
@@ -26,6 +22,7 @@ const QuestionDetailScreen = () => {
   const [resetDropdown, setResetDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const responsive = useResponsive();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,8 +47,7 @@ const QuestionDetailScreen = () => {
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
     console.log(formState);
-    
-    
+
     if (fieldName === "description" && validator.isEmpty(value.trim())) {
       errorMessage = "The Description field is required.";
     } else if (
@@ -133,7 +129,7 @@ const QuestionDetailScreen = () => {
   const handleAction = async (action, item) => {
     setIsLoading(true);
     console.log(item);
-    
+
     try {
       if (action === "edit") {
         const response = await axios.post("GetQuestionDetail", {
@@ -187,6 +183,46 @@ const QuestionDetailScreen = () => {
     "Delete",
   ];
 
+  const styles = StyleSheet.create({
+    scrollView: {
+      flex: 1,
+    },
+    text: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      color: colors.text,
+    },
+    buttonContainer: {
+      flexDirection: responsive === "large" ? "row" : "column",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    containerButton: {
+      width: responsive === "large" ? 300 : "90%",
+      marginVertical: "1%",
+      marginHorizontal: "2%",
+    },
+    containerInput: {
+      backgroundColor: "darkgray",
+      marginVertical: spacing.md,
+    },
+    errorText: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      marginLeft: spacing.xs,
+      top: -spacing.xxs,
+      color: colors.danger,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -205,20 +241,24 @@ const QuestionDetailScreen = () => {
           />
           {error.questionId ? (
             <Text style={styles.errorText}>{error.questionId}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
-          <CustomTablemulti
-            // fieldName="optionId"
-            // title="Option"
-            // label="Option"
-            // data={option}
-            // updatedropdown={handleChange}
-            // reset={resetDropdown}
-            // selectedValue={formState.optionId}
+          <CustomDropdown
+            fieldName="optionId"
+            title="Option"
+            label="Option"
+            data={option}
+            updatedropdown={handleChange}
+            reset={resetDropdown}
+            selectedValue={formState.optionId}
           />
           {error.optionId ? (
             <Text style={styles.errorText}>{error.optionId}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
           <Input
             placeholder="Enter Description"
@@ -229,7 +269,9 @@ const QuestionDetailScreen = () => {
           />
           {error.description ? (
             <Text style={styles.errorText}>{error.description}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
           <Input
             placeholder="Enter Display Order"
@@ -240,7 +282,9 @@ const QuestionDetailScreen = () => {
           />
           {error.displayOrder ? (
             <Text style={styles.errorText}>{error.displayOrder}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
           <View style={styles.buttonContainer}>
             <Button
@@ -274,27 +318,5 @@ const QuestionDetailScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  containerButton: {
-    width: 200,
-    marginVertical: 10,
-    marginHorizontal: 50,
-    alignSelf: "center",
-  },
-  containerInput: {
-    backgroundColor: colors.dark,
-  },
-  errorText: {
-    top: -12,
-    marginLeft: spacing.sm,
-    color: colors.error,
-  },
-});
 
 export default QuestionDetailScreen;

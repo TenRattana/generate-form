@@ -6,9 +6,9 @@ export function useResponsive() {
   const [responsive, setResponsive] = useState('small');
 
   useEffect(() => {
-    if (width > 1000) {
+    if (width > 900) {
       setResponsive('large');
-    } else if (width > 550) {
+    } else if (width > 600) {
       setResponsive('medium');
     } else {
       setResponsive('small');

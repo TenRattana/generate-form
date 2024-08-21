@@ -1,9 +1,9 @@
-import { StyleSheet, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { StyleSheet, ScrollView, Text, View } from "react-native";
 import React, { useState, useEffect } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing } from "../../theme";
-import { CustomTable } from "../components";
+import { colors, spacing, fonts } from "../../theme";
+import { CustomTable, useResponsive } from "../components";
 import validator from "validator";
 
 const QuestionOptionScreen = () => {
@@ -15,6 +15,7 @@ const QuestionOptionScreen = () => {
   const [error, setError] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const responsive = useResponsive();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,77 +121,96 @@ const QuestionOptionScreen = () => {
 
   const tableHead = ["Question Option Name", "Edit", "Delete"];
 
+  const styles = StyleSheet.create({
+    scrollView: {
+      flex: 1,
+    },
+    text: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      color: colors.text,
+    },
+    buttonContainer: {
+      flexDirection: responsive === "large" ? "row" : "column",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    containerButton: {
+      width: responsive === "large" ? 300 : "90%",
+      marginVertical: "1%",
+      marginHorizontal: "2%",
+    },
+    containerInput: {
+      backgroundColor: "darkgray",
+      marginVertical: spacing.md,
+    },
+    errorText: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      marginLeft: spacing.xs,
+      top: -spacing.xxs,
+      color: colors.danger,
+    },
+  });
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <Card>
-          <Card.Title>Create Option</Card.Title>
-          <Card.Divider />
+    <ScrollView style={styles.scrollView}>
+      <Card>
+        <Card.Title>Create Option</Card.Title>
+        <Card.Divider />
 
-          <Input
-            placeholder="Enter Question Option Name"
-            label="Question Option Name"
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleChange("questionOptionName", text)}
-            value={formState.questionOptionName}
+        <Input
+          placeholder="Enter Question Option Name"
+          label="Question Option Name"
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) => handleChange("questionOptionName", text)}
+          value={formState.questionOptionName}
+        />
+        {error.questionOptionName ? (
+          <Text style={styles.errorText}>{error.questionOptionName}</Text>
+        ) : (
+          ""
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Create"
+            type="outline"
+            containerStyle={styles.containerButton}
+            disabled={!isFormValid()}
+            onPress={saveData}
+            loading={isLoading}
           />
-          {error.questionOptionName ? (
-            <Text style={styles.errorText}>{error.questionOptionName}</Text>
-          ) : ""}
-
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Create"
-              type="outline"
-              containerStyle={styles.containerButton}
-              disabled={!isFormValid()}
-              onPress={saveData}
-              loading={isLoading}
-            />
-            <Button
-              title="Reset"
-              type="outline"
-              containerStyle={styles.containerButton}
-              onPress={resetForm}
-            />
-          </View>
-        </Card>
-
-        <Card>
-          <Card.Title>List Option</Card.Title>
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            editIndex={1}
-            delIndex={2}
-            handleAction={handleAction}
+          <Button
+            title="Reset"
+            type="outline"
+            containerStyle={styles.containerButton}
+            onPress={resetForm}
           />
-        </Card>
-      </ScrollView>
-    </SafeAreaView>
+        </View>
+      </Card>
+
+      <Card>
+        <Card.Title>List Option</Card.Title>
+        <CustomTable
+          Tabledata={tableData}
+          Tablehead={tableHead}
+          flexArr={[5, 1, 1]}
+          editIndex={1}
+          delIndex={2}
+          handleAction={handleAction}
+        />
+      </Card>
+    </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  containerButton: {
-    width: 200,
-    marginVertical: 10,
-    marginHorizontal: 50,
-    alignSelf: "center",
-  },
-  containerInput: {
-    backgroundColor: colors.dark,
-  },
-  errorText: {
-    top: -12,
-    marginLeft: spacing.sm,
-    color: colors.error,
-  },
-});
 
 export default QuestionOptionScreen;

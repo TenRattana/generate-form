@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, SafeAreaView, ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing } from "../../theme";
-import { CustomTable } from "../components";
+import { colors, spacing, fonts } from "../../theme";
+import { CustomTable, useResponsive } from "../components";
 import validator from "validator";
 
 const QuestionValidationScreen = () => {
@@ -23,6 +23,7 @@ const QuestionValidationScreen = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const responsive = useResponsive();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -121,9 +122,9 @@ const QuestionValidationScreen = () => {
   };
 
   const handleAction = (action, item) => {
-    console.log(action , item);
-  }
-  
+    console.log(action, item);
+  };
+
   const tableData = machine.map((item) => {
     const index = machineGroup.findIndex(
       (group) => group.MGroupID === item.MGroupID
@@ -148,6 +149,46 @@ const QuestionValidationScreen = () => {
     "Delete",
   ];
 
+  const styles = StyleSheet.create({
+    scrollView: {
+      flex: 1,
+    },
+    text: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      color: colors.text,
+    },
+    buttonContainer: {
+      flexDirection: responsive === "large" ? "row" : "column",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    containerButton: {
+      width: responsive === "large" ? 300 : "90%",
+      marginVertical: "1%",
+      marginHorizontal: "2%",
+    },
+    containerInput: {
+      backgroundColor: "darkgray",
+      marginVertical: spacing.md,
+    },
+    errorText: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      marginLeft: spacing.xs,
+      top: -spacing.xxs,
+      color: colors.danger,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -164,7 +205,9 @@ const QuestionValidationScreen = () => {
           />
           {error.machineGroupId ? (
             <Text style={styles.errorText}>{error.machineGroupId}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
           <Input
             placeholder="Enter Machine Name"
@@ -175,7 +218,9 @@ const QuestionValidationScreen = () => {
           />
           {error.machineName ? (
             <Text style={styles.errorText}>{error.machineName}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
           <Input
             placeholder="Enter Display Order"
@@ -186,7 +231,9 @@ const QuestionValidationScreen = () => {
           />
           {error.displayOrder ? (
             <Text style={styles.errorText}>{error.displayOrder}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
           <Input
             placeholder="Enter Description"
@@ -197,9 +244,11 @@ const QuestionValidationScreen = () => {
           />
           {error.description ? (
             <Text style={styles.errorText}>{error.description}</Text>
-          ) : ""}
+          ) : (
+            ""
+          )}
 
-           <View style={styles.buttonContainer}>
+          <View style={styles.buttonContainer}>
             <Button
               title="Create"
               type="outline"
@@ -231,33 +280,5 @@ const QuestionValidationScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  containerButton: {
-    width: 200,
-    marginVertical: 10,
-    marginHorizontal: 50,
-    alignSelf: "center",
-  },
-  containerInput: {
-    backgroundColor: colors.dark,
-  },
-  errorText: {
-    top: -12,
-    marginLeft: spacing.sm,
-    color: colors.error,
-  },
-});
 
 export default QuestionValidationScreen;

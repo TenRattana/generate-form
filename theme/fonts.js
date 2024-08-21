@@ -2,6 +2,7 @@ export const fonts = {
   xxxs: 2,
   xxs: 4,
   xs: 8,
+  smx:10,
   sm: 12,
   xsm: 14,
   md: 16,

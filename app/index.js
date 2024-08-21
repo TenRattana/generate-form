@@ -15,7 +15,8 @@ const QuestionOptionScreen = lazy(() =>
 const QuestionValidationScreen = lazy(() =>
   import("./screens/QuestionValidationScreen")
 );
-import ViewFormScreen from "./screens/Form/ViewFormScreen";
+const ViewFormScreen = lazy(() => import("./screens/Form/ViewFormScreen"));
+import CreateFormScreen from "./screens/Form/CreateFormScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -39,6 +40,7 @@ const App = () => {
           name="Match Validation"
           component={QuestionValidationScreen}
         />
+        <Drawer.Screen name="Create Form" component={CreateFormScreen} />
         <Drawer.Screen name="View Form" component={ViewFormScreen} />
       </Drawer.Navigator>
     </Suspense>

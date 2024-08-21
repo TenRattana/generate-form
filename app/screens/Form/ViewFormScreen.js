@@ -9,12 +9,14 @@ import {
   Inputs,
 } from "../../components";
 import { Divider, Button } from "@rneui/themed";
+import { useResponsive } from "../../components";
 
 const ViewFormScreen = () => {
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
   const [form, setForm] = useState([]);
   const [formName, setFormName] = useState("");
+  const responsive = useResponsive();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -136,7 +138,9 @@ const ViewFormScreen = () => {
                 style={[
                   styles.gridItem,
                   {
-                    flexBasis: `${90 / item.CardColumns}%`,
+                    flexBasis: `${
+                      responsive === "small" ? 90 : 90 / item.CardColumns
+                    }%`,
                     flexGrow: field.DisplayOrder,
                   },
                 ]}

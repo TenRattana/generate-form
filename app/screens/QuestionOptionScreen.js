@@ -170,6 +170,8 @@ const QuestionOptionScreen = () => {
         <Input
           placeholder="Enter Question Option Name"
           label="Question Option Name"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
           onChangeText={(text) => handleChange("questionOptionName", text)}
           value={formState.questionOptionName}
@@ -177,13 +179,14 @@ const QuestionOptionScreen = () => {
         {error.questionOptionName ? (
           <Text style={styles.errorText}>{error.questionOptionName}</Text>
         ) : (
-          ""
+          false
         )}
 
         <View style={styles.buttonContainer}>
           <Button
             title="Create"
             type="outline"
+            titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
             onPress={saveData}
@@ -192,6 +195,7 @@ const QuestionOptionScreen = () => {
           <Button
             title="Reset"
             type="outline"
+            titleStyle={styles.text}
             containerStyle={styles.containerButton}
             onPress={resetForm}
           />

@@ -206,7 +206,7 @@ const QuestionValidationScreen = () => {
           {error.machineGroupId ? (
             <Text style={styles.errorText}>{error.machineGroupId}</Text>
           ) : (
-            ""
+            false
           )}
 
           <Input
@@ -219,7 +219,7 @@ const QuestionValidationScreen = () => {
           {error.machineName ? (
             <Text style={styles.errorText}>{error.machineName}</Text>
           ) : (
-            ""
+            false
           )}
 
           <Input
@@ -232,7 +232,7 @@ const QuestionValidationScreen = () => {
           {error.displayOrder ? (
             <Text style={styles.errorText}>{error.displayOrder}</Text>
           ) : (
-            ""
+            false
           )}
 
           <Input
@@ -245,13 +245,14 @@ const QuestionValidationScreen = () => {
           {error.description ? (
             <Text style={styles.errorText}>{error.description}</Text>
           ) : (
-            ""
+            false
           )}
 
           <View style={styles.buttonContainer}>
             <Button
               title="Create"
               type="outline"
+              titleStyle={styles.text}
               containerStyle={styles.containerButton}
               disabled={!isFormValid()}
               onPress={saveData}
@@ -260,6 +261,7 @@ const QuestionValidationScreen = () => {
             <Button
               title="Reset"
               type="outline"
+              titleStyle={styles.text}
               containerStyle={styles.containerButton}
               onPress={resetForm}
             />

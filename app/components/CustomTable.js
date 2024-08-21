@@ -160,7 +160,7 @@ export const CustomTable = ({
   return responsive === "small" ? (
     rowsData
   ) : (
-    <View style={styles.containerTable}>
+    <ScrollView style={styles.containerTable}>
       <Table>
         <Row
           data={Tablehead}
@@ -185,6 +185,6 @@ export const CustomTable = ({
           flexArr={flexArr}
         />
       </Table>
-    </View>
+    </ScrollView>
   );
 };

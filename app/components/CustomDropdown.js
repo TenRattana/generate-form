@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors, spacing, fonts } from "../../theme";
+import { useResponsive } from "./useResponsive";
+import Entypo from "@expo/vector-icons/Entypo";
 
 export const CustomDropdown = ({
   fieldName,
@@ -10,11 +12,12 @@ export const CustomDropdown = ({
   title,
   data,
   updatedropdown,
-  reset, 
+  reset,
   selectedValue,
 }) => {
   const [value, setValue] = useState("");
   const [option, setOption] = useState([]);
+  const responsive = useResponsive();
 
   useEffect(() => {
     if (data && Array.isArray(data)) {
@@ -36,16 +39,12 @@ export const CustomDropdown = ({
   }, [reset]);
 
   useEffect(() => {
-    if (selectedValue) {
-      setValue(selectedValue);
-    } else {
-      setValue("");
-    }
+    setValue(selectedValue || "");
   }, [selectedValue]);
 
   const handleDropdownChange = (newValue) => {
     setValue(newValue);
-    updatedropdown(fieldName, newValue);
+    updatedropdown(fieldName, newValue.value);
   };
 
   const handleClear = () => {
@@ -78,12 +77,25 @@ export const CustomDropdown = ({
             size={20}
           />
         )}
+        renderRightIcon={() => (
+          <View style={styles.clearIcon}>
+            {value !== "" ? (
+              <AntDesign
+                name="close"
+                size={20}
+                color={colors.dark}
+                onPress={handleClear}
+              />
+            ) : (
+              <Entypo
+                name="chevron-down"
+                size={20}
+                color={colors.dark}
+              />
+            )}
+          </View>
+        )}
       />
-      {value && (
-        <TouchableOpacity style={styles.clearIcon} onPress={handleClear}>
-          <AntDesign name="close" size={25} color={colors.dark} />
-        </TouchableOpacity>
-      )}
     </View>
   );
 };
@@ -113,8 +125,9 @@ const styles = StyleSheet.create({
     fontSize: fonts.md,
   },
   clearIcon: {
-    position: "absolute",
-    right: spacing.xxl,
-    top: spacing.lg,
+    top:10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.xxs,
   },
 });

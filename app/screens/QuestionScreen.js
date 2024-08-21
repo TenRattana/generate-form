@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, Text, View } from "react-native";
+import { StyleSheet, ScrollView, Text, View  } from "react-native";
 import React, { useState, useEffect } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
@@ -168,6 +168,8 @@ const QuestionForm = () => {
         <Input
           placeholder="Enter Question Name"
           label="Question Name"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
           value={formState.questionName}
           onChangeText={(text) => handleChange("questionName", text)}
@@ -175,13 +177,14 @@ const QuestionForm = () => {
         {error.questionName ? (
           <Text style={styles.errorText}>{error.questionName}</Text>
         ) : (
-          ""
+          false
         )}
 
         <View style={styles.buttonContainer}>
           <Button
             title="Create"
             type="outline"
+            titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
             onPress={saveData}
@@ -190,6 +193,7 @@ const QuestionForm = () => {
           <Button
             title="Reset"
             type="outline"
+            titleStyle={styles.text}
             containerStyle={styles.containerButton}
             onPress={resetForm}
           />

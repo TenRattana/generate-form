@@ -1,18 +1,19 @@
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors, spacing, fonts } from "../../theme";
+import Entypo from "@expo/vector-icons/Entypo";
 
 export const CustomDropdownMulti = ({
-    fieldName,
-    label,
-    title,
-    data,
-    updatedropdown,
-    reset, 
-    selectedValue,
-  }) => {
+  fieldName,
+  label,
+  title,
+  data,
+  updatedropdown,
+  reset,
+  selectedValue,
+}) => {
   const [selected, setSelected] = useState([]);
   const [option, setOption] = useState([]);
 
@@ -24,10 +25,25 @@ export const CustomDropdownMulti = ({
       }))
     );
   }, [data, label]);
-  
+
+  useEffect(() => {
+    if (reset) {
+      setSelected([]);
+    }
+  }, [reset]);
+
+  useEffect(() => {
+    setSelected(selectedValue || []);
+  }, [selectedValue]);
+
   const handleDropdownChange = (newValue) => {
     setSelected(newValue);
-    updatedropdown(fieldName, selected);
+    updatedropdown(fieldName, newValue);
+  };
+
+  const handleClear = () => {
+    setSelected([]);
+    updatedropdown(fieldName, []);
   };
 
   const renderItem = (item) => {
@@ -62,6 +78,20 @@ export const CustomDropdownMulti = ({
             name="addusergroup"
             size={20}
           />
+        )}
+        renderRightIcon={() => (
+          <View style={styles.clearIcon}>
+            {selected.length < 0 ? (
+              <AntDesign
+                name="close"
+                size={20}
+                color={colors.dark}
+                onPress={handleClear}
+              />
+            ) : (
+              <Entypo name="chevron-down" size={20} color={colors.dark} />
+            )}
+          </View>
         )}
         renderItem={renderItem}
         renderSelectedItem={(item, unSelect) => (
@@ -115,7 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     shadowColor: "#000",
     marginLeft: 12,
-    marginVertical:8,
+    marginVertical: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     shadowOffset: {
@@ -129,5 +159,11 @@ const styles = StyleSheet.create({
   textSelectedStyle: {
     marginRight: 5,
     fontSize: 16,
+  },
+  clearIcon: {
+    top: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.xxs,
   },
 });

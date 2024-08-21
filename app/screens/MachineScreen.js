@@ -164,7 +164,7 @@ const MachineScreen = () => {
     "Machine Group Name",
     "Machine Name",
     "Description",
-    "Display Order",
+    "Priority",
     "Edit",
     "Delete",
   ];
@@ -225,8 +225,10 @@ const MachineScreen = () => {
           selectedValue={formState.machineGroupId}
         />
 
-        {error.machineGroupId && (
+        {error.machineGroupId ? (
           <Text style={styles.errorText}>{error.machineGroupId}</Text>
+        ) : (
+          false
         )}
 
         <Input
@@ -238,8 +240,10 @@ const MachineScreen = () => {
           onChangeText={(text) => handleChange("machineName", text)}
           value={formState.machineName}
         />
-        {error.machineName && (
+        {error.machineName ? (
           <Text style={styles.errorText}>{error.machineName}</Text>
+        ) : (
+          false
         )}
 
         <Input
@@ -251,8 +255,10 @@ const MachineScreen = () => {
           onChangeText={(text) => handleChange("description", text)}
           value={formState.description}
         />
-        {error.description && (
+        {error.description ? (
           <Text style={styles.errorText}>{error.description}</Text>
+        ) : (
+          false
         )}
 
         <Input
@@ -264,8 +270,10 @@ const MachineScreen = () => {
           onChangeText={(text) => handleChange("displayOrder", text)}
           value={formState.displayOrder}
         />
-        {error.displayOrder && (
+        {error.displayOrder ? (
           <Text style={styles.errorText}>{error.displayOrder}</Text>
+        ) : (
+          false
         )}
 
         <View style={styles.buttonContainer}>

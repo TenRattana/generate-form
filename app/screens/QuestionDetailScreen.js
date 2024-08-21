@@ -3,7 +3,12 @@ import React, { useState, useEffect } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { colors, spacing, fonts } from "../../theme";
-import { CustomTable, CustomDropdown, useResponsive } from "../components";
+import {
+  CustomTable,
+  CustomDropdown,
+  CustomDropdownMulti,
+  useResponsive,
+} from "../components";
 import validator from "validator";
 
 const QuestionDetailScreen = () => {
@@ -11,13 +16,12 @@ const QuestionDetailScreen = () => {
   const [question, setQuestion] = useState([]);
   const [option, setOption] = useState([]);
   const [formState, setFormState] = useState({
-    mqoptionId: "",
-    moptionId: "",
+    Id: "",
     questionId: "",
     optionId: [],
-    displayOrder: "",
     description: "",
   });
+  const [moptionId, setMoptionId] = useState("");
   const [error, setError] = useState({});
   const [resetDropdown, setResetDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -46,15 +50,9 @@ const QuestionDetailScreen = () => {
 
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
-    console.log(formState);
 
     if (fieldName === "description" && validator.isEmpty(value.trim())) {
       errorMessage = "The Description field is required.";
-    } else if (
-      fieldName === "displayOrder" &&
-      validator.isEmpty(value.trim())
-    ) {
-      errorMessage = "The Display Order field is required.";
     }
 
     setError((prevError) => ({
@@ -72,20 +70,20 @@ const QuestionDetailScreen = () => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "mqoptionId") {
+        if (!isEditing && key === "Id") {
           return true;
         }
-        return value !== "" && value !== "" && String(value).trim() !== "";
+        if (key === "optionId") return value.length > 0;
+        else return value !== "" && String(value).trim() !== "";
       }) && Object.values(error).every((err) => err === "")
     );
   };
 
   const resetForm = () => {
     setFormState({
-      mqoptionId: "",
+      Id: "",
       questionId: "",
-      optionId: "",
-      displayOrder: "",
+      optionId: [],
       description: "",
     });
     setError({});
@@ -94,13 +92,12 @@ const QuestionDetailScreen = () => {
 
   const saveData = async () => {
     setIsLoading(true);
+    console.log(formState, moptionId);
     const data = {
-      MQOptionID: formState.mqoptionId,
-      MOptionID: formState.moptionId,
+      MQOptionID: moptionId,
       QuestionID: formState.questionId,
       OptionID: formState.optionId,
-      Description: formState.displayOrder,
-      DisplayOrder: formState.description,
+      Description: formState.description,
     };
 
     try {
@@ -108,13 +105,12 @@ const QuestionDetailScreen = () => {
         headers: { "Content-Type": "application/json" },
       });
       setFormState({
-        mqoptionId: "",
-        moptionId: "",
+        Id: "",
         questionId: "",
         optionId: "",
-        displayOrder: "",
         description: "",
       });
+      setMoptionId("");
       setError({});
       const response = await axios.post("GetQuestionDetails");
       setDetailQuestion(response.data || []);
@@ -128,29 +124,30 @@ const QuestionDetailScreen = () => {
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
-    console.log(item);
 
     try {
       if (action === "edit") {
         const response = await axios.post("GetQuestionDetail", {
           MQOptionID: item,
         });
-        const questionDetailData = response.data[0] || {};
+        const questionDetailData = response.data[0] || [];
 
+        setMoptionId(questionDetailData.MQOptionID || "");
         setFormState({
-          mqoptionId: questionDetailData.ID,
-          moptionId: questionDetailData.MOptionID,
-          questionId: questionDetailData.QuestionID,
-          optionId: questionDetailData.OptionID,
-          displayOrder: String(questionDetailData.DisplayOrder),
-          description: questionDetailData.Description,
+          Id: questionDetailData.ID || "",
+          questionId: questionDetailData.QuestionID || "",
+          optionId:
+            questionDetailData.MatchQuestionOptions.map(
+              (option) => option.OptionID
+            ) || [],
+          description: questionDetailData.Description || "",
         });
       } else if (action === "del") {
-        const response1 = await axios.post("DeleteQuestionDetail", {
+        await axios.post("DeleteQuestionDetail", {
           MachineID: item,
         });
-        const response2 = await axios.post("GetQuestionDetails");
-        setDetailQuestion(response2.data || []);
+        const response = await axios.post("GetQuestionDetails");
+        setDetailQuestion(response.data || []);
       }
     } catch (error) {
       console.error("Error fetching machine data:", error);
@@ -167,18 +164,16 @@ const QuestionDetailScreen = () => {
       q ? q.QuestionName : "",
       o ? o.OptionName : "",
       item.Description,
-      item.DisplayOrder,
       item.MQOptionID,
       item.ID,
     ];
   });
 
   const tableHead = [
-    "Match Option ID",
+    "Group ID",
     "Question Name",
     "Option Name",
     "Description",
-    "DisplayOrder",
     "Edit",
     "Delete",
   ];
@@ -242,10 +237,10 @@ const QuestionDetailScreen = () => {
           {error.questionId ? (
             <Text style={styles.errorText}>{error.questionId}</Text>
           ) : (
-            ""
+            false
           )}
 
-          <CustomDropdown
+          <CustomDropdownMulti
             fieldName="optionId"
             title="Option"
             label="Option"
@@ -257,12 +252,14 @@ const QuestionDetailScreen = () => {
           {error.optionId ? (
             <Text style={styles.errorText}>{error.optionId}</Text>
           ) : (
-            ""
+            false
           )}
 
           <Input
             placeholder="Enter Description"
             label="Description"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
             disabledInputStyle={styles.containerInput}
             onChangeText={(text) => handleChange("description", text)}
             value={formState.description}
@@ -270,26 +267,14 @@ const QuestionDetailScreen = () => {
           {error.description ? (
             <Text style={styles.errorText}>{error.description}</Text>
           ) : (
-            ""
-          )}
-
-          <Input
-            placeholder="Enter Display Order"
-            label="Display Order"
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleChange("displayOrder", text)}
-            value={formState.displayOrder}
-          />
-          {error.displayOrder ? (
-            <Text style={styles.errorText}>{error.displayOrder}</Text>
-          ) : (
-            ""
+            false
           )}
 
           <View style={styles.buttonContainer}>
             <Button
               title="Create"
               type="outline"
+              titleStyle={styles.text}
               containerStyle={styles.containerButton}
               disabled={!isFormValid()}
               onPress={saveData}
@@ -298,6 +283,7 @@ const QuestionDetailScreen = () => {
             <Button
               title="Reset"
               type="outline"
+              titleStyle={styles.text}
               containerStyle={styles.containerButton}
               onPress={resetForm}
             />
@@ -309,8 +295,9 @@ const QuestionDetailScreen = () => {
           <CustomTable
             Tabledata={tableData}
             Tablehead={tableHead}
-            editIndex={5}
-            delIndex={6}
+            flexArr={[1, 3, 3, 5, 1, 1, 1]}
+            editIndex={4}
+            delIndex={5}
             handleAction={handleAction}
           />
         </Card>

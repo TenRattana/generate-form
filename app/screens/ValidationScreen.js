@@ -170,6 +170,8 @@ const ValidationScreen = () => {
         <Input
           placeholder="Enter Rule Name"
           label="Rule Name"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
           onChangeText={(text) => handleChange("ruleName", text)}
           value={formState.ruleName}
@@ -177,13 +179,14 @@ const ValidationScreen = () => {
         {error.ruleName ? (
           <Text style={styles.errorText}>{error.ruleName}</Text>
         ) : (
-          ""
+          false
         )}
 
         <View style={styles.buttonContainer}>
           <Button
             title="Create"
             type="outline"
+            titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
             onPress={saveData}
@@ -192,6 +195,7 @@ const ValidationScreen = () => {
           <Button
             title="Reset"
             type="outline"
+            titleStyle={styles.text}
             containerStyle={styles.containerButton}
             onPress={resetForm}
           />

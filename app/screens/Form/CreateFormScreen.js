@@ -206,7 +206,7 @@ export default function CreateFormScreen() {
       >
         <Text style={styles.textBuildHead}>Build Form</Text>
         <View style={styles.fieldContainer}>
-          <Dialogs select={DialogField} OpenDialog={OpenDialog} />
+          <Dialogs isVisible={DialogField} onClose={OpenDialog} />
           <Button
             title="Add Field"
             titleStyle={styles.textAdd}

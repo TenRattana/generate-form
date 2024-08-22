@@ -3,14 +3,17 @@ const palette = {
   secondary: "#03dac6",
   secondary2: "#02dac6",
   background: "#f6f6f6",
+  background2: "#4f4f4f",
   gray90: "#909090",
   light: "#ffffff",
   error: "#b00020",
   dark: "#000000",
+  dark4: "#2e2e2e",
   warning: "rgba(255, 193, 7, 1)",
   danger: "rgba(214, 61, 57, 1)",
   primaryLight:'rgba(90, 154, 230, 1)',
-  transparent:'rgba(100, 100, 100, 0.5)'
+  transparent:'rgba(100, 100, 100, 0.5)',
+  blue:'rgb(20, 148, 255)'
 };
 
 export const colors = {

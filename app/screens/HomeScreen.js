@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useState, useEffect } from "react";
-import { colors, spacing } from "../../theme";
+import React, { useState, useEffect , useContext } from "react";
 import axios from "../../config/axios";
+import { ThemeContext } from "../index";
 
 export default function HomeScreen() {
   const [list, setList] = useState([]);
-
+  const theme = useContext(ThemeContext);
   useEffect(() => {
     const getData = async () => {
       const data = await fetchData();
@@ -27,34 +27,34 @@ export default function HomeScreen() {
 
   const styles = StyleSheet.create({
     container: {
-      backgroundColor: colors.background,
+      backgroundColor: theme.colors.background,
       flex: 1,
-      padding: spacing.md,
+      padding: theme.spacing.md,
     },
     textHeader: {
       fontSize: 24,
       alignSelf: "center",
-      margin: spacing.xs,
+      margin: theme.spacing.xs,
     },
     textContent: {
       fontSize: 16,
-      margin: spacing.xs,
-      marginTop: spacing.xl,
-      color: colors.text,
+      margin: theme.spacing.xs,
+      marginTop: theme.spacing.xl,
+      color: theme.colors.text,
     },
     buttonTouche: {
       width: "30%",
-      margin: spacing.xs,
+      margin: theme.spacing.xs,
       height: 35,
       borderRadius: 10,
       elevation: 3,
-      backgroundColor: colors.dark,
+      backgroundColor: theme.colors.dark,
     },
     textInTouche: {
       fontSize: 16,
-      color: colors.light,
+      color: theme.colors.light,
       alignSelf: "center",
-      padding: spacing.xs,
+      padding: theme.spacing.xs,
     },
   });
 

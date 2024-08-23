@@ -218,7 +218,8 @@ const MachineScreen = () => {
         <CustomDropdown
           fieldName="machineGroupId"
           title="Machine Group"
-          label="MGroup"
+          labels="MGroupID"
+          values="MGroupName"
           data={machineGroup}
           updatedropdown={handleChange}
           reset={resetDropdown}

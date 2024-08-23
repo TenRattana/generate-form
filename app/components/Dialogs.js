@@ -1,74 +1,277 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { Dialog } from "@rneui/themed";
+import { Dialog, Input } from "@rneui/themed";
 import { colors, spacing, fonts } from "../../theme";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { CustomDropdown } from "./";
+import axios from "../../config/axios";
 
-const Dialogs = ({ isVisible, onClose }) => {
-  const [currentPage, setCurrentPage] = useState("menu"); 
+const Dialogs = ({
+  isVisible,
+  target,
+  currentField,
+  onClose,
+  data,
+  onDone,
+  onDonestype,
+}) => {
+  const [show, setShow] = useState(isVisible);
+  const [currentPage, setCurrentPage] = useState(target || "menu");
+  const [form, setForm] = useState(data);
+  const [formState, setFormState] = useState({});
+  const [formCard, setFormCard] = useState({});
+  const [questions, setQuestions] = useState([]);
+  const [resetDropdown, setResetDropdown] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post("GetQuestionDetails");
+        setQuestions(response.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    setShow(isVisible);
+    setForm(data);
+    setCurrentPage(target || "menu");
+    setFormCard(currentField || {});
+  }, [isVisible, data, target, currentField]);
+
+  const handleClose = () => {
+    onClose();
+    setCurrentPage("menu");
+  };
+
+  const handleDone = () => {
+    if (currentPage === "menu") return;
+    if (currentPage === "Card") {
+      onDonestype(formCard);
+      setFormCard({});
+    } else {
+      onDone(formState);
+      setFormState({});
+    }
+    handleClose();
+  };
+
+  const handleChange = (key, value, type, menu) => {
+    if (menu === "card") {
+      setFormCard((prevState) => ({
+        ...prevState,
+        [key]: value,
+      }));
+    } else {
+      setFormState((prevState) => ({
+        ...prevState,
+        [key]: value,
+        TypeName: type.toUpperCase(),
+        MQuestionID: value,
+      }));
+    }
+  };
 
   const renderContent = () => {
+    const commonInputs = (
+      <>
+        <Input
+          placeholder="Enter DisplayOrder"
+          label="DisplayOrder"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) =>
+            handleChange("DisplayOrder", text, currentPage)
+          }
+        />
+        <Dialog.Button
+          buttonStyle={styles.button}
+          title={<Text style={styles.buttonText}>Done</Text>}
+          onPress={handleDone}
+        />
+      </>
+    );
+
     switch (currentPage) {
-      case "textInput":
-        return <Text>Text Input Content</Text>;
-      case "dropdown":
-        return <Text>Dropdown Content</Text>;
-      case "radio":
-        return <Text>Radio Content</Text>;
-      case "textarea":
-        return <Text>Textarea Content</Text>;
-      case "checkbox":
-        return <Text>Checkbox Content</Text>;
-      case "file":
-        return <Text>File Content</Text>;
+      case "Header":
+        return (
+          <View>
+            <Input
+              placeholder="Enter Form Name"
+              label="Form Name"
+              labelStyle={styles.text}
+              inputStyle={styles.text}
+              disabledInputStyle={styles.containerInput}
+              onChangeText={(text) => handleChange("FormName", text)}
+            />
+            <Input
+              placeholder="Enter Form Description"
+              label="Form Description"
+              labelStyle={styles.text}
+              inputStyle={styles.text}
+              disabledInputStyle={styles.containerInput}
+              onChangeText={(text) => handleChange("FormDescription", text)}
+            />
+            <Dialog.Button
+              buttonStyle={styles.button}
+              title={<Text style={styles.buttonText}>Done</Text>}
+              onPress={handleDone}
+            />
+          </View>
+        );
+      case "Card":
+        return (
+          <View>
+            <Input
+              placeholder="Enter Card Name"
+              label="Card Name"
+              labelStyle={styles.text}
+              inputStyle={styles.text}
+              disabledInputStyle={styles.containerInput}
+              onChangeText={(text) =>
+                handleChange("CardName", text, null, "card")
+              }
+              value={formCard.CardName || ""}
+            />
+            <Input
+              placeholder="Enter Card Columns"
+              label="Card Columns"
+              labelStyle={styles.text}
+              inputStyle={styles.text}
+              disabledInputStyle={styles.containerInput}
+              onChangeText={(text) =>
+                handleChange("CardColumns", text, null, "card")
+              }
+              value={formCard.CardColumns || ""}
+            />
+            <Dialog.Button
+              buttonStyle={styles.button}
+              title={<Text style={styles.buttonText}>Done</Text>}
+              onPress={handleDone}
+            />
+          </View>
+        );
+      case "Textinput":
+      case "Dropdown":
+      case "Radio":
+      case "Checkbox":
+      case "Textarea":
+      case "File":
+        return (
+          <View>
+            <CustomDropdown
+              fieldName="MQOptionID"
+              title="Question"
+              labels="QuestionName"
+              values="MQOptionID"
+              data={questions}
+              updatedropdown={(fieldName, value) =>
+                handleChange(fieldName, value, currentPage.toUpperCase())
+              }
+              reset={resetDropdown}
+              selectedValue={formState.questionId}
+            />
+            {commonInputs}
+          </View>
+        );
       default:
         return (
           <View style={styles.menuContainer}>
             <Dialog.Button
               buttonStyle={styles.button}
-              icon={<MaterialCommunityIcons name="format-text" size={20} color={colors.palette.light} />}
+              icon={
+                <MaterialCommunityIcons
+                  name="cards-variant"
+                  size={20}
+                  color={colors.palette.light}
+                />
+              }
+              iconPosition="top"
+              title={<Text style={styles.buttonText}>Card</Text>}
+              onPress={() => setCurrentPage("Card")}
+            />
+            <Dialog.Button
+              buttonStyle={styles.button}
+              icon={
+                <FontAwesome5
+                  name="text-width"
+                  size={20}
+                  color={colors.palette.light}
+                />
+              }
               iconPosition="top"
               title={<Text style={styles.buttonText}>Text Input</Text>}
-              onPress={() => setCurrentPage("textInput")}
+              onPress={() => setCurrentPage("Textinput")}
             />
             <Dialog.Button
               buttonStyle={styles.button}
-              icon={<Feather name="list" size={20} color={colors.palette.light} />}
+              icon={
+                <Feather name="list" size={20} color={colors.palette.light} />
+              }
               iconPosition="top"
               title={<Text style={styles.buttonText}>Dropdown</Text>}
-              onPress={() => setCurrentPage("dropdown")}
+              onPress={() => setCurrentPage("Dropdown")}
             />
             <Dialog.Button
               buttonStyle={styles.button}
-              icon={<Ionicons name="radio-button-on" size={20} color={colors.palette.light} />}
+              icon={
+                <Ionicons
+                  name="radio-button-on"
+                  size={20}
+                  color={colors.palette.light}
+                />
+              }
               iconPosition="top"
               title={<Text style={styles.buttonText}>Radio</Text>}
-              onPress={() => setCurrentPage("radio")}
+              onPress={() => setCurrentPage("Radio")}
             />
             <Dialog.Button
               buttonStyle={styles.button}
-              icon={<FontAwesome5 name="text-width" size={20} color={colors.palette.light} />}
+              icon={
+                <FontAwesome5
+                  name="text-width"
+                  size={20}
+                  color={colors.palette.light}
+                />
+              }
               iconPosition="top"
               title={<Text style={styles.buttonText}>Textarea</Text>}
-              onPress={() => setCurrentPage("textarea")}
+              onPress={() => setCurrentPage("Textarea")}
             />
             <Dialog.Button
               buttonStyle={styles.button}
-              icon={<AntDesign name="checksquare" size={20} color={colors.palette.light} />}
+              icon={
+                <AntDesign
+                  name="checksquare"
+                  size={20}
+                  color={colors.palette.light}
+                />
+              }
               iconPosition="top"
               title={<Text style={styles.buttonText}>Checkbox</Text>}
-              onPress={() => setCurrentPage("checkbox")}
+              onPress={() => setCurrentPage("Checkbox")}
             />
             <Dialog.Button
               buttonStyle={styles.button}
-              icon={<AntDesign name="addfile" size={20} color={colors.palette.light} />}
+              icon={
+                <AntDesign
+                  name="addfile"
+                  size={20}
+                  color={colors.palette.light}
+                />
+              }
               iconPosition="top"
               title={<Text style={styles.buttonText}>File</Text>}
-              onPress={() => setCurrentPage("file")}
+              onPress={() => setCurrentPage("File")}
             />
           </View>
         );
@@ -76,71 +279,63 @@ const Dialogs = ({ isVisible, onClose }) => {
   };
 
   return (
-    <Dialog
-      isVisible={isVisible}
-      onBackdropPress={onClose}
-      overlayStyle={styles.dialogContainer}
-    >
+    <Dialog isVisible={show}>
       <View style={styles.headerContainer}>
-        <Dialog.Title title="Add Field" />
         <Dialog.Button
-          title="CANCEL"
-          onPress={onClose}
+          title={currentPage === "menu" ? "Cancel" : "Back"}
+          onPress={
+            currentPage === "menu" ? handleClose : () => setCurrentPage("menu")
+          }
+          titleStyle={styles.cancelTextButton}
           buttonStyle={styles.cancelButton}
           containerStyle={styles.cancelButtonContainer}
         />
+        <Dialog.Title
+          title={currentPage === "menu" ? "Add Field" : currentPage}
+        />
       </View>
-      <View style={styles.contentContainer}>
-        {renderContent()}
-      </View>
+      {renderContent()}
     </Dialog>
   );
 };
 
 const styles = StyleSheet.create({
-  dialogContainer: {
-    padding: spacing.sm,
-    width: 350,
-    height: 400,
-    alignSelf: "center",
-    position: "absolute",
-    top: 100,
-    left: "2%",
-  },
   headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    padding: spacing.md,
   },
-  cancelButton: {
-    backgroundColor: colors.palette.background2,
+  cancelTextButton: {
+    fontSize: fonts.md,
   },
+  cancelButton: {},
   cancelButtonContainer: {
     flex: 1,
-    alignItems: "flex-start",
+    alignSelf: "flex-start",
   },
-  menuContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
+  text: {
+    fontFamily: fonts.primary,
+    fontSize: 16,
+    color: colors.palette.dark,
   },
   button: {
-    padding: 2,
-    backgroundColor: colors.palette.background2,
-    borderColor: colors.palette.dark4,
-    borderWidth: 1,
-    width: 100,
-    height: 50,
-    borderRadius: spacing.xxs,
+    width: 120,
     margin: spacing.xxs,
+    backgroundColor: colors.palette.primary,
   },
   buttonText: {
-    fontSize: fonts.sm,
     color: colors.palette.light,
+    fontFamily: fonts.primary,
   },
-  contentContainer: {
-    marginTop: spacing.sm,
+  menuContainer: {
+    margin: spacing.sm,
+    width: "80%",
     alignItems: "center",
+    alignSelf: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  containerInput: {
+    backgroundColor: colors.palette.background,
   },
 });
 

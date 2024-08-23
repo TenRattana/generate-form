@@ -9,6 +9,8 @@ import Entypo from "@expo/vector-icons/Entypo";
 export const CustomDropdown = ({
   fieldName,
   label,
+  labels,
+  values,
   title,
   data,
   updatedropdown,
@@ -23,14 +25,14 @@ export const CustomDropdown = ({
     if (data && Array.isArray(data)) {
       setOption(
         data.map((item) => ({
-          label: item[label + "Name"] || "",
-          value: item[label + "ID"] || "",
+          label: item[labels] || "",
+          value: item[values] || "",
         }))
       );
     } else {
       setOption([]);
     }
-  }, [data, label]);
+  }, [data, labels, values]);
 
   useEffect(() => {
     if (reset) {
@@ -87,11 +89,7 @@ export const CustomDropdown = ({
                 onPress={handleClear}
               />
             ) : (
-              <Entypo
-                name="chevron-down"
-                size={20}
-                color={colors.dark}
-              />
+              <Entypo name="chevron-down" size={20} color={colors.dark} />
             )}
           </View>
         )}
@@ -125,9 +123,9 @@ const styles = StyleSheet.create({
     fontSize: fonts.md,
   },
   clearIcon: {
-    top:10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    top: 10,
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: spacing.xxs,
   },
 });

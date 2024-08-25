@@ -1,301 +1,269 @@
-import React, { useState, useReducer } from "react";
-import { StyleSheet, ScrollView, Text, View } from "react-native";
-import { colors, spacing, fonts } from "../../../theme";
-import { Button, Divider } from "@rneui/themed";
+import React, { useState } from "react";
 import {
-  Selects,
-  Radios,
-  Checkboxs,
-  Textareas,
-  Inputs,
-  useResponsive,
-  Dialogs,
-} from "../../components";
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { Dialog } from "@rneui/themed";
+import DynamicForm from "../../components/DynamicForm"; // Import your DynamicForm component
 
-const initialState = {
-  fields: [],
-};
+const FormBuilder = () => {
+  const [cards, setCards] = useState([]);
+  const [showCardDialog, setShowCardDialog] = useState(false);
+  const [showFieldDialog, setShowFieldDialog] = useState(false);
+  const [selectedCardIndex, setSelectedCardIndex] = useState(null);
+  const [selectedFieldIndex, setSelectedFieldIndex] = useState(null);
+  const [newCardName, setNewCardName] = useState("");
+  const [newCardColumn, setNewCardColumn] = useState("");
+  const [newFieldName, setNewFieldName] = useState("");
+  const [editMode, setEditMode] = useState(false);
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "ADD_FIELD":
-      return {
-        ...state,
-        fields: [...state.fields, { ...action.payload, formData: [] }],
-      };
-
-    case "UPDATE_FIELD":
-      return {
-        ...state,
-        fields: state.fields.map((field) =>
-          field.MQuestionID === action.payload.MQuestionID
-            ? { ...field, ...action.payload }
-            : field
-        ),
-      };
-
-    case "ADD_FORM_DATA":
-      return {
-        ...state,
-        fields: state.fields.map((field) =>
-          field.CardName === action.payload.fieldName
-            ? {
-                ...field,
-                formData: [...field.formData, action.payload.formData],
-              }
-            : field
-        ),
-      };
-
-    default:
-      return state;
-  }
-};
-
-const CreateFormScreen = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const [dialogVisible, setDialogVisible] = useState(false);
-  const [dialogData, setDialogData] = useState(null);
-  const [currentField, setCurrentField] = useState(null);
-  const [target, setTarget] = useState(null);
-  const [dataForm, setDataForm] = useState({});
-  const responsive = useResponsive();
-
-  const handleOpenDialog = (field, target) => {
-    setCurrentField(field);
-    setTarget(target);
-    setDialogVisible(true);
+  const addCard = () => {
+    setCards([
+      ...cards,
+      { name: newCardName, columns: parseInt(newCardColumn, 10), fields: [] },
+    ]);
+    setShowCardDialog(false);
+    setNewCardName("");
+    setNewCardColumn("");
   };
 
-  const handleCloseDialog = () => {
-    setDialogVisible(false);
-    setTarget(null);
+  const updateCard = () => {
+    const updatedCards = [...cards];
+    updatedCards[selectedCardIndex] = {
+      ...updatedCards[selectedCardIndex],
+      name: newCardName,
+      columns: parseInt(newCardColumn, 10),
+    };
+    setCards(updatedCards);
+    setShowCardDialog(false);
+    setNewCardName("");
+    setNewCardColumn("");
+    setEditMode(false);
   };
 
-  const handleDialogDone = (formData) => {
-    if (currentField) {
-      dispatch({
-        type: "ADD_FORM_DATA",
-        payload: { fieldName: currentField.CardName, formData },
-      });
-    }
-    handleCloseDialog();
+  const addField = () => {
+    const updatedCards = [...cards];
+    updatedCards[selectedCardIndex].fields.push({
+      name: newFieldName,
+      type: "text",
+    }); // Change type as needed
+    setCards(updatedCards);
+    setShowFieldDialog(false);
+    setNewFieldName("");
   };
 
-  const handleDialogDoneType = (data) => {
-    const existingField = state.fields.find(
-      (field) => field.MQuestionID === data.MQuestionID
-    );
-
-    console.log(data);
-    
-    dispatch(
-      existingField
-        ? { type: "UPDATE_FIELD", payload: data }
-        : { type: "ADD_FIELD", payload: data }
-    );
-    handleCloseDialog();
+  const updateField = () => {
+    const updatedCards = [...cards];
+    updatedCards[selectedCardIndex].fields[selectedFieldIndex].name =
+      newFieldName;
+    setCards(updatedCards);
+    setShowFieldDialog(false);
+    setNewFieldName("");
+    setEditMode(false);
   };
 
-  const handleChange = (name, value, type) => {
-    setDataForm({
-      ...dataForm,
-      [name]: type === "CHECKBOX" ? value : value,
-    });
+  const closeField = () => {
+    setShowFieldDialog(false);
+    setNewFieldName("");
+    setEditMode(false);
   };
 
-  const renderField = (field) => {
-    switch (field.TypeName) {
-      case "DROPDOWN":
-        return (
-          <Selects
-            field={field}
-            formData={dataForm}
-            handleChange={handleChange}
-          />
-        );
-      case "RADIO":
-        return (
-          <Radios
-            field={field}
-            formData={dataForm}
-            handleChange={handleChange}
-          />
-        );
-      case "CHECKBOX":
-        return (
-          <Checkboxs
-            field={field}
-            formData={dataForm}
-            handleChange={handleChange}
-          />
-        );
-      case "TEXTAREA":
-        return (
-          <Textareas
-            field={field}
-            formData={dataForm}
-            handleChange={handleChange}
-          />
-        );
-      case "FILE":
-        return (
-          <View style={styles.fileContainer}>
-            <Text>File Upload</Text>
+  const closeCard = () => {
+    setShowCardDialog(false);
+    setNewCardName("");
+    setNewCardColumn("");
+    setEditMode(false);
+  };
+
+  const renderCard = ({ item, index }) => (
+    <View style={styles.card}>
+      <Text>Card: {item.name}</Text>
+      <Text>Columns: {item.columns}</Text>
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedCardIndex(index);
+          setNewCardName(item.name);
+          setNewCardColumn(item.columns.toString());
+          setEditMode(true);
+          setShowCardDialog(true);
+        }}
+      >
+        <Text style={styles.button}>Edit Card</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedCardIndex(index);
+          setShowFieldDialog(true);
+        }}
+      >
+        <Text style={styles.button}>Add Field</Text>
+      </TouchableOpacity>
+      {item.fields.map((field, idx) => (
+        <TouchableOpacity
+          key={idx}
+          onPress={() => {
+            setSelectedFieldIndex(idx);
+            setNewFieldName(field.name);
+            setEditMode(true);
+            setShowFieldDialog(true);
+          }}
+        >
+          <Text style={styles.button}>{field.name}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+  const renderLayout2 = () => (
+    <FlatList
+      data={cards}
+      renderItem={({ item }) => (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{item.name}</Text>
+          <View style={styles.formContainer}>
+            {item.fields.map((field, index) => {
+              const columnWidth = `${100 / item.columns}%`;
+              const containerStyle = {
+                width: columnWidth,
+                flex: item.columns > 1 ? 1 : 0,
+                padding: 5,
+              };
+
+              return (
+                <View key={index} style={containerStyle}>
+                  <DynamicForm fields={[field]} />
+                </View>
+              );
+            })}
+            {/* Fill in remaining columns with empty spaces if fields are less than columns */}
+            {item.fields.length % item.columns !== 0 &&
+              Array.from({
+                length: item.columns - (item.fields.length % item.columns),
+              }).map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.fieldContainer,
+                    { width: `${100 / item.columns}%`, opacity: 0 },
+                  ]}
+                />
+              ))}
           </View>
-        );
-      case "TEXTINPUT":
-        return (
-          <Inputs
-            field={field}
-            formData={dataForm}
-            handleChange={handleChange}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+        </View>
+      )}
+      keyExtractor={(item, index) => index.toString()}
+    />
+  );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.textBuildHead}>Build Form</Text>
-      <View style={styles.boxContainer}>
-        <View style={styles.leftBox}>
-          <Text style={styles.boxTitle}>Add Card and Form Data</Text>
-          {state.fields.map((field, index) => (
-            <View key={index} style={styles.section}>
-              <Button
-                buttonStyle={styles.button}
-                onPress={() => handleOpenDialog(field, "Card")}
-              >
-                {field.CardName}
-              </Button>
-              <View>
-                <Divider />
-                {field.formData.map((form, formIndex) => (
-                  <View key={formIndex}>
-                    <Button
-                      buttonStyle={styles.button}
-                      onPress={() => handleOpenDialog(field, "FormData")}
-                    >
-                      {form.MQOptionID}
-                    </Button>
-                  </View>
-                ))}
-              </View>
-              <Button
-                buttonStyle={styles.button}
-                onPress={() => handleOpenDialog(field, "AddField")}
-              >
-                Add Field
-              </Button>
-            </View>
-          ))}
-          <Button
-            buttonStyle={styles.button}
-            onPress={() => handleOpenDialog({}, "AddCard")}
-          >
-            Add Card
-          </Button>
-        </View>
-        <View style={styles.rightBox}>
-          <Text style={styles.boxTitle}>Display Data</Text>
-          {state.fields.map((field, index) => (
-            <View key={index} style={styles.section}>
-              <Text style={styles.sectionTitle}>{field.CardName}</Text>
-              <View
-                style={[
-                  styles.gridContainer,
-                  { gridTemplateColumns: `repeat(${field.CardColumns}, 1fr)` },
-                ]}
-              >
-                <Divider />
-                {field.formData.map((form, formIndex) => (
-                  <View
-                    key={formIndex}
-                    style={[
-                      styles.gridItem,
-                      {
-                        flexBasis: `${
-                          responsive === "small" ? 90 : 90 / field.CardColumns
-                        }%`,
-                      },
-                    ]}
-                  >
-                    <Text>{form.MQOptionID}</Text>
-                    {renderField(form)}
-                  </View>
-                ))}
-              </View>
-            </View>
-          ))}
-        </View>
+    <View style={styles.container}>
+      <View style={styles.layout1}>
+        <Button
+          title="Add Card"
+          onPress={() => {
+            setEditMode(false);
+            setShowCardDialog(true);
+          }}
+        />
+        <FlatList
+          data={cards}
+          renderItem={renderCard}
+          keyExtractor={(item, index) => index.toString()}
+        />
+
+        <Dialog isVisible={showCardDialog}>
+          <View style={styles.dialogContainer}>
+            <TextInput
+              placeholder="Card Name"
+              value={newCardName}
+              onChangeText={setNewCardName}
+            />
+            <TextInput
+              placeholder="Number of Columns"
+              value={newCardColumn}
+              onChangeText={setNewCardColumn}
+              keyboardType="numeric"
+            />
+            <Button
+              title={editMode ? "Update Card" : "Add Card"}
+              onPress={editMode ? updateCard : addCard}
+            />
+            <Button title="Cancel" onPress={closeCard} />
+          </View>
+        </Dialog>
+
+        <Dialog isVisible={showFieldDialog}>
+          <View style={styles.dialogContainer}>
+            <TextInput
+              placeholder="Field Name"
+              value={newFieldName}
+              onChangeText={setNewFieldName}
+            />
+            <Button
+              title={editMode ? "Update Field" : "Add Field"}
+              onPress={editMode ? updateField : addField}
+            />
+            <Button title="Cancel" onPress={closeField} />
+          </View>
+        </Dialog>
       </View>
-      <Dialogs
-        isVisible={dialogVisible}
-        currentField={currentField}
-        target={target}
-        onClose={handleCloseDialog}
-        data={dialogData}
-        onDone={handleDialogDone}
-        onDonestype={handleDialogDoneType}
-      />
-    </ScrollView>
+
+      <View style={styles.layout2}>{renderLayout2()}</View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: spacing.sm,
-  },
-  textBuildHead: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  boxContainer: {
+    flex: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
   },
-  leftBox: {
-    flex: 3, // Adjust the size ratio here
-    marginRight: spacing.sm,
+  layout1: {
+    width: "30%",
+    padding: 10,
   },
-  rightBox: {
-    flex: 7, // Adjust the size ratio here
+  layout2: {
+    width: "70%",
+    padding: 10,
   },
-  section: {
-    padding: "2%",
-    marginBottom: 20,
-    borderRadius: 5,
-    backgroundColor: "white",
+  card: {
+    padding: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
   },
-  sectionTitle: {
+  cardTitle: {
     fontSize: 18,
     fontWeight: "bold",
   },
-  gridContainer: {
+  dialogContainer: {
+    padding: 20,
+  },
+  button: {
+    padding: 10,
+    backgroundColor: "#007bff",
+    color: "#fff",
+    textAlign: "center",
+    borderRadius: 4,
+    marginBottom: 10,
+  },
+  formContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  gridItem: {
-    margin: 5,
-  },
-  fileContainer: {
-    padding: 10,
-    backgroundColor: colors.palette.background,
-  },
-  button: {
-    backgroundColor: colors.palette.primary,
-    marginVertical: spacing.xxs,
-  },
-  boxTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
+  fieldContainer: {
+    padding: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    flexBasis: 0,
   },
 });
 
-export default CreateFormScreen;
+export default FormBuilder;

@@ -7,7 +7,8 @@ import Entypo from "@expo/vector-icons/Entypo";
 
 export const CustomDropdownMulti = ({
   fieldName,
-  label,
+  labels,
+  values,
   title,
   data,
   updatedropdown,
@@ -18,13 +19,17 @@ export const CustomDropdownMulti = ({
   const [option, setOption] = useState([]);
 
   useEffect(() => {
-    setOption(
-      data.map((item) => ({
-        label: item[label + "Name"],
-        value: item[label + "ID"],
-      }))
-    );
-  }, [data, label]);
+    if (data && Array.isArray(data)) {
+      setOption(
+        data.map((item) => ({
+          label: item[labels] || "",
+          value: item[values] || "",
+        }))
+      );
+    } else {
+      setOption([]);
+    }
+  }, [data, labels, values]);
 
   useEffect(() => {
     if (reset) {
@@ -38,7 +43,7 @@ export const CustomDropdownMulti = ({
 
   const handleDropdownChange = (newValue) => {
     setSelected(newValue);
-    updatedropdown(fieldName, newValue);
+    updatedropdown(fieldName, newValue.value);
   };
 
   const handleClear = () => {

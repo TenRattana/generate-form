@@ -8,7 +8,6 @@ import Entypo from "@expo/vector-icons/Entypo";
 
 export const CustomDropdown = ({
   fieldName,
-  label,
   labels,
   values,
   title,

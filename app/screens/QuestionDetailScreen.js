@@ -227,8 +227,8 @@ const QuestionDetailScreen = () => {
         <CustomDropdown
           fieldName="questionId"
           title="Question"
-          labels="QuestionID"
-          values="QuestionName"
+          labels="QuestionName"
+          values="QuestionID"
           data={question}
           updatedropdown={handleChange}
           reset={resetDropdown}
@@ -243,8 +243,8 @@ const QuestionDetailScreen = () => {
         <CustomDropdownMulti
           fieldName="optionId"
           title="Option"
-          labels="Option"
-          values="OptionName"
+          labels="OptionName"
+          values="OptionID"
           data={option}
           updatedropdown={handleChange}
           reset={resetDropdown}

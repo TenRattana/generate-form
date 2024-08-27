@@ -92,7 +92,6 @@ const QuestionDetailScreen = () => {
 
   const saveData = async () => {
     setIsLoading(true);
-    console.log(formState, moptionId);
     const data = {
       MQOptionID: moptionId,
       QuestionID: formState.questionId,
@@ -155,19 +154,26 @@ const QuestionDetailScreen = () => {
     setIsLoading(false);
   };
 
-  const tableData = detailQuestion.map((item) => {
+  const tableData = detailQuestion.flatMap((item, idx) => {
     const q = question.find((group) => group.QuestionID === item.QuestionID);
-    const o = option.find((group) => group.OptionID === item.OptionID);
 
-    return [
-      item.MQOptionID,
-      q ? q.QuestionName : "",
-      o ? o.OptionName : "",
-      item.Description,
-      item.MQOptionID,
-      item.ID,
-    ];
+    if (item.MatchQuestionOptions.length > 0) {
+      return item.MatchQuestionOptions.map((mqo, index) => {
+        const o = option.find((group) => group.OptionID === mqo.OptionID);
+
+        return [
+          index === 0 ? `Grop ${idx + 1}` : "",
+          index === 0 ? (q ? q.QuestionName : "") : "",
+          o ? o.OptionName : "",
+          index === 0 ? mqo.Description : "",
+          index === 0 ? item.MQOptionID : "",
+          index === 0 ? item.ID : "",
+        ];
+      });
+    }
   });
+
+  console.log(tableData);
 
   const tableHead = [
     "Group ID",
@@ -293,6 +299,7 @@ const QuestionDetailScreen = () => {
 
       <Card>
         <Card.Title>List Option</Card.Title>
+        <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}

@@ -204,6 +204,7 @@ const QuestionOptionScreen = () => {
 
       <Card>
         <Card.Title>List Option</Card.Title>
+        <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}

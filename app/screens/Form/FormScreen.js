@@ -108,12 +108,6 @@ const Forms = () => {
     <ScrollView style={styles.scrollView}>
       <Card>
         <Card.Title>List Question</Card.Title>
-          <Button
-            title="New Form"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-          />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}

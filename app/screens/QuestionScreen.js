@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, Text, View  } from "react-native";
+import { StyleSheet, ScrollView, Text, View } from "react-native";
 import React, { useState, useEffect } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
@@ -202,6 +202,7 @@ const QuestionForm = () => {
 
       <Card>
         <Card.Title>List Question</Card.Title>
+        <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}

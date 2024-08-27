@@ -169,7 +169,6 @@ const FormBuilder = () => {
     typeId: "",
     dataTypeId: "",
     displayOrder: "",
-    machineId: "",
     placeholder: "",
   });
   const [resetDropdown, setResetDropdown] = useState(false);
@@ -235,7 +234,7 @@ const FormBuilder = () => {
   };
 
   const saveForm = () => {
-    console.log(state);
+    console.log(state, form);
   };
 
   const saveCard = (option) => {
@@ -316,7 +315,6 @@ const FormBuilder = () => {
       typeId: "",
       dataTypeId: "",
       displayOrder: "",
-      machineId: "",
       placeholder: "",
     });
     setShowFieldDialog(false);
@@ -330,7 +328,6 @@ const FormBuilder = () => {
       typeId: "",
       dataTypeId: "",
       displayOrder: "",
-      machineId: "",
       placeholder: "",
     });
     setShowFieldDialog(false);
@@ -563,17 +560,6 @@ const FormBuilder = () => {
             disabledInputStyle={styles.containerInput}
             onChangeText={(text) => handleForm("formName", text)}
             value={form.formName}
-          />
-          <CustomDropdown
-            fieldName="machineId"
-            title="Machine"
-            labels="MachineName"
-            values="MachineID"
-            data={machine}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.machineId}
-            optionStyle={{ color: colors.palette.light }}
           />
           <TouchableOpacity
             onPress={() => {

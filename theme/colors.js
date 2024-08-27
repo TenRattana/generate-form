@@ -11,9 +11,10 @@ const palette = {
   dark4: "#2e2e2e",
   warning: "rgba(255, 193, 7, 1)",
   danger: "rgba(214, 61, 57, 1)",
-  primaryLight:'rgba(90, 154, 230, 1)',
-  transparent:'rgba(100, 100, 100, 0.5)',
-  blue:'rgb(20, 148, 255)'
+  primaryLight: "rgba(90, 154, 230, 1)",
+  transparent: "rgba(100, 100, 100, 0.5)",
+  blue: "rgb(20, 148, 255)",
+  green: "#1be000",
 };
 
 export const colors = {

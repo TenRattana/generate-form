@@ -1,33 +1,16 @@
-import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TextArea,
-  RadioGroup,
-  Dropdown,
-  CheckBox,
-  FileInput,
-  Text,
-} from "react-native";
-import { Input } from "@rneui/themed";
+import React, { useState, useMemo } from "react";
+import { View, StyleSheet, Text } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 import { useResponsive } from "./useResponsive";
 
 import { Selects, Radios, Checkboxs, Textareas, Inputs } from "./index";
 
-const DynamicForm = ({ fields, type, dataType }) => {
+const DynamicForm = ({ fields }) => {
   const [formState, setFormState] = useState({});
+
   const responsive = useResponsive();
-  const [error, setError] = useState({});
 
   const handleChange = (fieldName, value) => {
-    let errorMessage = "";
-
-    setError((prevError) => ({
-      ...prevError,
-      [fieldName]: errorMessage,
-    }));
-
     setFormState((prevState) => ({
       ...prevState,
       [fieldName]: value,
@@ -35,9 +18,7 @@ const DynamicForm = ({ fields, type, dataType }) => {
   };
 
   const renderField = (field) => {
-    const fieldType = type.find((v) => v.TypeID === field.typeId)?.TypeName;
-
-    switch (fieldType) {
+    switch (field.TypeName) {
       case "TEXTINPUT":
         return (
           <Inputs
@@ -120,12 +101,13 @@ const DynamicForm = ({ fields, type, dataType }) => {
       fontWeight: "bold",
     },
   });
+
   return (
     <View>
       {fields.map((field, index) => (
         <View key={index} style={styles.section}>
           <Text style={[styles.text, { color: colors.palette.dark }]}>
-            {field.questionId}
+            {field.QuestionName}
           </Text>
           {renderField(field)}
         </View>

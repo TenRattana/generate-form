@@ -15,6 +15,7 @@ export const CustomDropdown = ({
   updatedropdown,
   reset,
   selectedValue,
+  optionStyle,
 }) => {
   const [value, setValue] = useState("");
   const [option, setOption] = useState([]);
@@ -57,10 +58,10 @@ export const CustomDropdown = ({
     <View>
       <Dropdown
         style={styles.dropdown}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
+        placeholderStyle={[styles.placeholderStyle, optionStyle]}
+        selectedTextStyle={[styles.selectedTextStyle, optionStyle]}
+        inputSearchStyle={[styles.inputSearchStyle, optionStyle]}
+        iconStyle={[styles.iconStyle, optionStyle]}
         data={option}
         search
         maxHeight={300}
@@ -73,7 +74,7 @@ export const CustomDropdown = ({
         renderLeftIcon={() => (
           <AntDesign
             style={styles.icon}
-            color={colors.dark}
+            color={optionStyle ? colors.palette.light : colors.dark}
             name="addusergroup"
             size={20}
           />
@@ -84,11 +85,15 @@ export const CustomDropdown = ({
               <AntDesign
                 name="close"
                 size={20}
-                color={colors.dark}
+                color={optionStyle ? colors.palette.light : colors.dark}
                 onPress={handleClear}
               />
             ) : (
-              <Entypo name="chevron-down" size={20} color={colors.dark} />
+              <Entypo
+                name="chevron-down"
+                size={20}
+                color={optionStyle ? colors.palette.light : colors.dark}
+              />
             )}
           </View>
         )}

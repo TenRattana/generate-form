@@ -1,15 +1,23 @@
-import React, { useState, useEffect, useMemo, useReducer } from "react";
+import React, { useState, useEffect, useMemo, useReducer, useRef } from "react";
+
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  Animated,
+  Easing,
 } from "react-native";
-import { Dialog, Input, Button, Divider } from "@rneui/themed";
+
+import { Dialog, Input, Button } from "@rneui/themed";
 import { DynamicForm, useResponsive, CustomDropdown } from "../../components";
 import { colors, spacing, fonts } from "../../../theme";
 import axios from "../../../config/axios";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Entypo from "@expo/vector-icons/Entypo";
 
 const initial = { cards: [] };
 
@@ -20,6 +28,9 @@ const reducer = (state, action) => {
     newCardColumn,
     formState,
     selectedFieldIndex,
+    type,
+    question,
+    detailQuestion,
   } = action.payload;
 
   switch (action.type) {
@@ -49,6 +60,13 @@ const reducer = (state, action) => {
             : card
         ),
       };
+    case "deletecard":
+      return {
+        ...state,
+        cards: state.cards.filter(
+          (_, cardIndex) => cardIndex !== selectedCardIndex
+        ),
+      };
     case "addfield":
       return {
         ...state,
@@ -56,11 +74,30 @@ const reducer = (state, action) => {
           index === selectedCardIndex
             ? {
                 ...card,
-                fields: [...card.fields, formState],
+                fields: [
+                  ...card.fields,
+                  {
+                    ...formState,
+                    TypeName:
+                      type.find((v) => v.TypeID === formState.typeId)
+                        ?.TypeName || "",
+                    QuestionName:
+                      question.find(
+                        (v) => v.QuestionID === formState.questionId
+                      )?.QuestionName || "",
+                    MatchQuestionOptions:
+                      detailQuestion.find(
+                        (v) => v.MQOptionID === formState.detailQuestionId
+                      )?.MatchQuestionOptions || [],
+                  },
+                ].sort(
+                  (a, b) => parseInt(a.displayOrder) - parseInt(b.displayOrder)
+                ),
               }
             : card
         ),
       };
+
     case "updatefield":
       return {
         ...state,
@@ -68,8 +105,42 @@ const reducer = (state, action) => {
           index === selectedCardIndex
             ? {
                 ...card,
-                fields: card.fields.map((field, fieldIndex) =>
-                  fieldIndex === selectedFieldIndex ? formState : field
+                fields: card.fields
+                  .map((field, fieldIndex) =>
+                    fieldIndex === selectedFieldIndex
+                      ? {
+                          ...formState,
+                          TypeName:
+                            type.find((v) => v.TypeID === formState.typeId)
+                              ?.TypeName || "",
+                          QuestionName:
+                            question.find(
+                              (v) => v.QuestionID === formState.questionId
+                            )?.QuestionName || "",
+                          MatchQuestionOptions:
+                            detailQuestion.find(
+                              (v) => v.MQOptionID === formState.detailQuestionId
+                            )?.MatchQuestionOptions || [],
+                        }
+                      : field
+                  )
+                  .sort(
+                    (a, b) =>
+                      parseInt(a.displayOrder) - parseInt(b.displayOrder)
+                  ),
+              }
+            : card
+        ),
+      };
+    case "deletefield":
+      return {
+        ...state,
+        cards: state.cards.map((card, index) =>
+          index === selectedCardIndex
+            ? {
+                ...card,
+                fields: card.fields.filter(
+                  (_, fieldIndex) => fieldIndex !== selectedFieldIndex
                 ),
               }
             : card
@@ -84,6 +155,7 @@ const FormBuilder = () => {
   const [state, dispatch] = useReducer(reducer, initial);
   const [showCardDialog, setShowCardDialog] = useState(false);
   const [showFieldDialog, setShowFieldDialog] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [selectedFieldIndex, setSelectedFieldIndex] = useState(null);
   const [newCardName, setNewCardName] = useState("");
@@ -93,12 +165,12 @@ const FormBuilder = () => {
   const [formState, setFormState] = useState({
     detailQuestionId: "",
     questionId: "",
-    mqoptionId: [],
     description: "",
     typeId: "",
     dataTypeId: "",
     displayOrder: "",
     machineId: "",
+    placeholder: "",
   });
   const [resetDropdown, setResetDropdown] = useState(false);
   const [question, setQuestion] = useState([]);
@@ -106,8 +178,23 @@ const FormBuilder = () => {
   const [detailQuestion, setDetailQuestion] = useState([]);
   const [type, setType] = useState([]);
   const [dataType, setDataType] = useState([]);
-  const [formName, setFormName] = useState("");
-  const [shouldRender, setShouldRender] = useState(false);
+  const [form, setForm] = useState({
+    formId: "",
+    formName: "",
+  });
+  const [shouldRender, setShouldRender] = useState("");
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (shouldRender !== "") {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.in,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [shouldRender]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,18 +227,27 @@ const FormBuilder = () => {
     fetchData();
   }, []);
 
-  const saveCard = () => {
-    switch (editMode) {
-      case false:
+  const handleForm = (field, value) => {
+    setForm((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
+  const saveForm = () => {
+    console.log(state);
+  };
+
+  const saveCard = (option) => {
+    if (editMode) {
+      if (option === "delete") {
         dispatch({
-          type: "addcard",
+          type: "deletecard",
           payload: {
-            newCardName,
-            newCardColumn,
+            selectedCardIndex,
           },
         });
-        break;
-      case true:
+      } else {
         dispatch({
           type: "updatecard",
           payload: {
@@ -161,80 +257,109 @@ const FormBuilder = () => {
           },
         });
         setEditMode(false);
-        break;
-      default:
-        break;
+      }
+    } else if (!editMode) {
+      dispatch({
+        type: "addcard",
+        payload: {
+          newCardName,
+          newCardColumn,
+        },
+      });
     }
     setShowCardDialog(false);
     setNewCardName("");
     setNewCardColumn("");
   };
 
-  const saveField = () => {
-    switch (editMode) {
-      case false:
+  const saveField = (option) => {
+    if (editMode) {
+      if (option === "delete") {
         dispatch({
-          type: "addfield",
-          payload: {
-            formState,
-            selectedCardIndex,
-          },
-        });
-        break;
-      case true:
-        dispatch({
-          type: "updatefield",
+          type: "deletefield",
           payload: {
             formState,
             selectedCardIndex,
             selectedFieldIndex,
           },
         });
+      } else {
+        dispatch({
+          type: "updatefield",
+          payload: {
+            formState,
+            selectedCardIndex,
+            selectedFieldIndex,
+            type,
+            question,
+            detailQuestion,
+          },
+        });
         setEditMode(false);
-        break;
-      default:
-        break;
+      }
+    } else if (!editMode) {
+      dispatch({
+        type: "addfield",
+        payload: {
+          formState,
+          selectedCardIndex,
+          type,
+          question,
+          detailQuestion,
+        },
+      });
     }
     setFormState({
+      detailQuestionId: "",
       questionId: "",
-      mqoptionId: [],
       description: "",
       typeId: "",
       dataTypeId: "",
       displayOrder: "",
       machineId: "",
+      placeholder: "",
     });
     setShowFieldDialog(false);
   };
 
   const closeDialog = () => {
     setFormState({
+      detailQuestionId: "",
       questionId: "",
-      mqoptionId: [],
       description: "",
       typeId: "",
       dataTypeId: "",
       displayOrder: "",
       machineId: "",
+      placeholder: "",
     });
     setShowFieldDialog(false);
     setEditMode(false);
+    setShowSaveDialog(false);
     setShowCardDialog(false);
     setNewCardName("");
     setNewCardColumn("");
   };
 
-  console.log(state);
-
   useMemo(() => {
-    const typeItem = type.find((item) => item.TypeID === formState.typeId);
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+    }).start();
 
-    setShouldRender(
+    const typeItem = type.find((item) => item.TypeID === formState.typeId);
+    const op =
       typeItem &&
-        (typeItem.TypeName === "DROPDOWN" ||
-          typeItem.TypeName === "RADIO" ||
-          typeItem.TypeName === "CHECKBOX")
-    );
+      (typeItem.TypeName === "DROPDOWN" ||
+        typeItem.TypeName === "RADIO" ||
+        typeItem.TypeName === "CHECKBOX")
+        ? "detail"
+        : typeItem &&
+          (typeItem.TypeName === "TEXTINPUT" ||
+            typeItem.TypeName === "TEXTAERA")
+        ? "text"
+        : "";
+
+    setShouldRender(op);
   }, [formState.typeId]);
 
   const handleChange = (fieldName, value) => {
@@ -244,20 +369,28 @@ const FormBuilder = () => {
     }));
   };
 
+  const { width } = Dimensions.get("window");
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      flexDirection: "row",
+      flexDirection: responsive === "small" ? "column" : "row",
+      flexWrap: responsive === "small" ? "nowrap" : "wrap",
     },
     layout1: {
-      width: "30%",
       padding: 10,
+      width: responsive === "small" ? "100%" : 400,
+      backgroundColor: colors.palette.dark4,
     },
     layout2: {
-      width: "67%",
       padding: 10,
-      marginHorizontal: "2%",
-      padding: 20,
+      width: responsive === "small" ? "100%" : width - 420,
+    },
+    cardshow: {
+      marginTop: 30,
+      marginVertical: 10,
+      marginHorizontal: 15,
+      padding: 10,
     },
     card: {
       marginTop: 30,
@@ -287,31 +420,27 @@ const FormBuilder = () => {
     },
     dialogContainer: {
       padding: 20,
+      width: responsive === "small" || responsive === "medium" ? "90%" : 650,
+    },
+    viewDialog: {
+      paddingTop: 30,
     },
     button: {
       padding: 10,
-      backgroundColor: "#007bff",
-      color: "#fff",
+      backgroundColor: colors.palette.background2,
       textAlign: "center",
       borderRadius: 4,
-      marginBottom: 10,
+      marginBottom: 5,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
     text: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
+      fontSize: responsive === "small" ? fonts.sm : fonts.xsm,
       color: colors.palette.light,
     },
     textHeader: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xmd
-          : responsive === "medium"
-          ? fonts.lg
-          : fonts.xl,
+      fontSize: responsive === "small" ? fonts.xmd : fonts.lg,
       fontWeight: "bold",
       paddingLeft: "10%",
       color: colors.palette.light,
@@ -344,9 +473,7 @@ const FormBuilder = () => {
   });
 
   const renderCard = ({ item, index }) => (
-    <View style={styles.card}>
-      <Text>Card Name: {item.CardName}</Text>
-      <Text>Card Columns: {item.CardColumns}</Text>
+    <View style={styles.cardshow}>
       <TouchableOpacity
         onPress={() => {
           setSelectedCardIndex(index);
@@ -355,82 +482,87 @@ const FormBuilder = () => {
           setEditMode(true);
           setShowCardDialog(true);
         }}
+        style={styles.button}
       >
-        <Text style={styles.button}>Edit Card</Text>
+        <Text style={styles.text}>Card : {item.CardName}</Text>
+        <Entypo name="chevron-right" size={18} color={colors.palette.light} />
       </TouchableOpacity>
+
+      {item.fields.map((field, idx) => (
+        <TouchableOpacity
+          key={`${field.QuestionName}-${idx}`}
+          onPress={() => {
+            setSelectedFieldIndex(idx);
+            setEditMode(true);
+            setFormState(field);
+            setShowFieldDialog(true);
+          }}
+          style={[styles.button]}
+        >
+          <Text style={styles.text}>{field.QuestionName}</Text>
+          <Entypo name="chevron-right" size={18} color={colors.palette.light} />
+        </TouchableOpacity>
+      ))}
       <TouchableOpacity
         onPress={() => {
           setSelectedCardIndex(index);
           setShowFieldDialog(true);
         }}
       >
-        <Text style={styles.button}>Add Field</Text>
+        <Text style={[styles.button, { color: colors.palette.blue }]}>
+          <AntDesign name="plus" size={16} color={colors.palette.blue} />
+          Add Field
+        </Text>
       </TouchableOpacity>
-      {item.fields.map((field, index) => (
-        <TouchableOpacity
-          key={index}
-          onPress={() => {
-            setSelectedFieldIndex(index);
-            setEditMode(true);
-            setFormState(field);
-            setShowFieldDialog(true);
-          }}
-        >
-          <Text style={styles.button}>{field.questionId}</Text>
-        </TouchableOpacity>
-      ))}
     </View>
   );
 
-  const renderLayout2 = () => {
-    return (
-      <FlatList
-        data={state.cards}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.CardName}</Text>
-            <View style={styles.formContainer}>
-              {item.fields.map((field, index) => {
-                const containerStyle = {
-                  flexBasis: `${
-                    responsive === "small" || responsive === "medium"
-                      ? 100
-                      : 100 / item.CardColumns
-                  }%`,
-                  flexGrow: field.displayOrder || 1,
-                  padding: 5,
-                };
+  const renderLayout2 = () => (
+    <FlatList
+      data={state.cards}
+      renderItem={({ item, index }) => (
+        <View style={styles.card} key={`card-${index}`}>
+          <Text style={styles.cardTitle}>{item.CardName}</Text>
+          <View style={styles.formContainer}>
+            {item.fields.map((field, fieldIndex) => {
+              const containerStyle = {
+                flexBasis: `${
+                  responsive === "small" || responsive === "medium"
+                    ? 100
+                    : 100 / item.CardColumns
+                }%`,
+                flexGrow: field.displayOrder || 1,
+                padding: 5,
+              };
 
-                return (
-                  <View key={index} style={containerStyle}>
-                    <DynamicForm
-                      fields={[field]}
-                      type={type}
-                      dataType={dataType}
-                    />
-                  </View>
-                );
-              })}
-            </View>
+              return (
+                <View
+                  key={`field-${fieldIndex}-${item.CardName}`}
+                  style={containerStyle}
+                >
+                  <DynamicForm fields={[field]} />
+                </View>
+              );
+            })}
           </View>
-        )}
-        keyExtractor={(index) => index.toString()}
-      />
-    );
-  };
+        </View>
+      )}
+      keyExtractor={(item, index) => `card-${index}`}
+    />
+  );
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.layout1}>
         <View style={{ margin: 30 }}>
           <Input
             label="Content Name"
             placeholder="Enter Content Name"
-            labelStyle={[styles.text, { color: colors.text }]}
-            inputStyle={[styles.text, { color: colors.text }]}
+            labelStyle={styles.text}
+            inputStyle={styles.text}
             disabledInputStyle={styles.containerInput}
-            onChangeText={setFormName}
-            value={formName}
+            onChangeText={(text) => handleForm("formName", text)}
+            value={form.formName}
           />
           <CustomDropdown
             fieldName="machineId"
@@ -441,24 +573,110 @@ const FormBuilder = () => {
             updatedropdown={handleChange}
             reset={resetDropdown}
             selectedValue={formState.machineId}
+            optionStyle={{ color: colors.palette.light }}
           />
-          <Button
-            title="Add Card"
+          <TouchableOpacity
             onPress={() => {
               setEditMode(false);
               setShowCardDialog(true);
             }}
-          />
+          >
+            <Text style={[styles.button, { color: colors.palette.blue }]}>
+              <AntDesign name="plus" size={16} color={colors.palette.blue} />
+              Add Card
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setEditMode(false);
+              setShowSaveDialog(true);
+            }}
+            style={{ marginTop: 10 }}
+          >
+            <Text
+              style={[
+                styles.button,
+                {
+                  color: colors.palette.light,
+                  backgroundColor: colors.palette.green,
+                },
+              ]}
+            >
+              Save Form
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <FlatList
           data={state.cards}
           renderItem={renderCard}
-          keyExtractor={(index) => index.toString()}
+          keyExtractor={(item, index) => `card-${index}`}
         />
 
-        <Dialog isVisible={showCardDialog}>
-          <View style={styles.dialogContainer}>
+        <Dialog
+          isVisible={showSaveDialog}
+          overlayStyle={styles.dialogContainer}
+        >
+          <Dialog.Title
+            title="Save Form"
+            titleStyle={[
+              styles.textHeader,
+              {
+                justifyContent: "center",
+                color: colors.palette.dark,
+              },
+            ]}
+          />
+          <Text
+            style={[
+              styles.textHeader,
+              styles.text,
+              {
+                justifyContent: "center",
+                color: colors.palette.dark,
+                fontWeight: "regular",
+              },
+            ]}
+          >
+            You are about to save the form. Are you sure?
+          </Text>
+
+          <View
+            style={[
+              styles.viewDialog,
+              {
+                flexDirection: responsive === "small" ? "column" : "row",
+                justifyContent: "center",
+              },
+            ]}
+          >
+            <Button
+              title="Save"
+              onPress={() => saveForm()}
+              titleStyle={styles.text}
+              containerStyle={[
+                styles.containerButton,
+                { width: responsive === "small" ? "100%" : "30%" },
+              ]}
+            />
+            <Button
+              title="Cancel"
+              onPress={closeDialog}
+              titleStyle={styles.text}
+              containerStyle={[
+                styles.containerButton,
+                { width: responsive === "small" ? "100%" : "30%" },
+              ]}
+            />
+          </View>
+        </Dialog>
+
+        <Dialog
+          isVisible={showCardDialog}
+          overlayStyle={styles.dialogContainer}
+        >
+          <View style={styles.viewDialog}>
             <Input
               label="Card Name"
               placeholder="Enter Card Name"
@@ -477,23 +695,53 @@ const FormBuilder = () => {
               disabledInputStyle={styles.containerInput}
               onChangeText={setNewCardColumn}
             />
-            <Button
-              title={editMode ? "Update Card" : "Add Card"}
-              onPress={() => saveCard()}
-              titleStyle={styles.text}
-              containerStyle={styles.containerButton}
-            />
-            <Button
-              title="Cancel"
-              onPress={closeDialog}
-              titleStyle={styles.text}
-              containerStyle={styles.containerButton}
-            />
+            <View
+              style={[
+                styles.viewDialog,
+                {
+                  flexDirection: responsive === "small" ? "column" : "row",
+                  justifyContent: "center",
+                },
+              ]}
+            >
+              <Button
+                title={editMode ? "Update Card" : "Add Card"}
+                onPress={() => saveCard()}
+                titleStyle={styles.text}
+                containerStyle={[
+                  styles.containerButton,
+                  { width: responsive === "small" ? "100%" : "30%" },
+                ]}
+              />
+              {editMode && (
+                <Button
+                  title={"Delete Card"}
+                  onPress={() => saveCard("delete")}
+                  titleStyle={styles.text}
+                  containerStyle={[
+                    styles.containerButton,
+                    { width: responsive === "small" ? "100%" : "30%" },
+                  ]}
+                />
+              )}
+              <Button
+                title="Cancel"
+                onPress={closeDialog}
+                titleStyle={styles.text}
+                containerStyle={[
+                  styles.containerButton,
+                  { width: responsive === "small" ? "100%" : "30%" },
+                ]}
+              />
+            </View>
           </View>
         </Dialog>
 
-        <Dialog isVisible={showFieldDialog}>
-          <View style={styles.dialogContainer}>
+        <Dialog
+          isVisible={showFieldDialog}
+          overlayStyle={styles.dialogContainer}
+        >
+          <View style={styles.viewDialog}>
             <CustomDropdown
               fieldName="questionId"
               title="Question"
@@ -516,8 +764,10 @@ const FormBuilder = () => {
               selectedValue={formState.typeId}
             />
 
-            {shouldRender ? (
-              <View>
+            {shouldRender === "detail" ? (
+              <Animated.View
+                style={[styles.animatedText, { opacity: fadeAnim }]}
+              >
                 <CustomDropdown
                   fieldName="detailQuestionId"
                   title="Question Option"
@@ -528,21 +778,33 @@ const FormBuilder = () => {
                   reset={resetDropdown}
                   selectedValue={formState.detailQuestionId}
                 />
-              </View>
-            ) : (
-              false
-            )}
+              </Animated.View>
+            ) : shouldRender === "text" ? (
+              <Animated.View
+                style={[styles.animatedText, { opacity: fadeAnim }]}
+              >
+                <CustomDropdown
+                  fieldName="dataTypeId"
+                  title="Data Type"
+                  labels="DataTypeName"
+                  values="DataTypeID"
+                  data={dataType}
+                  updatedropdown={handleChange}
+                  reset={resetDropdown}
+                  selectedValue={formState.dataTypeId}
+                />
 
-            <CustomDropdown
-              fieldName="dataTypeId"
-              title="Data Type"
-              labels="DataTypeName"
-              values="DataTypeID"
-              data={dataType}
-              updatedropdown={handleChange}
-              reset={resetDropdown}
-              selectedValue={formState.dataTypeId}
-            />
+                <Input
+                  label="Placeholder"
+                  placeholder="Enter Placeholder"
+                  labelStyle={[styles.text, { color: colors.text }]}
+                  inputStyle={[styles.text, { color: colors.text }]}
+                  disabledInputStyle={styles.containerInput}
+                  onChangeText={(text) => handleChange("placeholder", text)}
+                  value={formState.placeholder}
+                />
+              </Animated.View>
+            ) : null}
 
             <Input
               label="Display Order"
@@ -554,29 +816,57 @@ const FormBuilder = () => {
               value={formState.displayOrder}
             />
 
-            <Button
-              title={editMode ? "Update Field" : "Add Field"}
-              onPress={() => saveField()}
-              titleStyle={styles.text}
-              containerStyle={styles.containerButton}
-            />
-            <Button
-              title="Cancel"
-              onPress={closeDialog}
-              titleStyle={styles.text}
-              containerStyle={styles.containerButton}
-            />
+            <View
+              style={[
+                styles.viewDialog,
+                {
+                  flexDirection: responsive === "small" ? "column" : "row",
+                  justifyContent: "center",
+                },
+              ]}
+            >
+              <Button
+                title={editMode ? "Update Field" : "Add Field"}
+                onPress={() => saveField()}
+                titleStyle={styles.text}
+                containerStyle={[
+                  styles.containerButton,
+                  { width: responsive === "small" ? "100%" : "30%" },
+                ]}
+              />
+              {editMode && (
+                <Button
+                  title={"Delete Field"}
+                  onPress={() => saveField("delete")}
+                  titleStyle={styles.text}
+                  containerStyle={[
+                    styles.containerButton,
+                    { width: responsive === "small" ? "100%" : "30%" },
+                  ]}
+                />
+              )}
+
+              <Button
+                title="Cancel"
+                onPress={closeDialog}
+                titleStyle={styles.text}
+                containerStyle={[
+                  styles.containerButton,
+                  { width: responsive === "small" ? "100%" : "30%" },
+                ]}
+              />
+            </View>
           </View>
         </Dialog>
       </View>
 
       <View style={styles.layout2}>
         <Text style={[styles.textHeader, { color: colors.palette.dark }]}>
-          {formName ? formName : "Content Name"}
+          {form.formName ? form.formName : "Content Name"}
         </Text>
         {renderLayout2()}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

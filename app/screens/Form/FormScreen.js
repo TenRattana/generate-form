@@ -8,13 +8,18 @@ import { CustomTable, useResponsive } from "../../components";
 const Forms = () => {
   const [form, setForm] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [machine, setMachine] = useState([]);
   const responsive = useResponsive();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [questionResponse] = await Promise.all([axios.post("GetForms")]);
+        const [questionResponse, machineResponse] = await Promise.all([
+          axios.post("GetForms"),
+          axios.post("GetMachines"),
+        ]);
         setForm(questionResponse.data || []);
+        setMachine(machineResponse.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -107,7 +112,66 @@ const Forms = () => {
   return (
     <ScrollView style={styles.scrollView}>
       <Card>
+        <Card.Title>Match Form</Card.Title>
+        <Card.Divider />
+
+        <CustomDropdown
+          fieldName="machineGroupId"
+          title="Machine Group"
+          labels="MGroupID"
+          values="MGroupName"
+          data={machineGroup}
+          updatedropdown={handleChange}
+          reset={resetDropdown}
+          selectedValue={formState.machineGroupId}
+        />
+
+        {error.machineGroupId ? (
+          <Text style={styles.errorText}>{error.machineGroupId}</Text>
+        ) : (
+          false
+        )}
+
+        <CustomDropdown
+          fieldName="machineGroupId"
+          title="Machine Group"
+          labels="MGroupID"
+          values="MGroupName"
+          data={machineGroup}
+          updatedropdown={handleChange}
+          reset={resetDropdown}
+          selectedValue={formState.machineGroupId}
+        />
+
+        {error.machineGroupId ? (
+          <Text style={styles.errorText}>{error.machineGroupId}</Text>
+        ) : (
+          false
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Create"
+            type="outline"
+            titleStyle={styles.text}
+            containerStyle={styles.containerButton}
+            disabled={!isFormValid()}
+            onPress={saveData}
+            loading={isLoading}
+          />
+          <Button
+            title="Reset"
+            type="outline"
+            titleStyle={styles.text}
+            containerStyle={styles.containerButton}
+            onPress={resetForm}
+          />
+        </View>
+      </Card>
+
+      <Card>
         <Card.Title>List Question</Card.Title>
+        <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}

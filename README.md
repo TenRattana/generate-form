@@ -1,12 +1,14 @@
 -- Create Table MachineGroups
-```sql CREATE TABLE MachineGroups (
+```sql
+CREATE TABLE MachineGroups (
     MGroupID VARCHAR(10) PRIMARY KEY,
     GroupName VARCHAR(255),
     Description TEXT,
     DisplayOrder INT
 );
 ```
-```sql CREATE TABLE Machines (
+```sql
+CREATE TABLE Machines (
     MachineID VARCHAR(10) PRIMARY KEY,
     MGroupID VARCHAR(10),
     MachineName VARCHAR(255),
@@ -15,40 +17,47 @@
     FOREIGN KEY (MGroupID) REFERENCES MachineGroups(MGroupID)
 );
 ```
-```sql CREATE TABLE ListTypes (
+```sql
+CREATE TABLE ListTypes (
     TypeID VARCHAR(10) PRIMARY KEY,
     TypeName VARCHAR(50)
 );
 ```
-```sql CREATE TABLE DataType (
+```sql
+CREATE TABLE DataType (
     DTypeID VARCHAR(10) PRIMARY KEY,
     DTypeName VARCHAR(50)
 );
 ```
+```sql
 CREATE TABLE Lists (
     ListID VARCHAR(10) PRIMARY KEY,
     ListName VARCHAR(255)
 );
-
+```
+```sql
 CREATE TABLE ListDetails (
     LDetailID VARCHAR(10) PRIMARY KEY,
     LDetailName VARCHAR(255)
 );
 ```
-```sql CREATE TABLE Cards (
+```sql
+CREATE TABLE Cards (
     CardID VARCHAR(10) PRIMARY KEY,
     CardName VARCHAR(50),
     Columns TINYINT,
     DisplayOrder TINYINT
 );
 ```
-```sql CREATE TABLE Forms (
+```sql
+ CREATE TABLE Forms (
     FormID VARCHAR(10) PRIMARY KEY,
     FormName VARCHAR(50),
     DisplayOrder TINYINT
 );
 ```
-```sql CREATE TABLE MatchListDetail (
+```sql
+CREATE TABLE MatchListDetail (
     ID INT PRIMARY KEY,
     MLDetailID VARCHAR(10),
     ListID VARCHAR(10),
@@ -59,7 +68,8 @@ CREATE TABLE ListDetails (
     FOREIGN KEY (LDetailID) REFERENCES ListDetails(LDetailID)
 );
 ```
-```sql CREATE TABLE MatchList (
+```sql C
+REATE TABLE MatchList (
     MListID VARCHAR(10) PRIMARY KEY,
     ListID VARCHAR(10),
     MLDetailID VARCHAR(10),
@@ -74,13 +84,15 @@ CREATE TABLE ListDetails (
     FOREIGN KEY (CardID) REFERENCES Cards(CardID)
 );
 ```
-```sql CREATE TABLE Rules (
+```sql
+CREATE TABLE Rules (
     RuleID VARCHAR(10) PRIMARY KEY,
     RuleName VARCHAR(50),
     RuleValue VARCHAR(50)
 );
 ```
-```sql CREATE TABLE MatchRule (
+```sql
+CREATE TABLE MatchRule (
     MValidationID VARCHAR(10) PRIMARY KEY,
     MListID VARCHAR(10),
     RuleID VARCHAR(10),
@@ -90,7 +102,8 @@ CREATE TABLE ListDetails (
     FOREIGN KEY (RuleID) REFERENCES Rules(RuleID)
 );
 ```
-```sql CREATE TABLE MatchForm (
+```sql
+CREATE TABLE MatchForm (
     MFormID VARCHAR(10) PRIMARY KEY,
     MachineID VARCHAR(50),
     CardID VARCHAR(10),
@@ -100,7 +113,8 @@ CREATE TABLE ListDetails (
     FOREIGN KEY (FormID) REFERENCES Forms(FormID)
 );
 ```
-```sql CREATE TABLE ExpectedResults (
+```sql
+CREATE TABLE ExpectedResults (
     ExpectedResultID VARCHAR(10) PRIMARY KEY,
     MFormID VARCHAR(10),
     MListID VARCHAR(10),

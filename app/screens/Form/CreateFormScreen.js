@@ -163,19 +163,20 @@ const FormBuilder = () => {
   const [editMode, setEditMode] = useState(false);
   const responsive = useResponsive();
   const [formState, setFormState] = useState({
-    detailQuestionId: "",
-    questionId: "",
+    matchListDetailId: "",
+    listId: "",
     description: "",
-    typeId: "",
+    listTypeId: "",
     dataTypeId: "",
     displayOrder: "",
     placeholder: "",
   });
   const [resetDropdown, setResetDropdown] = useState(false);
-  const [question, setQuestion] = useState([]);
+  const [list, setList] = useState([]);
   const [machine, setMachine] = useState([]);
-  const [detailQuestion, setDetailQuestion] = useState([]);
-  const [type, setType] = useState([]);
+  const [listDetail, setListDetail] = useState([]);
+  const [matchListDetail, setMatchListDetail] = useState([]);
+  const [listType, setListType] = useState([]);
   const [dataType, setDataType] = useState([]);
   const [form, setForm] = useState({
     formId: "",
@@ -199,25 +200,26 @@ const FormBuilder = () => {
     const fetchData = async () => {
       try {
         const [
-          questionResponse,
-          optionResponse,
-          questionDetailResponse,
-          typeResponse,
+          listResponse,
+          listDetailResponse,
+          matchListDetailResponse,
+          listTypeResponse,
           dataTypeResponse,
           machineResponse,
         ] = await Promise.all([
-          axios.post("GetQuestions"),
-          axios.post("GetQuestionOptions"),
-          axios.post("GetQuestionDetails"),
-          axios.post("GetTypes"),
+          axios.post("GetLists"),
+          axios.post("GetListDetails"),
+          axios.post("GetMatchListDetails"),
+          axios.post("GetListTypes"),
           axios.post("GetDataTypes"),
           axios.post("GetMachines"),
         ]);
-        setQuestion(questionResponse.data || []);
-        setDetailQuestion(questionDetailResponse.data || []);
-        setType(typeResponse.data || []);
-        setDataType(dataTypeResponse.data || []);
-        setMachine(machineResponse.data || []);
+        setList(listResponse.data.data || []);
+        setListDetail(listDetailResponse.data.data || []);
+        setMatchListDetail(matchListDetailResponse.data.data || []);
+        setListType(listTypeResponse.data.data || []);
+        setDataType(dataTypeResponse.data.data || []);
+        setMachine(machineResponse.data.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -271,6 +273,24 @@ const FormBuilder = () => {
     setNewCardColumn("");
   };
 
+  const resetForm = () => {
+    setFormState({
+      matchListDetailId: "",
+      listId: "",
+      description: "",
+      listTypeId: "",
+      dataTypeId: "",
+      displayOrder: "",
+      placeholder: "",
+    });
+    setShowFieldDialog(false);
+    setEditMode(false);
+    setShowSaveDialog(false);
+    setShowCardDialog(false);
+    setNewCardName("");
+    setNewCardColumn("");
+  };
+
   const saveField = (option) => {
     if (editMode) {
       if (option === "delete") {
@@ -289,12 +309,11 @@ const FormBuilder = () => {
             formState,
             selectedCardIndex,
             selectedFieldIndex,
-            type,
-            question,
-            detailQuestion,
+            listType,
+            list,
+            matchListDetail,
           },
         });
-        setEditMode(false);
       }
     } else if (!editMode) {
       dispatch({
@@ -302,40 +321,13 @@ const FormBuilder = () => {
         payload: {
           formState,
           selectedCardIndex,
-          type,
-          question,
-          detailQuestion,
+          listType,
+          list,
+          matchListDetail,
         },
       });
     }
-    setFormState({
-      detailQuestionId: "",
-      questionId: "",
-      description: "",
-      typeId: "",
-      dataTypeId: "",
-      displayOrder: "",
-      placeholder: "",
-    });
-    setShowFieldDialog(false);
-  };
-
-  const closeDialog = () => {
-    setFormState({
-      detailQuestionId: "",
-      questionId: "",
-      description: "",
-      typeId: "",
-      dataTypeId: "",
-      displayOrder: "",
-      placeholder: "",
-    });
-    setShowFieldDialog(false);
-    setEditMode(false);
-    setShowSaveDialog(false);
-    setShowCardDialog(false);
-    setNewCardName("");
-    setNewCardColumn("");
+    resetForm();
   };
 
   useMemo(() => {
@@ -343,18 +335,26 @@ const FormBuilder = () => {
       toValue: 0,
     }).start();
 
-    const typeItem = type.find((item) => item.TypeID === formState.typeId);
-    const op =
-      typeItem &&
-      (typeItem.TypeName === "DROPDOWN" ||
-        typeItem.TypeName === "RADIO" ||
-        typeItem.TypeName === "CHECKBOX")
-        ? "detail"
-        : typeItem &&
-          (typeItem.TypeName === "TEXTINPUT" ||
-            typeItem.TypeName === "TEXTAERA")
-        ? "text"
-        : "";
+    const listTypeItem = listType.find(
+      (item) => item.TypeID === formState.listTypeId
+    );
+
+    let op = "";
+
+    if (listTypeItem) {
+      if (
+        listTypeItem.TypeName === "DROPDOWN" ||
+        listTypeItem.TypeName === "RADIO" ||
+        listTypeItem.TypeName === "CHECKBOX"
+      ) {
+        op = "detail";
+      } else if (
+        listTypeItem.TypeName === "TEXTINPUT" ||
+        listTypeItem.TypeName === "TEXTAERA"
+      ) {
+        op = "text";
+      }
+    }
 
     setShouldRender(op);
   }, [formState.typeId]);
@@ -487,7 +487,7 @@ const FormBuilder = () => {
 
       {item.fields.map((field, idx) => (
         <TouchableOpacity
-          key={`${field.QuestionName}-${idx}`}
+          key={`${field.ListName}-${idx}`}
           onPress={() => {
             setSelectedFieldIndex(idx);
             setEditMode(true);
@@ -496,7 +496,7 @@ const FormBuilder = () => {
           }}
           style={[styles.button]}
         >
-          <Text style={styles.text}>{field.QuestionName}</Text>
+          <Text style={styles.text}>{field.ListName}</Text>
           <Entypo name="chevron-right" size={18} color={colors.palette.light} />
         </TouchableOpacity>
       ))}
@@ -648,7 +648,7 @@ const FormBuilder = () => {
             />
             <Button
               title="Cancel"
-              onPress={closeDialog}
+              onPress={resetForm}
               titleStyle={styles.text}
               containerStyle={[
                 styles.containerButton,
@@ -712,7 +712,7 @@ const FormBuilder = () => {
               )}
               <Button
                 title="Cancel"
-                onPress={closeDialog}
+                onPress={resetForm}
                 titleStyle={styles.text}
                 containerStyle={[
                   styles.containerButton,
@@ -729,25 +729,25 @@ const FormBuilder = () => {
         >
           <View style={styles.viewDialog}>
             <CustomDropdown
-              fieldName="questionId"
-              title="Question"
-              labels="QuestionName"
-              values="QuestionID"
-              data={question}
+              fieldName="listId"
+              title="List"
+              labels="ListName"
+              values="ListID"
+              data={list}
               updatedropdown={handleChange}
               reset={resetDropdown}
-              selectedValue={formState.questionId}
+              selectedValue={formState.listId}
             />
 
             <CustomDropdown
-              fieldName="typeId"
+              fieldName="listTypeId"
               title="Type"
               labels="TypeName"
               values="TypeID"
               data={type}
               updatedropdown={handleChange}
               reset={resetDropdown}
-              selectedValue={formState.typeId}
+              selectedValue={formState.listTypeId}
             />
 
             {shouldRender === "detail" ? (
@@ -755,14 +755,14 @@ const FormBuilder = () => {
                 style={[styles.animatedText, { opacity: fadeAnim }]}
               >
                 <CustomDropdown
-                  fieldName="detailQuestionId"
-                  title="Question Option"
-                  labels="QuestionName"
-                  values="MQOptionID"
-                  data={detailQuestion}
+                  fieldName="matchListDetailId"
+                  title="Group List Detail"
+                  labels="ListName"
+                  values="MLDetailID"
+                  data={matchListDetail}
                   updatedropdown={handleChange}
                   reset={resetDropdown}
-                  selectedValue={formState.detailQuestionId}
+                  selectedValue={formState.matchListDetailId}
                 />
               </Animated.View>
             ) : shouldRender === "text" ? (
@@ -772,8 +772,8 @@ const FormBuilder = () => {
                 <CustomDropdown
                   fieldName="dataTypeId"
                   title="Data Type"
-                  labels="DataTypeName"
-                  values="DataTypeID"
+                  labels="DTypeName"
+                  values="DTypeID"
                   data={dataType}
                   updatedropdown={handleChange}
                   reset={resetDropdown}
@@ -834,7 +834,7 @@ const FormBuilder = () => {
 
               <Button
                 title="Cancel"
-                onPress={closeDialog}
+                onPress={resetForm}
                 titleStyle={styles.text}
                 containerStyle={[
                   styles.containerButton,

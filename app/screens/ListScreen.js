@@ -136,7 +136,6 @@ const ListScreen = () => {
   const tableData = list.map((item) => {
     return [item.ListName, item.ListID, item.ListID];
   });
-  console.log(list);
 
   const tableHead = ["List Name", "Edit", "Delete"];
 
@@ -196,9 +195,7 @@ const ListScreen = () => {
         />
         {error.listName ? (
           <Text style={styles.errorText}>{error.listName}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <View style={styles.buttonContainer}>
           <Button

@@ -107,7 +107,7 @@ const DynamicForm = ({ fields }) => {
       {fields.map((field, index) => (
         <View key={index} style={styles.section}>
           <Text style={[styles.text, { color: colors.palette.dark }]}>
-            {field.QuestionName}
+            {field.ListName}
           </Text>
           {renderField(field)}
         </View>

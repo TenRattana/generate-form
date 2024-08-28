@@ -259,9 +259,7 @@ const MachineScreen = () => {
 
         {error.machineGroupId ? (
           <Text style={styles.errorText}>{error.machineGroupId}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <Input
           placeholder="Enter Machine Name"
@@ -274,9 +272,7 @@ const MachineScreen = () => {
         />
         {error.machineName ? (
           <Text style={styles.errorText}>{error.machineName}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <Input
           placeholder="Enter Description"
@@ -289,9 +285,7 @@ const MachineScreen = () => {
         />
         {error.description ? (
           <Text style={styles.errorText}>{error.description}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <Input
           placeholder="Enter Display Order"
@@ -304,9 +298,7 @@ const MachineScreen = () => {
         />
         {error.displayOrder ? (
           <Text style={styles.errorText}>{error.displayOrder}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <View style={styles.buttonContainer}>
           <Button

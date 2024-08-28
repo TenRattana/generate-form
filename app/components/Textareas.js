@@ -6,9 +6,9 @@ const Textareas = ({ field, formData, handleChange }) => (
   <View style={styles.container}>
     <TextInput
       placeholder={field.placeholder}
-      name={field.QuestionName}
-      onChangeText={(value) => handleChange(field.MQuestionID, value)}
-      value={formData[field.QuestionName] || ""}
+      name={field.ListName}
+      onChangeText={(value) => handleChange(field.MLDetailID, value)}
+      value={formData[field.ListName] || ""}
       multiline
       numberOfLines={4}
       style={styles.textInput}

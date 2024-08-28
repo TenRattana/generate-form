@@ -8,17 +8,17 @@ const Checkboxs = ({ field, formData, handleChange }) => {
 
   useEffect(() => {
     const initialState = {};
-    field.MatchQuestionOptions.forEach(option => {
-      const isChecked = Array.isArray(formData[field.MQuestionID])
-        ? formData[field.MQuestionID].includes(option.OptionName)
+    field.MatchListDetail.forEach(option => {
+      const isChecked = Array.isArray(formData[field.MLDetailID])
+        ? formData[field.MLDetailID].includes(option.ListName)
         : false;
-      initialState[option.OptionName] = isChecked;
+      initialState[option.ListName] = isChecked;
     });
     setCheckedOptions(initialState);
   }, [formData, field]);
 
-  const handleCheckBoxChange = (optionName) => {
-    const newCheckedOptions = { ...checkedOptions, [optionName]: !checkedOptions[optionName] };
+  const handleCheckBoxChange = (ListName) => {
+    const newCheckedOptions = { ...checkedOptions, [ListName]: !checkedOptions[ListName] };
 
     setCheckedOptions(newCheckedOptions);
 
@@ -26,22 +26,22 @@ const Checkboxs = ({ field, formData, handleChange }) => {
       key => newCheckedOptions[key]
     );
     
-    handleChange(field.MQuestionID, selectedOptions, "CHECKBOX");
+    handleChange(field.MLDetailID, selectedOptions, "CHECKBOX");
   };
 
-  if (!field.MatchQuestionOptions || field.MatchQuestionOptions.length === 0) {
+  if (!field.MatchListDetail || field.MatchListDetail.length === 0) {
     return null;
   }
 
-  return field.MatchQuestionOptions.map((option, OptionID) => (
-    <View key={OptionID} style={styles.container}>
+  return field.MatchListDetail.map((option, LDetailID) => (
+    <View key={LDetailID} style={styles.container}>
       <CheckBox
-        checked={checkedOptions[option.OptionName] || false}
-        onPress={() => handleCheckBoxChange(option.OptionName)}
+        checked={checkedOptions[option.ListName] || false}
+        onPress={() => handleCheckBoxChange(option.ListName)}
         containerStyle={styles.checkboxContainer}
         textStyle={styles.checkboxText}
       />
-      <Text style={styles.label}>{option.OptionName}</Text>
+      <Text style={styles.label}>{option.ListName}</Text>
     </View>
   ));
 };

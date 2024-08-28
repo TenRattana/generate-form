@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -17,8 +17,8 @@ export const CustomDropdownMulti = ({
 }) => {
   const [selected, setSelected] = useState([]);
   const [option, setOption] = useState([]);
-
-  useEffect(() => {
+  
+  useMemo(() => {
     if (data && Array.isArray(data)) {
       setOption(
         data.map((item) => ({
@@ -31,19 +31,19 @@ export const CustomDropdownMulti = ({
     }
   }, [data, labels, values]);
 
-  useEffect(() => {
+  useMemo(() => {
     if (reset) {
       setSelected([]);
     }
   }, [reset]);
 
-  useEffect(() => {
+  useMemo(() => {
     setSelected(selectedValue || []);
   }, [selectedValue]);
 
   const handleDropdownChange = (newValue) => {
     setSelected(newValue);
-    updatedropdown(fieldName, newValue.value);
+    updatedropdown(fieldName, newValue);
   };
 
   const handleClear = () => {

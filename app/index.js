@@ -11,7 +11,6 @@ const MatchListDetailScreen = lazy(() =>
   import("./screens/MatchListDetailScreen")
 );
 
-const ValidationScreen = lazy(() => import("./screens/ValidationScreen"));
 const ViewFormScreen = lazy(() => import("./screens/Form/ViewFormScreen"));
 const Form = lazy(() => import("./screens/Form/FormScreen"));
 const CreateFormScreen = lazy(() => import("./screens/Form/CreateFormScreen"));
@@ -32,7 +31,6 @@ const App = () => {
               name="Match List & List Detail"
               component={MatchListDetailScreen}
             />
-            <Drawer.Screen name="Validation" component={ValidationScreen} />
             <Drawer.Screen name="Create Form" component={CreateFormScreen} />
             <Drawer.Screen name="View Form" component={ViewFormScreen} />
             <Drawer.Screen name="Forms" component={Form} />

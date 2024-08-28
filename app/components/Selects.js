@@ -4,23 +4,23 @@ import { View, StyleSheet } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 
 const Selects = ({ field, formData, handleChange }) => {
-  if (!field.MatchQuestionOptions || field.MatchQuestionOptions.length === 0) {
+  if (!field.MatchListDetail || field.MatchListDetail.length === 0) {
     return "";
   }
 
   return (
     <View style={styles.dropdown}>
       <Picker
-        selectedValue={formData[field.MQuestionID]}
-        onValueChange={(value) => handleChange(field.MQuestionID, value)}
+        selectedValue={formData[field.MLDetailID]}
+        onValueChange={(value) => handleChange(field.MLDetailID, value)}
         style={styles.picker}
       >
         <Picker.Item label="Select..." value="" />
-        {field.MatchQuestionOptions.map((option, OptionID) => (
+        {field.MatchListDetail.map((option, LDetailID) => (
           <Picker.Item
-            key={OptionID}
-            label={option.OptionName}
-            value={option.OptionName}
+            key={LDetailID}
+            label={option.LDetailName}
+            value={option.LDetailName}
           />
         ))}
       </Picker>

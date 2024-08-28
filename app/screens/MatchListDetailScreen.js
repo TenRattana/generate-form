@@ -49,9 +49,9 @@ const MatchListDetailScreen = () => {
             axios.post("GetListDetails"),
             axios.post("GetMatchListDetails"),
           ]);
-        setList(listResponse.data || []);
-        setListDetail(listDetailResponse.data || []);
-        setDetailQuestion(matchListDetailResponse.data || []);
+        setList(listResponse.data.data || []);
+        setListDetail(listDetailResponse.data.data || []);
+        setMachineListDetail(matchListDetailResponse.data.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -85,8 +85,11 @@ const MatchListDetailScreen = () => {
         if (!isEditing && key === "Id") {
           return true;
         }
-        if (key === "listdetailId") return value.length > 0;
-        else return value !== "" && String(value).trim() !== "";
+        if (key === "listDetailId")
+          return Array.isArray(value) && value.length > 0;
+        return (
+          value !== null && value !== undefined && String(value).trim() !== ""
+        );
       }) && Object.values(error).every((err) => err === "")
     );
   };
@@ -98,6 +101,7 @@ const MatchListDetailScreen = () => {
       listDetailId: [],
       description: "",
     });
+
     setMatchListDetailId("");
     setError({});
     setIsEditing(false);
@@ -105,6 +109,7 @@ const MatchListDetailScreen = () => {
 
   const saveData = async () => {
     setIsLoading(true);
+
     const data = {
       MLDetailID: matchListDetailId,
       ListID: formState.listId,
@@ -113,10 +118,10 @@ const MatchListDetailScreen = () => {
     };
 
     try {
-      await axios.post("SaveMatchListDetail", data);
+      const responseData = await axios.post("SaveMatchListDetail", data);
 
       const response = await axios.post("GetMatchListDetails");
-      setDetailQuestion(response.data.data || []);
+      setMachineListDetail(response.data.data || []);
       setResetDropdown(true);
       setTimeout(() => setResetDropdown(false), 0);
       resetForm();
@@ -134,16 +139,18 @@ const MatchListDetailScreen = () => {
         const response = await axios.post("GetMatchListDetail", {
           MLDetailID: item,
         });
-        const matchListDetail = response.data.data[0] || [];
+        const matchListDetailData = response.data.data[0] || [];
 
-        setMachineListDetail(matchListDetail.MLDetailID || "");
+        setMatchListDetailId(matchListDetailData.MLDetailID || "");
+
         setFormState({
-          Id: matchListDetail.ID || "",
-          questionId: matchListDetail.ListID || "",
-          optionId:
-            matchListDetail.MatchListDetail.map((option) => option.LDetailID) ||
-            [],
-          description: matchListDetail.Description || "",
+          Id: matchListDetailData.ID || "",
+          listId: matchListDetailData.ListID || "",
+          listDetailId:
+            matchListDetailData.MatchListDetail.map(
+              (option) => option.LDetailID
+            ) || [],
+          description: matchListDetailData.Description || "",
         });
       } else if (action === "del") {
         await axios.post("DeleteMatchListDetail", {
@@ -159,28 +166,31 @@ const MatchListDetailScreen = () => {
   };
 
   const tableData = matchListDetail.flatMap((item, idx) => {
-    const q = list.find((group) => group.ListID === item.ListID)?.ListName;
+    const listName = list.find(
+      (group) => group.ListID === item.ListID
+    )?.ListName;
 
     if (item.MatchListDetail.length > 0) {
       return item.MatchListDetail.map((mld, index) => {
-        const o = listDetail.find(
+        const detailName = listDetail.find(
           (group) => group.LDetailID === mld.LDetailID
         )?.LDetailName;
 
         return [
-          index === 0 ? `Grop ${idx + 1}` : "",
-          index === 0 ? (q ? q : "") : "",
-          o ? o : "",
+          index === 0 ? `Group ${idx + 1}` : "",
+          index === 0 ? (listName ? listName : "") : "",
+          detailName ? detailName : "",
           index === 0 ? mld.Description : "",
           index === 0 ? item.MLDetailID : "",
           index === 0 ? item.ID : "",
         ];
       });
     }
+    return [];
   });
 
   const tableHead = [
-    "Group ID",
+    "Group Name",
     "List Name",
     "List Detail Name",
     "Description",
@@ -246,9 +256,7 @@ const MatchListDetailScreen = () => {
         />
         {error.listId ? (
           <Text style={styles.errorText}>{error.listId}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <CustomDropdownMulti
           fieldName="listDetailId"
@@ -262,9 +270,7 @@ const MatchListDetailScreen = () => {
         />
         {error.listDetailId ? (
           <Text style={styles.errorText}>{error.listDetailId}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <Input
           placeholder="Enter Description"
@@ -277,9 +283,7 @@ const MatchListDetailScreen = () => {
         />
         {error.description ? (
           <Text style={styles.errorText}>{error.description}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <View style={styles.buttonContainer}>
           <Button

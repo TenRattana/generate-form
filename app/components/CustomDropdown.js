@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState , useMemo} from "react";
 import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -21,7 +21,7 @@ export const CustomDropdown = ({
   const [option, setOption] = useState([]);
   const responsive = useResponsive();
 
-  useEffect(() => {
+  useMemo(() => {
     if (data && Array.isArray(data)) {
       setOption(
         data.map((item) => ({
@@ -34,13 +34,13 @@ export const CustomDropdown = ({
     }
   }, [data, labels, values]);
 
-  useEffect(() => {
+  useMemo(() => {
     if (reset) {
       setValue("");
     }
   }, [reset]);
 
-  useEffect(() => {
+  useMemo(() => {
     setValue(selectedValue || "");
   }, [selectedValue]);
 

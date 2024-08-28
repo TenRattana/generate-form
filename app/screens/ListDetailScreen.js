@@ -114,9 +114,10 @@ const ListDetailScreen = () => {
         messageHeader = response.data.status ? "Success" : "Error";
         message = response.data.message;
         type = response.data.status ? "success" : "error";
+
         setFormState({
           listDetailId: listDetailResponse.LDetailID || "",
-          listDetailName: listDetailResponse.LDtailName || "",
+          listDetailName: listDetailResponse.LDetailName || "",
         });
       } else if (action === "del") {
         const response1 = await axios.post("DeleteListDetail", {
@@ -197,9 +198,7 @@ const ListDetailScreen = () => {
         />
         {error.listDetailName ? (
           <Text style={styles.errorText}>{error.listDetailName}</Text>
-        ) : (
-          false
-        )}
+        ) : null}
 
         <View style={styles.buttonContainer}>
           <Button

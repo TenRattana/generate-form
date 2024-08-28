@@ -6,9 +6,9 @@ const Inputs = ({ field, formData, handleChange }) => (
   <View style={styles.container}>
     <TextInput
       placeholder={field.placeholder}
-      name={field.QuestionName}
-      onChangeText={(value) => handleChange(field.MQuestionID, value)}
-      value={formData[field.MQuestionID] || ""}
+      name={field.ListName}
+      onChangeText={(value) => handleChange(field.MLDeatilID, value)}
+      value={formData[field.MLDeatilID] || ""}
       style={styles.textInput}
     />
   </View>

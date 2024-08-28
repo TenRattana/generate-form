@@ -4,19 +4,19 @@ import { View, Text, StyleSheet } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 
 const Radios = ({ field, formData, handleChange }) => {
-  if (!field.MatchQuestionOptions || field.MatchQuestionOptions.length === 0) {
+  if (!field.MatchListDetail || field.MatchListDetail.length === 0) {
     return "";
   }
 
-  return field.MatchQuestionOptions.map((option, OptionID) => (
-    <View key={OptionID} style={styles.container}>
+  return field.MatchListDetail.map((option, LDetailID) => (
+    <View key={LDetailID} style={styles.container}>
       <CheckBox
-        checked={formData[field.MQuestionID] === option.OptionName}
-        onPress={() => handleChange(field.MQuestionID, option.OptionName)}
+        checked={formData[field.MLDetailID] === option.LDetailName}
+        onPress={() => handleChange(field.MLDetailID, option.LDetailName)}
         containerStyle={styles.checkboxContainer}
         textStyle={styles.checkboxText}
       />
-      <Text style={styles.label}>{option.OptionName}</Text>
+      <Text style={styles.label}>{option.LDetailName}</Text>
     </View>
   ));
 };

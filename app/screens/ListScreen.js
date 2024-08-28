@@ -1,29 +1,39 @@
 import { StyleSheet, ScrollView, Text, View } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { colors, spacing, fonts } from "../../theme";
 import { CustomTable, useResponsive } from "../components";
 import validator from "validator";
+import { ToastContext } from "../contexts";
 
-const QuestionOptionScreen = () => {
-  const [option, setOption] = useState([]);
+const ListScreen = () => {
+  const [list, setList] = useState([]);
   const [formState, setFormState] = useState({
-    questionOptionId: "",
-    questionOptionName: "",
+    listId: "",
+    listName: "",
   });
   const [error, setError] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const responsive = useResponsive();
+  const { Toast } = useContext(ToastContext);
+
+  const ShowMessages = (textH, textT, color) => {
+    Toast.show({
+      type: color,
+      text1: textH,
+      text2: textT,
+      text1Style: [styles.text, { color: colors.palette.dark }],
+      text2Style: [styles.text, { color: colors.palette.dark }],
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [optionResponse] = await Promise.all([
-          axios.post("GetQuestionOptions"),
-        ]);
-        setOption(optionResponse.data || []);
+        const [listResponse] = await Promise.all([axios.post("GetLists")]);
+        setList(listResponse.data.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -35,8 +45,8 @@ const QuestionOptionScreen = () => {
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
 
-    if (fieldName === "questionOptionName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The Question Option Name field is required.";
+    if (fieldName === "listName" && validator.isEmpty(value.trim())) {
+      errorMessage = "The List Name field is required.";
     }
 
     setError((prevError) => ({
@@ -54,7 +64,7 @@ const QuestionOptionScreen = () => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "questionOptionId") {
+        if (!isEditing && key === "listId") {
           return true;
         }
         return value !== "" && value !== "" && String(value).trim() !== "";
@@ -63,7 +73,7 @@ const QuestionOptionScreen = () => {
   };
 
   const resetForm = () => {
-    setFormState({ questionOptionId: "", questionOptionName: "" });
+    setFormState({ listId: "", listName: "" });
     setError({});
     setIsEditing(false);
   };
@@ -71,55 +81,64 @@ const QuestionOptionScreen = () => {
   const saveData = async () => {
     setIsLoading(true);
     const data = {
-      OptionID: formState.questionOptionId,
-      OptionName: formState.questionOptionName,
+      ListId: formState.listId,
+      ListName: formState.listName,
     };
 
     try {
-      await axios.post("SaveQuestionOption", data, {
-        headers: { "Content-Type": "application/json" },
-      });
-      setFormState({ questionOptionId: "", questionOptionName: "" });
-      setError({});
-      const response = await axios.post("GetQuestionOptions");
-      setOption(response.data || []);
+      await axios.post("SaveList", data);
+      const response = await axios.post("GetLists");
+      setList(response.data.data || []);
+      resetForm();
     } catch (error) {
-      console.error("Error inserting data:", error);
+      console.error("Error saving data:", error);
     }
     setIsLoading(false);
   };
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
+    let messageHeader = "";
+    let message = "";
+    let type = "";
+
     try {
       if (action === "edit") {
-        const response = await axios.post("GetQuestionOption", {
-          OptionID: item,
-        });
-        const questionoptionData = response.data[0] || {};
+        const response = await axios.post("GetList", { ListID: item });
+        const listData = response.data.data[0] || {};
 
         setFormState({
-          questionOptionId: questionoptionData.OptionID || "",
-          questionOptionName: questionoptionData.OptionName || "",
+          listId: listData.ListID || "",
+          listName: listData.ListName || "",
         });
+        messageHeader = response.data.status ? "Success" : "Error";
+        message = response.data.message;
+        type = response.data.status ? "success" : "error";
       } else if (action === "del") {
-        const response1 = await axios.post("DeleteQuestionOption", {
-          QuestionID: item,
+        const response = await axios.post("DeleteList", {
+          ListID: item,
         });
-        const response2 = await axios.post("GetQuestionOptions");
-        setOption(response2.data || []);
+        // messageHeader = jsonResponse.status ? "Success" : "Error";
+        // message = jsonResponse.message;
+        // type = jsonResponse.status ? "success" : "error";
+        const response2 = await axios.post("GetLists");
+        setList(response2.data.data || []);
       }
     } catch (error) {
-      console.error("Error fetching question option data:", error);
+      // messageHeader = error.message;
+      // message = error.response.data.errors;
+      // type = "error";
     }
+    // ShowMessages(messageHeader, message, type);
     setIsLoading(false);
   };
 
-  const tableData = option.map((item) => {
-    return [item.OptionName, item.OptionID, item.OptionID];
+  const tableData = list.map((item) => {
+    return [item.ListName, item.ListID, item.ListID];
   });
+  console.log(list);
 
-  const tableHead = ["Question Option Name", "Edit", "Delete"];
+  const tableHead = ["List Name", "Edit", "Delete"];
 
   const styles = StyleSheet.create({
     scrollView: {
@@ -164,20 +183,19 @@ const QuestionOptionScreen = () => {
   return (
     <ScrollView style={styles.scrollView}>
       <Card>
-        <Card.Title>Create Option</Card.Title>
+        <Card.Title>Create List</Card.Title>
         <Card.Divider />
-
         <Input
-          placeholder="Enter Question Option Name"
-          label="Question Option Name"
+          placeholder="Enter List Name"
+          label="List Name"
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("questionOptionName", text)}
-          value={formState.questionOptionName}
+          value={formState.listName}
+          onChangeText={(text) => handleChange("listName", text)}
         />
-        {error.questionOptionName ? (
-          <Text style={styles.errorText}>{error.questionOptionName}</Text>
+        {error.listName ? (
+          <Text style={styles.errorText}>{error.listName}</Text>
         ) : (
           false
         )}
@@ -203,13 +221,13 @@ const QuestionOptionScreen = () => {
       </Card>
 
       <Card>
-        <Card.Title>List Option</Card.Title>
+        <Card.Title>List</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[5, 1, 1]}
           editIndex={1}
+          flexArr={[5, 1, 1]}
           delIndex={2}
           handleAction={handleAction}
         />
@@ -218,4 +236,4 @@ const QuestionOptionScreen = () => {
   );
 };
 
-export default QuestionOptionScreen;
+export default ListScreen;

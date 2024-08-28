@@ -1,29 +1,41 @@
 import { StyleSheet, ScrollView, Text, View } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { colors, spacing, fonts } from "../../theme";
 import { CustomTable, useResponsive } from "../components";
 import validator from "validator";
+import { ToastContext } from "../contexts";
 
-const QuestionForm = () => {
-  const [question, setQuestion] = useState([]);
+const ListDetailScreen = () => {
+  const [listDetail, setListDetail] = useState([]);
   const [formState, setFormState] = useState({
-    questionId: "",
-    questionName: "",
+    listDetailId: "",
+    listDetailName: "",
   });
   const [error, setError] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const responsive = useResponsive();
+  const { Toast } = useContext(ToastContext);
+
+  const ShowMessages = (textH, textT, color) => {
+    Toast.show({
+      type: color,
+      text1: textH,
+      text2: textT,
+      text1Style: [styles.text, { color: colors.palette.dark }],
+      text2Style: [styles.text, { color: colors.palette.dark }],
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [questionResponse] = await Promise.all([
-          axios.post("GetQuestions"),
+        const [listDetailResponse] = await Promise.all([
+          axios.post("GetListDetails"),
         ]);
-        setQuestion(questionResponse.data || []);
+        setListDetail(listDetailResponse.data.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -35,8 +47,8 @@ const QuestionForm = () => {
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
 
-    if (fieldName === "questionName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The Question Name field is required.";
+    if (fieldName === "listDetailName" && validator.isEmpty(value.trim())) {
+      errorMessage = "The List Detail Name field is required.";
     }
 
     setError((prevError) => ({
@@ -54,7 +66,7 @@ const QuestionForm = () => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "questionId") {
+        if (!isEditing && key === "listDetailId") {
           return true;
         }
         return value !== "" && value !== "" && String(value).trim() !== "";
@@ -63,7 +75,7 @@ const QuestionForm = () => {
   };
 
   const resetForm = () => {
-    setFormState({ questionId: "", questionName: "" });
+    setFormState({ listDetailId: "", listDetailName: "" });
     setError({});
     setIsEditing(false);
   };
@@ -71,54 +83,62 @@ const QuestionForm = () => {
   const saveData = async () => {
     setIsLoading(true);
     const data = {
-      QuestionID: formState.questionId,
-      QuestionName: formState.questionName,
+      LDetailID: formState.listDetailId,
+      LDetailName: formState.listDetailName,
     };
 
     try {
-      await axios.post("SaveQuestion", data, {
-        headers: { "Content-Type": "application/json" },
-      });
-      setFormState({ questionId: "", questionName: "" });
-      setError({});
-      const response = await axios.post("GetQuestions");
-      setQuestion(response.data || []);
-      setIsEditing(true);
+      const responseData = await axios.post("SaveListDetail", data);
+      const response = await axios.post("GetListDetails");
+      setListDetail(response.data.data || []);
+      resetForm();
     } catch (error) {
-      console.error("Error saving data:", error);
+      console.error("Error inserting data:", error);
     }
     setIsLoading(false);
   };
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
+    let messageHeader = "";
+    let message = "";
+    let type = "";
+
     try {
       if (action === "edit") {
-        const response = await axios.post("GetQuestion", { QuestionID: item });
-        const questionData = response.data[0] || {};
+        const response = await axios.post("GetListDetail", {
+          LDetailID: item,
+        });
+        const listDetailResponse = response.data.data[0] || {};
 
+        messageHeader = response.data.status ? "Success" : "Error";
+        message = response.data.message;
+        type = response.data.status ? "success" : "error";
         setFormState({
-          questionId: questionData.QuestionID || "",
-          questionName: questionData.QuestionName || "",
+          listDetailId: listDetailResponse.LDetailID || "",
+          listDetailName: listDetailResponse.LDtailName || "",
         });
       } else if (action === "del") {
-        const response1 = await axios.post("DeleteQuestion", {
-          QuestionID: item,
+        const response1 = await axios.post("DeleteListDetail", {
+          LDetailID: item,
         });
-        const response2 = await axios.post("GetQuestions");
-        setQuestion(response2.data || []);
+        const response2 = await axios.post("GetListDetails");
+        setListDetail(response2.data.data || []);
       }
     } catch (error) {
-      console.error("Error fetching question data:", error);
+      messageHeader = error.message;
+      message = error.response.data.errors;
+      type = "error";
     }
+    // ShowMessages(messageHeader, message, type);
     setIsLoading(false);
   };
 
-  const tableData = question.map((item) => {
-    return [item.QuestionName, item.QuestionID, item.QuestionID];
+  const tableData = listDetail.map((item) => {
+    return [item.LDetailName, item.LDetailID, item.LDetailID];
   });
 
-  const tableHead = ["Question Name", "Edit", "Delete"];
+  const tableHead = ["List Detail Name", "Edit", "Delete"];
 
   const styles = StyleSheet.create({
     scrollView: {
@@ -163,19 +183,20 @@ const QuestionForm = () => {
   return (
     <ScrollView style={styles.scrollView}>
       <Card>
-        <Card.Title>Create Question</Card.Title>
+        <Card.Title>Create Option</Card.Title>
         <Card.Divider />
+
         <Input
-          placeholder="Enter Question Name"
-          label="Question Name"
+          placeholder="Enter List Detail Name"
+          label="List Detail Name"
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
-          value={formState.questionName}
-          onChangeText={(text) => handleChange("questionName", text)}
+          onChangeText={(text) => handleChange("listDetailName", text)}
+          value={formState.listDetailName}
         />
-        {error.questionName ? (
-          <Text style={styles.errorText}>{error.questionName}</Text>
+        {error.listDetailName ? (
+          <Text style={styles.errorText}>{error.listDetailName}</Text>
         ) : (
           false
         )}
@@ -201,13 +222,13 @@ const QuestionForm = () => {
       </Card>
 
       <Card>
-        <Card.Title>List Question</Card.Title>
+        <Card.Title>List Detail</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          editIndex={1}
           flexArr={[5, 1, 1]}
+          editIndex={1}
           delIndex={2}
           handleAction={handleAction}
         />
@@ -216,4 +237,4 @@ const QuestionForm = () => {
   );
 };
 
-export default QuestionForm;
+export default ListDetailScreen;

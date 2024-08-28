@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { colors, spacing, fonts } from "../../theme";
 import { CustomTable, CustomDropdown, useResponsive } from "../components";
 import validator from "validator";
+import { ToastContext } from "../contexts";
 
 const MachineScreen = () => {
   const [machine, setMachine] = useState([]);
@@ -21,6 +22,17 @@ const MachineScreen = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const responsive = useResponsive();
+  const { Toast } = useContext(ToastContext);
+
+  const ShowMessages = (textH, textT, color) => {
+    Toast.show({
+      type: color,
+      text1: textH,
+      text2: textT,
+      text1Style: [styles.text, { color: colors.palette.dark }],
+      text2Style: [styles.text, { color: colors.palette.dark }],
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,10 +41,10 @@ const MachineScreen = () => {
           axios.post("GetMachines"),
           axios.post("GetMachineGroups"),
         ]);
-        setMachine(machineResponse.data || []);
-        setMachineGroup(machineGroupResponse.data || []);
+        setMachine(machineResponse.data.data || []);
+        setMachineGroup(machineGroupResponse.data.data || []);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        ShowMessages(error.message, error.response.data.errors, "error");
       }
     };
 
@@ -88,6 +100,10 @@ const MachineScreen = () => {
 
   const saveData = async () => {
     setIsLoading(true);
+    let messageHeader = "";
+    let message = "";
+    let type = "";
+
     const data = {
       MachineID: formState.machineId,
       MachineGroupID: formState.machineGroupId,
@@ -97,35 +113,39 @@ const MachineScreen = () => {
     };
 
     try {
-      await axios.post("SaveMachine", data, {
-        headers: { "Content-Type": "application/json" },
-      });
-      setFormState({
-        machineId: "",
-        machineGroupId: "",
-        machineName: "",
-        displayOrder: "",
-        description: "",
-      });
-      setError({});
+      const responseData = await axios.post("SaveMachine", data);
+      // const responseSplit = responseData.data.split("}{")[0] + "}";
+
+      // const jsonResponse = JSON.parse(responseSplit);
+
+      // messageHeader = jsonResponse.status ? "Success" : "Error";
+      // message = jsonResponse.message;
+      // type = jsonResponse.status ? "success" : "error";
+
       const response = await axios.post("GetMachines");
-      setMachine(response.data || []);
+      setMachine(response.data.data || []);
       setResetDropdown(true);
       setTimeout(() => setResetDropdown(false), 0);
-      setIsEditing(true);
+      resetForm();
     } catch (error) {
-      console.error("Error saving data:", error);
+      messageHeader = error.message;
+      message = error.response.data.errors;
+      type = "error";
     }
+    // ShowMessages(messageHeader, message, type);
     setIsLoading(false);
   };
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
+    let messageHeader = "";
+    let message = "";
+    let type = "";
+
     try {
       if (action === "edit") {
         const response = await axios.post("GetMachine", { machineID: item });
-        const machineData = response.data[0] || {};
-
+        const machineData = response.data.data[0] || {};
         setFormState({
           machineId: machineData.MachineID || "",
           machineGroupId: machineData.MGroupID || "",
@@ -133,25 +153,36 @@ const MachineScreen = () => {
           description: machineData.Description || "",
           displayOrder: String(machineData.DisplayOrder) || "",
         });
+        setIsEditing(true);
+        messageHeader = response.data.status ? "Success" : "Error";
+        message = response.data.message;
+        type = response.data.status ? "success" : "error";
       } else if (action === "del") {
-        await axios.post("DeleteMachine", {
+        const responseData = await axios.post("DeleteMachine", {
           MachineID: item,
         });
+        // const jsonResponse = JSON.parse(responseData.data.split("}{")[0] + "}");
+
+        // messageHeader = jsonResponse.status ? "Success" : "Error";
+        // message = jsonResponse.message;
+        // type = jsonResponse.status ? "success" : "error";
+
         const response = await axios.post("GetMachines");
-        setMachine(response.data || []);
+        setMachine(response.data.data || []);
       }
     } catch (error) {
-      console.error("Error handling action:", error);
+      // messageHeader = error.message;
+      // message = error.response.data.errors;
+      // type = "error";
     }
+    // ShowMessages(messageHeader, message, type);
     setIsLoading(false);
   };
 
   const tableData = machine.map((item) => {
-    const group = machineGroup.find(
-      (group) => group.MGroupID === item.MGroupID
-    );
     return [
-      group ? group.MGroupName : "",
+      machineGroup.find((group) => group.MGroupID === item.MGroupID)
+        ?.GroupName || "",
       item.MachineName,
       item.Description,
       item.DisplayOrder,
@@ -218,8 +249,8 @@ const MachineScreen = () => {
         <CustomDropdown
           fieldName="machineGroupId"
           title="Machine Group"
-          labels="MGroupID"
-          values="MGroupName"
+          labels="GroupName"
+          values="MGroupID"
           data={machineGroup}
           updatedropdown={handleChange}
           reset={resetDropdown}

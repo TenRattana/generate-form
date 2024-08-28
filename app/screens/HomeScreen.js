@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useState, useEffect , useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "../../config/axios";
-import { ThemeContext } from "../index";
+import { ThemeContext } from "../contexts";
 
 export default function HomeScreen() {
   const [list, setList] = useState([]);

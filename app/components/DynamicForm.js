@@ -19,7 +19,7 @@ const DynamicForm = ({ fields }) => {
 
   const renderField = (field) => {
     switch (field.TypeName) {
-      case "TEXTINPUT":
+      case "Textinput":
         return (
           <Inputs
             field={field}
@@ -27,7 +27,7 @@ const DynamicForm = ({ fields }) => {
             handleChange={handleChange}
           />
         );
-      case "TEXTAERA":
+      case "Textaera":
         return (
           <Textareas
             field={field}
@@ -35,7 +35,7 @@ const DynamicForm = ({ fields }) => {
             handleChange={handleChange}
           />
         );
-      case "RADIO":
+      case "Radio":
         return (
           <Radios
             field={field}
@@ -43,7 +43,7 @@ const DynamicForm = ({ fields }) => {
             handleChange={handleChange}
           />
         );
-      case "DROPDOWN":
+      case "Dropdown":
         return (
           <Selects
             field={field}
@@ -51,7 +51,7 @@ const DynamicForm = ({ fields }) => {
             handleChange={handleChange}
           />
         );
-      case "CHECKBOX":
+      case "Checkbox":
         return (
           <Checkboxs
             field={field}

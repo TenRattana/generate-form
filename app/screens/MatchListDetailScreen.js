@@ -113,7 +113,7 @@ const MatchListDetailScreen = () => {
     const data = {
       MLDetailID: matchListDetailId,
       ListID: formState.listId,
-      LDetailID: formState.listDetailId,
+      LDetailID: JSON.stringify(formState.listDetailId),
       Description: formState.description,
     };
 
@@ -154,7 +154,7 @@ const MatchListDetailScreen = () => {
         });
       } else if (action === "del") {
         await axios.post("DeleteMatchListDetail", {
-          MLDetailID: item,
+          ID: item,
         });
         const response = await axios.post("GetMatchListDetails");
         setMachineListDetail(response.data.data || []);
@@ -177,12 +177,12 @@ const MatchListDetailScreen = () => {
         )?.LDetailName;
 
         return [
-          index === 0 ? `Group ${idx + 1}` : "",
-          index === 0 ? (listName ? listName : "") : "",
+          `Group ${idx + 1}`,
+          listName ? listName : "",
           detailName ? detailName : "",
-          index === 0 ? mld.Description : "",
-          index === 0 ? item.MLDetailID : "",
-          index === 0 ? item.ID : "",
+          mld.Description,
+          item.MLDetailID,
+          mld.ID,
         ];
       });
     }

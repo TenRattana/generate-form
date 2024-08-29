@@ -18,19 +18,19 @@ import { colors, spacing, fonts } from "../../../theme";
 import axios from "../../../config/axios";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
+import validator from "validator";
 
 const initial = { cards: [] };
 
 const reducer = (state, action) => {
   const {
     selectedCardIndex,
-    newCardName,
-    newCardColumn,
+    formCard,
     formState,
     selectedFieldIndex,
-    type,
-    question,
-    detailQuestion,
+    listType,
+    list,
+    matchListDetail,
   } = action.payload;
 
   switch (action.type) {
@@ -40,8 +40,9 @@ const reducer = (state, action) => {
         cards: [
           ...state.cards,
           {
-            CardName: newCardName,
-            CardColumns: parseInt(newCardColumn, 10),
+            cardName: formCard.cardName,
+            cardColumns: parseInt(formCard.cardColumns, 10),
+            cardDisplayOrder: parseInt(formCard.cardDisplayOrder, 10),
             fields: [],
           },
         ],
@@ -54,8 +55,9 @@ const reducer = (state, action) => {
           index === selectedCardIndex
             ? {
                 ...card,
-                CardName: newCardName,
-                CardColumns: parseInt(newCardColumn, 10),
+                cardName: formCard.cardName,
+                cardColumns: parseInt(formCard.cardColumns, 10),
+                cardDisplayOrder: parseInt(formCard.cardDisplayOrder, 10),
               }
             : card
         ),
@@ -79,16 +81,15 @@ const reducer = (state, action) => {
                   {
                     ...formState,
                     TypeName:
-                      type.find((v) => v.TypeID === formState.typeId)
+                      listType.find((v) => v.TypeID === formState.listTypeId)
                         ?.TypeName || "",
-                    QuestionName:
-                      question.find(
-                        (v) => v.QuestionID === formState.questionId
-                      )?.QuestionName || "",
-                    MatchQuestionOptions:
-                      detailQuestion.find(
-                        (v) => v.MQOptionID === formState.detailQuestionId
-                      )?.MatchQuestionOptions || [],
+                    ListName:
+                      list.find((v) => v.ListID === formState.listId)
+                        ?.ListName || "",
+                    MatchListDetail:
+                      matchListDetail.find(
+                        (v) => v.MLDetailID === formState.matchListDetailId
+                      )?.MatchListDetail || [],
                   },
                 ].sort(
                   (a, b) => parseInt(a.displayOrder) - parseInt(b.displayOrder)
@@ -111,16 +112,17 @@ const reducer = (state, action) => {
                       ? {
                           ...formState,
                           TypeName:
-                            type.find((v) => v.TypeID === formState.typeId)
-                              ?.TypeName || "",
-                          QuestionName:
-                            question.find(
-                              (v) => v.QuestionID === formState.questionId
-                            )?.QuestionName || "",
-                          MatchQuestionOptions:
-                            detailQuestion.find(
-                              (v) => v.MQOptionID === formState.detailQuestionId
-                            )?.MatchQuestionOptions || [],
+                            listType.find(
+                              (v) => v.TypeID === formState.listTypeId
+                            )?.TypeName || "",
+                          ListName:
+                            list.find((v) => v.ListID === formState.listId)
+                              ?.ListName || "",
+                          MatchListDetail:
+                            matchListDetail.find(
+                              (v) =>
+                                v.MLDetailID === formState.matchListDetailId
+                            )?.MatchListDetail || [],
                         }
                       : field
                   )
@@ -151,17 +153,21 @@ const reducer = (state, action) => {
   }
 };
 
-const FormBuilder = () => {
+const FormBuilder = ({ route }) => {
   const [state, dispatch] = useReducer(reducer, initial);
   const [showCardDialog, setShowCardDialog] = useState(false);
   const [showFieldDialog, setShowFieldDialog] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [selectedFieldIndex, setSelectedFieldIndex] = useState(null);
-  const [newCardName, setNewCardName] = useState("");
-  const [newCardColumn, setNewCardColumn] = useState("");
+  const [formCard, setFormCard] = useState({
+    cardName: "",
+    cardColumns: "",
+    cardDisplayOrder: "",
+  });
   const [editMode, setEditMode] = useState(false);
   const responsive = useResponsive();
+  const [error, setError] = useState({});
   const [formState, setFormState] = useState({
     matchListDetailId: "",
     listId: "",
@@ -184,6 +190,7 @@ const FormBuilder = () => {
   });
   const [shouldRender, setShouldRender] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { formIdforEdit } = route.params || {};
 
   useEffect(() => {
     if (shouldRender !== "") {
@@ -195,6 +202,27 @@ const FormBuilder = () => {
       }).start();
     }
   }, [shouldRender]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = {
+        FormID: formIdforEdit || "",
+      };
+
+      try {
+        const listResponse = await axios.post("GetForm", data);
+
+        setForm({
+          formId: listResponse.data.data[0].FormID || "",
+          formName: listResponse.data.data[0].FormName || "",
+        });
+      } catch (err) {
+        setError(err);
+      }
+    };
+
+    fetchData();
+  }, [formIdforEdit]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -228,6 +256,32 @@ const FormBuilder = () => {
     fetchData();
   }, []);
 
+  const handleCard = (field, value) => {
+    let errorMessage = "";
+
+    if (field === "cardName" && validator.isEmpty(value.trim())) {
+      errorMessage = "The Card Name field is required.";
+    }
+
+    if (field === "cardColumns" && !validator.isNumeric(value.trim())) {
+      errorMessage = "The Card Column field must be numeric.";
+    }
+
+    if (field === "cardDisplayOrder" && !validator.isNumeric(value.trim())) {
+      errorMessage = "The Card Display Order field must be numeric.";
+    }
+
+    setError((prevError) => ({
+      ...prevError,
+      [field]: errorMessage,
+    }));
+
+    setFormCard((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
   const handleForm = (field, value) => {
     setForm((prevState) => ({
       ...prevState,
@@ -235,8 +289,32 @@ const FormBuilder = () => {
     }));
   };
 
-  const saveForm = () => {
-    console.log(state, form);
+  const saveForm = async () => {
+    let messageHeader = "";
+    let message = "";
+    let type = "";
+
+    const data = {
+      Cards: JSON.stringify(state.cards),
+      FormID: "",
+      FormName: form.formName,
+    };
+
+    try {
+      const responseData = await axios.post("SaveMatchList", data);
+      setForm({
+        formId: responseData.data.FormID || "",
+        formName: responseData.data.FormName || "",
+      });
+      messageHeader = responseData.data.status ? "Success" : "Error";
+      message = responseData.data.message;
+      type = responseData.data.status ? "success" : "error";
+      resetForm();
+    } catch (error) {
+      messageHeader = error.message;
+      message = error.response.data.errors;
+      type = "error";
+    }
   };
 
   const saveCard = (option) => {
@@ -253,24 +331,19 @@ const FormBuilder = () => {
           type: "updatecard",
           payload: {
             selectedCardIndex,
-            newCardName,
-            newCardColumn,
+            formCard,
           },
         });
-        setEditMode(false);
       }
     } else if (!editMode) {
       dispatch({
         type: "addcard",
         payload: {
-          newCardName,
-          newCardColumn,
+          formCard,
         },
       });
     }
-    setShowCardDialog(false);
-    setNewCardName("");
-    setNewCardColumn("");
+    resetForm();
   };
 
   const resetForm = () => {
@@ -283,12 +356,12 @@ const FormBuilder = () => {
       displayOrder: "",
       placeholder: "",
     });
+    setError({});
     setShowFieldDialog(false);
     setEditMode(false);
     setShowSaveDialog(false);
     setShowCardDialog(false);
-    setNewCardName("");
-    setNewCardColumn("");
+    setFormCard({});
   };
 
   const saveField = (option) => {
@@ -331,10 +404,6 @@ const FormBuilder = () => {
   };
 
   useMemo(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-    }).start();
-
     const listTypeItem = listType.find(
       (item) => item.TypeID === formState.listTypeId
     );
@@ -343,21 +412,21 @@ const FormBuilder = () => {
 
     if (listTypeItem) {
       if (
-        listTypeItem.TypeName === "DROPDOWN" ||
-        listTypeItem.TypeName === "RADIO" ||
-        listTypeItem.TypeName === "CHECKBOX"
+        listTypeItem.TypeName === "Dropdown" ||
+        listTypeItem.TypeName === "Radio" ||
+        listTypeItem.TypeName === "Checkbox"
       ) {
         op = "detail";
       } else if (
-        listTypeItem.TypeName === "TEXTINPUT" ||
-        listTypeItem.TypeName === "TEXTAERA"
+        listTypeItem.TypeName === "Textinput" ||
+        listTypeItem.TypeName === "Textaera"
       ) {
         op = "text";
       }
     }
 
     setShouldRender(op);
-  }, [formState.typeId]);
+  }, [formState.listTypeId]);
 
   const handleChange = (fieldName, value) => {
     setFormState((prevState) => ({
@@ -467,6 +536,17 @@ const FormBuilder = () => {
       fontSize: 18,
       fontWeight: "bold",
     },
+    errorText: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      marginLeft: spacing.xs,
+      top: -spacing.xxs,
+      color: colors.danger,
+    },
   });
 
   const renderCard = ({ item, index }) => (
@@ -474,14 +554,13 @@ const FormBuilder = () => {
       <TouchableOpacity
         onPress={() => {
           setSelectedCardIndex(index);
-          setNewCardName(item.CardName);
-          setNewCardColumn(item.CardColumns.toString());
+          setFormCard(item);
           setEditMode(true);
           setShowCardDialog(true);
         }}
         style={styles.button}
       >
-        <Text style={styles.text}>Card : {item.CardName}</Text>
+        <Text style={styles.text}>Card : {item.cardName}</Text>
         <Entypo name="chevron-right" size={18} color={colors.palette.light} />
       </TouchableOpacity>
 
@@ -519,14 +598,14 @@ const FormBuilder = () => {
       data={state.cards}
       renderItem={({ item, index }) => (
         <View style={styles.card} key={`card-${index}`}>
-          <Text style={styles.cardTitle}>{item.CardName}</Text>
+          <Text style={styles.cardTitle}>{item.cardName}</Text>
           <View style={styles.formContainer}>
             {item.fields.map((field, fieldIndex) => {
               const containerStyle = {
                 flexBasis: `${
                   responsive === "small" || responsive === "medium"
                     ? 100
-                    : 100 / item.CardColumns
+                    : 100 / item.cardColumns
                 }%`,
                 flexGrow: field.displayOrder || 1,
                 padding: 5,
@@ -534,7 +613,7 @@ const FormBuilder = () => {
 
               return (
                 <View
-                  key={`field-${fieldIndex}-${item.CardName}`}
+                  key={`field-${fieldIndex}-${item.cardName}`}
                   style={containerStyle}
                 >
                   <DynamicForm fields={[field]} />
@@ -666,21 +745,42 @@ const FormBuilder = () => {
             <Input
               label="Card Name"
               placeholder="Enter Card Name"
-              value={newCardName}
+              value={formCard.cardName || ""}
               labelStyle={[styles.text, { color: colors.text }]}
               inputStyle={[styles.text, { color: colors.text }]}
               disabledInputStyle={styles.containerInput}
-              onChangeText={setNewCardName}
+              onChangeText={(text) => handleCard("cardName", text)}
             />
+            {error.cardName ? (
+              <Text style={styles.errorText}>{error.cardName}</Text>
+            ) : null}
+
             <Input
               label="Card Column"
               placeholder="Enter Number of Columns"
-              value={newCardColumn}
+              value={formCard.cardColumns || ""}
               labelStyle={[styles.text, { color: colors.text }]}
               inputStyle={[styles.text, { color: colors.text }]}
               disabledInputStyle={styles.containerInput}
-              onChangeText={setNewCardColumn}
+              onChangeText={(text) => handleCard("cardColumns", text)}
             />
+            {error.cardColumns ? (
+              <Text style={styles.errorText}>{error.cardColumns}</Text>
+            ) : null}
+
+            <Input
+              label="Card Display Order"
+              placeholder="Enter Display Order Number"
+              value={formCard.cardDisplayOrder || ""}
+              labelStyle={[styles.text, { color: colors.text }]}
+              inputStyle={[styles.text, { color: colors.text }]}
+              disabledInputStyle={styles.containerInput}
+              onChangeText={(text) => handleCard("cardDisplayOrder", text)}
+            />
+            {error.cardDisplayOrder ? (
+              <Text style={styles.errorText}>{error.cardDisplayOrder}</Text>
+            ) : null}
+
             <View
               style={[
                 styles.viewDialog,
@@ -744,7 +844,7 @@ const FormBuilder = () => {
               title="Type"
               labels="TypeName"
               values="TypeID"
-              data={type}
+              data={listType}
               updatedropdown={handleChange}
               reset={resetDropdown}
               selectedValue={formState.listTypeId}

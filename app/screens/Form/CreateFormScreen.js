@@ -33,6 +33,25 @@ const reducer = (state, action) => {
     matchListDetail,
   } = action.payload;
 
+  const parseCardColumns = parseInt(formCard?.cardColumns, 10);
+  const parseCardDisplayOrder = parseInt(formCard?.cardDisplayOrder, 10);
+  const parseDisplayOrder = parseInt(formState?.displayOrder, 10);
+
+  const getTypeName = (typeId) => {
+    return listType.find((v) => v.TypeID === typeId)?.TypeName || "";
+  };
+
+  const getListName = (listId) => {
+    return list.find((v) => v.ListID === listId)?.ListName || "";
+  };
+
+  const getMatchListDetail = (mlDetailId) => {
+    return (
+      matchListDetail.find((v) => v.MLDetailID === mlDetailId)
+        ?.MatchListDetail || []
+    );
+  };
+
   switch (action.type) {
     case "addcard":
       return {
@@ -41,8 +60,8 @@ const reducer = (state, action) => {
           ...state.cards,
           {
             cardName: formCard.cardName,
-            cardColumns: parseInt(formCard.cardColumns, 10),
-            cardDisplayOrder: parseInt(formCard.cardDisplayOrder, 10),
+            cardColumns: parseCardColumns,
+            cardDisplayOrder: parseCardDisplayOrder,
             fields: [],
           },
         ],
@@ -56,12 +75,13 @@ const reducer = (state, action) => {
             ? {
                 ...card,
                 cardName: formCard.cardName,
-                cardColumns: parseInt(formCard.cardColumns, 10),
-                cardDisplayOrder: parseInt(formCard.cardDisplayOrder, 10),
+                cardColumns: parseCardColumns,
+                cardDisplayOrder: parseCardDisplayOrder,
               }
             : card
         ),
       };
+
     case "deletecard":
       return {
         ...state,
@@ -69,6 +89,7 @@ const reducer = (state, action) => {
           (_, cardIndex) => cardIndex !== selectedCardIndex
         ),
       };
+
     case "addfield":
       return {
         ...state,
@@ -80,16 +101,11 @@ const reducer = (state, action) => {
                   ...card.fields,
                   {
                     ...formState,
-                    TypeName:
-                      listType.find((v) => v.TypeID === formState.listTypeId)
-                        ?.TypeName || "",
-                    ListName:
-                      list.find((v) => v.ListID === formState.listId)
-                        ?.ListName || "",
-                    MatchListDetail:
-                      matchListDetail.find(
-                        (v) => v.MLDetailID === formState.matchListDetailId
-                      )?.MatchListDetail || [],
+                    TypeName: getTypeName(formState.listTypeId),
+                    ListName: getListName(formState.listId),
+                    MatchListDetail: getMatchListDetail(
+                      formState.matchListDetailId
+                    ),
                   },
                 ].sort(
                   (a, b) => parseInt(a.displayOrder) - parseInt(b.displayOrder)
@@ -111,18 +127,11 @@ const reducer = (state, action) => {
                     fieldIndex === selectedFieldIndex
                       ? {
                           ...formState,
-                          TypeName:
-                            listType.find(
-                              (v) => v.TypeID === formState.listTypeId
-                            )?.TypeName || "",
-                          ListName:
-                            list.find((v) => v.ListID === formState.listId)
-                              ?.ListName || "",
-                          MatchListDetail:
-                            matchListDetail.find(
-                              (v) =>
-                                v.MLDetailID === formState.matchListDetailId
-                            )?.MatchListDetail || [],
+                          TypeName: getTypeName(formState.listTypeId),
+                          ListName: getListName(formState.listId),
+                          MatchListDetail: getMatchListDetail(
+                            formState.matchListDetailId
+                          ),
                         }
                       : field
                   )
@@ -134,6 +143,7 @@ const reducer = (state, action) => {
             : card
         ),
       };
+
     case "deletefield":
       return {
         ...state,
@@ -148,6 +158,7 @@ const reducer = (state, action) => {
             : card
         ),
       };
+
     default:
       return state;
   }
@@ -211,11 +222,43 @@ const FormBuilder = ({ route }) => {
 
       try {
         const listResponse = await axios.post("GetForm", data);
+        const formData = listResponse.data.data;
 
-        setForm({
-          formId: listResponse.data.data[0].FormID || "",
-          formName: listResponse.data.data[0].FormName || "",
-        });
+        if (formData.length > 0) {
+          const firstItem = formData[0];
+
+          setForm({
+            formId: firstItem.FormID || "",
+            formName: firstItem.FormName || "",
+          });
+
+          const cards = [];
+          const fields = [];
+
+          formData.forEach((item, index) => {
+            const card = {
+              cardName: item.CardName,
+              cardColumns: item.CardColumns,
+              cardDisplayOrder: item.DisplayOrder,
+            };
+
+            const field = {
+              matchListDetailId: item.MatchListDetail.MLDetailID,
+              listId: item.MatchListDetail.ListID,
+              description: "",
+              listTypeId: item.MatchListDetail.TypeID,
+              dataTypeId: item.MatchListDetail.DTypeID,
+              displayOrder: item.MatchListDetail.DisplayOrder,
+              placeholder: "",
+            };
+
+            cards.push(card);
+            fields.push({ field, index });
+          });
+
+          dispatch({ type: "setCards", payload: cards });
+          dispatch({ type: "setFields", payload: fields });
+        }
       } catch (err) {
         setError(err);
       }

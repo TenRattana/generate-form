@@ -14,6 +14,7 @@ const MatchListDetailScreen = lazy(() =>
 const ViewFormScreen = lazy(() => import("./screens/Form/ViewFormScreen"));
 const Form = lazy(() => import("./screens/Form/FormScreen"));
 const CreateFormScreen = lazy(() => import("./screens/Form/CreateFormScreen"));
+const MatchFormMachineScreen = lazy(() => import("./screens/MatchFormMachineScreen"));
 
 const Drawer = createDrawerNavigator();
 
@@ -34,6 +35,7 @@ const App = () => {
             <Drawer.Screen name="Create Form" component={CreateFormScreen} />
             <Drawer.Screen name="View Form" component={ViewFormScreen} />
             <Drawer.Screen name="Forms" component={Form} />
+            <Drawer.Screen name="Match Form & Machine" component={MatchFormMachineScreen} />
           </Drawer.Navigator>
         </Suspense>
       </ToastProvider>

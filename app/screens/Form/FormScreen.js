@@ -30,7 +30,7 @@ const Forms = ({ navigation }) => {
       if (action === "edit") {
         navigation.navigate("Create Form", { formIdforEdit: item });
       } else if (action === "del") {
-        const response1 = await axios.post("DeleteQuestion", {
+        const response1 = await axios.post("Delete", {
           QuestionID: item,
         });
         const response2 = await axios.post("GetQuestions");
@@ -43,10 +43,10 @@ const Forms = ({ navigation }) => {
   };
 
   const tableData = form.map((item) => {
-    return [item.FormName, item.FormID, item.FormID];
+    return [item.FormName, item.FormID, item.FormID, item.FormID];
   });
 
-  const tableHead = ["Form Name", "Edit", "Delete"];
+  const tableHead = ["Form Name", "Copy Template", "Edit", "Delete"];
 
   const styles = StyleSheet.create({
     scrollView: {
@@ -96,9 +96,10 @@ const Forms = ({ navigation }) => {
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[5, 1, 1]}
-          editIndex={1}
-          delIndex={2}
+          flexArr={[4, 1, 1, 1]}
+          copyIndex={1}
+          editIndex={2}
+          delIndex={3}
           TextAlie={["left"]}
           handleAction={handleAction}
         />

@@ -2,10 +2,9 @@ import { StyleSheet, ScrollView, Text, View } from "react-native";
 import React, { useState, useEffect, useContext } from "react";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing, fonts } from "../../theme";
 import { CustomTable, useResponsive } from "../components";
 import validator from "validator";
-import { ToastContext } from "../contexts";
+import { ThemeContext } from "../contexts";
 
 const ListScreen = () => {
   const [list, setList] = useState([]);
@@ -17,17 +16,8 @@ const ListScreen = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const responsive = useResponsive();
-  const { Toast } = useContext(ToastContext);
-
-  const ShowMessages = (textH, textT, color) => {
-    Toast.show({
-      type: color,
-      text1: textH,
-      text2: textT,
-      text1Style: [styles.text, { color: colors.palette.dark }],
-      text2Style: [styles.text, { color: colors.palette.dark }],
-    });
-  };
+  // const { Toast } = useContext(ToastContext);
+  const { colors, fonts, spacing } = useContext(ThemeContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,9 +88,6 @@ const ListScreen = () => {
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
-    let messageHeader = "";
-    let message = "";
-    let type = "";
 
     try {
       if (action === "edit") {
@@ -115,21 +102,13 @@ const ListScreen = () => {
         message = response.data.message;
         type = response.data.status ? "success" : "error";
       } else if (action === "del") {
-        const response = await axios.post("DeleteList", {
+        await axios.post("DeleteList", {
           ListID: item,
         });
-        // messageHeader = jsonResponse.status ? "Success" : "Error";
-        // message = jsonResponse.message;
-        // type = jsonResponse.status ? "success" : "error";
         const response2 = await axios.post("GetLists");
         setList(response2.data.data || []);
       }
-    } catch (error) {
-      // messageHeader = error.message;
-      // message = error.response.data.errors;
-      // type = "error";
-    }
-    // ShowMessages(messageHeader, message, type);
+    } catch (error) {}
     setIsLoading(false);
   };
 

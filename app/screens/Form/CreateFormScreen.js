@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useMemo, useReducer, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useContext,
+} from "react";
 
 import {
   View,
@@ -19,6 +26,7 @@ import axios from "../../../config/axios";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import validator from "validator";
+import { ToastContext } from "../../contexts";
 
 const initial = { cards: [] };
 
@@ -53,6 +61,44 @@ const reducer = (state, action) => {
   };
 
   switch (action.type) {
+    case "setCards":
+      return {
+        ...state,
+        cards: [
+          ...formCard.map((card) => ({
+            cardName: card.cardName,
+            cardColumns: card.cardColumns,
+            cardDisplayOrder: card.cardDisplayOrder,
+            fields: [],
+          })),
+        ],
+      };
+
+    case "setFields":
+      return {
+        ...state,
+        cards: state.cards.map((card, cardIndex) => {
+          const updatedFields = formState
+            .filter((field) => field.index === cardIndex)
+            .map((field) => ({
+              ...field.field,
+              TypeName: getTypeName(field.field.listTypeId),
+              ListName: getListName(field.field.listId),
+              MatchListDetail: getMatchListDetail(
+                field.field.matchListDetailId
+              ),
+            }))
+            .sort(
+              (a, b) => parseInt(a.displayOrder) - parseInt(b.displayOrder)
+            );
+
+          return {
+            ...card,
+            fields: [...card.fields, ...updatedFields],
+          };
+        }),
+      };
+
     case "addcard":
       return {
         ...state,
@@ -158,7 +204,8 @@ const reducer = (state, action) => {
             : card
         ),
       };
-
+    case "reset":
+      return { state: initial };
     default:
       return state;
   }
@@ -181,12 +228,14 @@ const FormBuilder = ({ route }) => {
   const [error, setError] = useState({});
   const [formState, setFormState] = useState({
     matchListDetailId: "",
+    mListId: "",
     listId: "",
     description: "",
     listTypeId: "",
     dataTypeId: "",
     displayOrder: "",
     placeholder: "",
+    hint: "",
   });
   const [resetDropdown, setResetDropdown] = useState(false);
   const [list, setList] = useState([]);
@@ -195,77 +244,23 @@ const FormBuilder = ({ route }) => {
   const [matchListDetail, setMatchListDetail] = useState([]);
   const [listType, setListType] = useState([]);
   const [dataType, setDataType] = useState([]);
+  const [formData, setFormData] = useState([]);
   const [form, setForm] = useState({
     formId: "",
     formName: "",
+    formDescription: "",
   });
   const [shouldRender, setShouldRender] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { formIdforEdit } = route.params || {};
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const { Toast } = useContext(ToastContext);
 
-  useEffect(() => {
-    if (shouldRender !== "") {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 2000,
-        easing: Easing.in,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [shouldRender]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = {
-        FormID: formIdforEdit || "",
-      };
-
-      try {
-        const listResponse = await axios.post("GetForm", data);
-        const formData = listResponse.data.data;
-
-        if (formData.length > 0) {
-          const firstItem = formData[0];
-
-          setForm({
-            formId: firstItem.FormID || "",
-            formName: firstItem.FormName || "",
-          });
-
-          const cards = [];
-          const fields = [];
-
-          formData.forEach((item, index) => {
-            const card = {
-              cardName: item.CardName,
-              cardColumns: item.CardColumns,
-              cardDisplayOrder: item.DisplayOrder,
-            };
-
-            const field = {
-              matchListDetailId: item.MatchListDetail.MLDetailID,
-              listId: item.MatchListDetail.ListID,
-              description: "",
-              listTypeId: item.MatchListDetail.TypeID,
-              dataTypeId: item.MatchListDetail.DTypeID,
-              displayOrder: item.MatchListDetail.DisplayOrder,
-              placeholder: "",
-            };
-
-            cards.push(card);
-            fields.push({ field, index });
-          });
-
-          dispatch({ type: "setCards", payload: cards });
-          dispatch({ type: "setFields", payload: fields });
-        }
-      } catch (err) {
-        setError(err);
-      }
-    };
-
-    fetchData();
-  }, [formIdforEdit]);
+  const [messages, setMessages] = useState({
+    color: "",
+    messageLabel: "",
+    messageTitle: [],
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -291,6 +286,7 @@ const FormBuilder = ({ route }) => {
         setListType(listTypeResponse.data.data || []);
         setDataType(dataTypeResponse.data.data || []);
         setMachine(machineResponse.data.data || []);
+        setIsDataLoaded(true);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -298,6 +294,104 @@ const FormBuilder = ({ route }) => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (shouldRender !== "") {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.in,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [shouldRender]);
+
+  useEffect(() => {
+    if (isDataLoaded) {
+      const fetchData = async () => {
+        const data = {
+          FormID: formIdforEdit || "",
+        };
+
+        try {
+          const listResponse = await axios.post("GetForm", data);
+          const formData = listResponse.data.data;
+
+          if (formData.length > 0) {
+            const firstItem = formData[0];
+
+            setForm({
+              formId: firstItem.FormID || "",
+              formName: firstItem.FormName || "",
+              formDescription: firstItem.Description || "",
+            });
+
+            const cards = [];
+            const fields = [];
+
+            formData.forEach((item, index) => {
+              const card = {
+                cardName: item.CardName,
+                cardColumns: item.Columns,
+                cardDisplayOrder: item.DisplayOrder,
+              };
+
+              item.MatchListDetail.forEach((itemDetail) => {
+                const field = {
+                  matchListDetailId: itemDetail.MLDetailID,
+                  listId: itemDetail.ListID,
+                  mListId: itemDetail.MListID,
+                  description: "",
+                  listTypeId: itemDetail.TypeID,
+                  dataTypeId: itemDetail.DTypeID,
+                  displayOrder: itemDetail.DisplayOrder,
+                  placeholder: "",
+                  hint: "Hello",
+                };
+                fields.push({ field, index });
+              });
+
+              cards.push(card);
+            });
+            dispatch({ type: "setCards", payload: { formCard: cards } });
+            dispatch({
+              type: "setFields",
+              payload: { formState: fields, listType, list, matchListDetail },
+            });
+            setMessages({
+              messageLabel: listResponse.data.status ? "Success" : "Error",
+              messageTitle: [listResponse.data.message],
+              color: listResponse.data.status ? "success" : "error",
+            });
+          }
+        } catch (error) {
+          setMessages({
+            messageLabel: error.message,
+            messageTitle: [...error.response.data.errors],
+            color: colors.palette.danger,
+          });
+        }
+      };
+      fetchData();
+    }
+  }, [formIdforEdit, isDataLoaded]);
+
+  useEffect(() => {
+    if (Toast && messages.messageLabel && messages.messageTitle.length > 0) {
+      Toast.show({
+        type: "customToast",
+        text1: messages.messageLabel,
+        text2: messages.messageTitle,
+        props: { color: messages.color },
+      });
+    }
+  }, [messages, Toast]);
+
+  useEffect(() => {
+    console.log(route);
+
+    dispatch({ type: "reset", payload: {} });
+  }, [route]);
 
   const handleCard = (field, value) => {
     let errorMessage = "";
@@ -332,15 +426,23 @@ const FormBuilder = ({ route }) => {
     }));
   };
 
-  const saveForm = async () => {
-    let messageHeader = "";
-    let message = "";
-    let type = "";
+  const handleFieldChange = (fieldName, value) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [fieldName]: value,
+    }));
+  };
 
+  const handleSubmit = () => {
+    console.log(formData);
+  };
+
+  const saveForm = async () => {
     const data = {
-      Cards: JSON.stringify(state.cards),
+      Cards: JSON.stringify(state.cards || []),
       FormID: "",
-      FormName: form.formName,
+      FormName: form.formName || "",
+      FormDescription: form.formDescription || "",
     };
 
     try {
@@ -348,15 +450,23 @@ const FormBuilder = ({ route }) => {
       setForm({
         formId: responseData.data.FormID || "",
         formName: responseData.data.FormName || "",
+        formDescription: responseData.data.Description || "",
       });
-      messageHeader = responseData.data.status ? "Success" : "Error";
-      message = responseData.data.message;
-      type = responseData.data.status ? "success" : "error";
+      setMessages({
+        messageLabel: responseData.data.status ? "Success" : "Error",
+        messageTitle: [responseData.data.message],
+        color: responseData.data.status
+          ? colors.palette.green
+          : colors.palette.danger,
+      });
+
       resetForm();
     } catch (error) {
-      messageHeader = error.message;
-      message = error.response.data.errors;
-      type = "error";
+      setMessages({
+        messageLabel: error.message,
+        messageTitle: [...error.response.data.errors],
+        color: colors.palette.danger,
+      });
     }
   };
 
@@ -392,12 +502,14 @@ const FormBuilder = ({ route }) => {
   const resetForm = () => {
     setFormState({
       matchListDetailId: "",
+      mListId: "",
       listId: "",
       description: "",
       listTypeId: "",
       dataTypeId: "",
       displayOrder: "",
       placeholder: "",
+      hint: "",
     });
     setError({});
     setShowFieldDialog(false);
@@ -611,6 +723,7 @@ const FormBuilder = ({ route }) => {
         <TouchableOpacity
           key={`${field.ListName}-${idx}`}
           onPress={() => {
+            setSelectedCardIndex(index);
             setSelectedFieldIndex(idx);
             setEditMode(true);
             setFormState(field);
@@ -659,7 +772,7 @@ const FormBuilder = ({ route }) => {
                   key={`field-${fieldIndex}-${item.cardName}`}
                   style={containerStyle}
                 >
-                  <DynamicForm fields={[field]} />
+                  <DynamicForm fields={[field]} onChange={handleFieldChange} />
                 </View>
               );
             })}
@@ -682,6 +795,15 @@ const FormBuilder = ({ route }) => {
             disabledInputStyle={styles.containerInput}
             onChangeText={(text) => handleForm("formName", text)}
             value={form.formName}
+          />
+          <Input
+            label="Content Description"
+            placeholder="Enter Content Description"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) => handleForm("formDescription", text)}
+            value={form.formDescription}
           />
           <TouchableOpacity
             onPress={() => {

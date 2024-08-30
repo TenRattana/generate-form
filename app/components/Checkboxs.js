@@ -8,9 +8,9 @@ const Checkboxs = ({ field, formData, handleChange }) => {
 
   useEffect(() => {
     const initialState = {};
-    field.MatchListDetail.forEach(option => {
-      const isChecked = Array.isArray(formData[field.MLDetailID])
-        ? formData[field.MLDetailID].includes(option.ListName)
+    field.MatchListDetail.forEach((option) => {
+      const isChecked = Array.isArray(formData[field.mListId])
+        ? formData[field.mListId].includes(option.ListName)
         : false;
       initialState[option.ListName] = isChecked;
     });
@@ -18,15 +18,18 @@ const Checkboxs = ({ field, formData, handleChange }) => {
   }, [formData, field]);
 
   const handleCheckBoxChange = (ListName) => {
-    const newCheckedOptions = { ...checkedOptions, [ListName]: !checkedOptions[ListName] };
+    const newCheckedOptions = {
+      ...checkedOptions,
+      [ListName]: !checkedOptions[ListName],
+    };
 
     setCheckedOptions(newCheckedOptions);
 
     const selectedOptions = Object.keys(newCheckedOptions).filter(
-      key => newCheckedOptions[key]
+      (key) => newCheckedOptions[key]
     );
-    
-    handleChange(field.MLDetailID, selectedOptions, "CHECKBOX");
+
+    handleChange(field.mListId, selectedOptions, "CHECKBOX");
   };
 
   if (!field.MatchListDetail || field.MatchListDetail.length === 0) {

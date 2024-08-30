@@ -19,6 +19,7 @@ export const CustomTable = ({
   delIndex,
   handleAction,
   TextAlie,
+  copyIndex,
 }) => {
   const responsive = useResponsive();
 
@@ -125,6 +126,12 @@ export const CustomTable = ({
           <AntDesign name="delete" size={20} color={colors.palette.danger} />
         </TouchableOpacity>
       );
+    } else if (action === "copy") {
+      return (
+        <TouchableOpacity style={styles.button} onPress={handlePress}>
+          <AntDesign name="copy1" size={20} color={colors.palette.danger} />
+        </TouchableOpacity>
+      );
     }
     return null;
   };
@@ -141,14 +148,17 @@ export const CustomTable = ({
         <View style={{ flexDirection: "row", marginTop: spacing.md }}>
           {editIndex >= 0 && renderActionButton(rowData[editIndex], "edit")}
           {delIndex >= 0 && renderActionButton(rowData[delIndex], "del")}
+          {copyIndex >= 0 && renderActionButton(rowData[copyIndex], "copy")}
         </View>
       </View>
     ) : (
-      rowData.map((cellData, cellIndex) =>
+      rowData.map((cellData, cellIndex, copyIndex) =>
         cellIndex === editIndex ? (
           renderActionButton(cellData, "edit")
         ) : cellIndex === delIndex ? (
           renderActionButton(cellData, "del")
+        ) : cellIndex === copyIndex ? (
+          renderActionButton(cellData, "copy")
         ) : (
           <Text key={cellIndex} style={styles.text}>
             {cellData}
@@ -172,7 +182,9 @@ export const CustomTable = ({
         <Rows
           data={rowsData.map((row) =>
             row.map((cell, cellIndex) =>
-              cellIndex === editIndex || cellIndex === delIndex ? (
+              cellIndex === editIndex ||
+              cellIndex === delIndex ||
+              cellIndex === copyIndex ? (
                 cell
               ) : (
                 <Text

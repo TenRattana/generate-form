@@ -11,8 +11,8 @@ const Radios = ({ field, formData, handleChange }) => {
   return field.MatchListDetail.map((option, LDetailID) => (
     <View key={LDetailID} style={styles.container}>
       <CheckBox
-        checked={formData[field.MLDetailID] === option.LDetailName}
-        onPress={() => handleChange(field.MLDetailID, option.LDetailName)}
+        checked={formData[field.mListId] === option.LDetailName}
+        onPress={() => handleChange(field.mListId, option.LDetailName)}
         containerStyle={styles.checkboxContainer}
         textStyle={styles.checkboxText}
       />

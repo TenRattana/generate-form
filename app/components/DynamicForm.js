@@ -5,7 +5,7 @@ import { useResponsive } from "./useResponsive";
 
 import { Selects, Radios, Checkboxs, Textareas, Inputs } from "./index";
 
-const DynamicForm = ({ fields }) => {
+const DynamicForm = ({ fields, onChange }) => {
   const [formState, setFormState] = useState({});
 
   const responsive = useResponsive();
@@ -15,6 +15,8 @@ const DynamicForm = ({ fields }) => {
       ...prevState,
       [fieldName]: value,
     }));
+
+    onChange(fieldName, value);
   };
 
   const renderField = (field) => {

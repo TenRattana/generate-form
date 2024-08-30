@@ -5,7 +5,8 @@ import { ThemeContext } from "../contexts";
 
 export default function HomeScreen() {
   const [list, setList] = useState([]);
-  const theme = useContext(ThemeContext);
+  const { colors, fonts, spacing } = useContext(ThemeContext);
+
   useEffect(() => {
     const getData = async () => {
       const data = await fetchData();
@@ -27,34 +28,34 @@ export default function HomeScreen() {
 
   const styles = StyleSheet.create({
     container: {
-      backgroundColor: theme.colors.background,
+      backgroundColor: colors.background,
       flex: 1,
-      padding: theme.spacing.md,
+      padding: spacing.md,
     },
     textHeader: {
       fontSize: 24,
       alignSelf: "center",
-      margin: theme.spacing.xs,
+      margin: spacing.xs,
     },
     textContent: {
       fontSize: 16,
-      margin: theme.spacing.xs,
-      marginTop: theme.spacing.xl,
-      color: theme.colors.text,
+      margin: spacing.xs,
+      marginTop: spacing.xl,
+      color: colors.text,
     },
     buttonTouche: {
       width: "30%",
-      margin: theme.spacing.xs,
+      margin: spacing.xs,
       height: 35,
       borderRadius: 10,
       elevation: 3,
-      backgroundColor: theme.colors.dark,
+      backgroundColor: colors.dark,
     },
     textInTouche: {
       fontSize: 16,
-      color: theme.colors.light,
+      color: colors.light,
       alignSelf: "center",
-      padding: theme.spacing.xs,
+      padding: spacing.xs,
     },
   });
 

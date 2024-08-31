@@ -133,7 +133,7 @@ const ViewFormScreen = () => {
     if (isDataLoaded) {
       const fetchData = async () => {
         const data = {
-          FormID: "F006",
+          FormID: "F001",
         };
 
         try {
@@ -163,11 +163,12 @@ const ViewFormScreen = () => {
                   matchListDetailId: itemDetail.MLDetailID,
                   mListId: itemDetail.MListID,
                   listId: itemDetail.ListID,
-                  description: "",
+                  description: itemDetail.Description,
                   listTypeId: itemDetail.TypeID,
                   dataTypeId: itemDetail.DTypeID,
                   displayOrder: itemDetail.DisplayOrder,
-                  placeholder: "",
+                  placeholder: itemDetail.Placeholder,
+                  hint: itemDetail.Hint,
                 };
                 fields.push({ field, index });
               });

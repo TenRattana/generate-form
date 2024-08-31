@@ -7,9 +7,10 @@ import validator from "validator";
 import { ToastContext } from "../contexts";
 import { CustomTable, CustomDropdown, useResponsive } from "../components";
 
-const ListScreen = () => {
+const ListScreen = ({ navigation }) => {
   const [form, setForm] = useState([]);
   const [machine, setMachine] = useState([]);
+  const [matchForm, setMatchform] = useState([]);
   const [resetDropdown, setResetDropdown] = useState(false);
   const [formState, setFormState] = useState({
     machineId: "",
@@ -35,12 +36,15 @@ const ListScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [formResponse, machineResponse] = await Promise.all([
-          axios.post("GetForms"),
-          axios.post("GetMachines"),
-        ]);
+        const [formResponse, machineResponse, matchFormMachineResponse] =
+          await Promise.all([
+            axios.post("GetForms"),
+            axios.post("GetMachines"),
+            axios.post("GetMatchFormMachines"),
+          ]);
         setForm(formResponse.data.data || []);
         setMachine(machineResponse.data.data || []);
+        setMatchform(matchFormMachineResponse.data.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -103,52 +107,47 @@ const ListScreen = () => {
     setIsLoading(false);
   };
 
-  const handleAction = async (action, item) => {
+  const handleAction = async (action, item, matchform) => {
     setIsLoading(true);
-    let messageHeader = "";
-    let message = "";
-    let type = "";
 
     try {
       if (action === "edit") {
-        const response = await axios.post("GetList", { ListID: item });
-        const listData = response.data.data[0] || {};
-
-        setFormState({
-          listId: listData.ListID || "",
-          listName: listData.ListName || "",
+        navigation.navigate("Create Form", {
+          formIdforEdit: item,
+          formIdMachine: matchform,
         });
-        messageHeader = response.data.status ? "Success" : "Error";
-        message = response.data.message;
-        type = response.data.status ? "success" : "error";
       } else if (action === "del") {
-        const response = await axios.post("DeleteList", {
-          ListID: item,
+        const response1 = await axios.post("DeleteMatchList", {
+          FormID: item,
         });
-        // messageHeader = jsonResponse.status ? "Success" : "Error";
-        // message = jsonResponse.message;
-        // type = jsonResponse.status ? "success" : "error";
-        const response2 = await axios.post("GetLists");
-        setList(response2.data.data || []);
+        const response = await axios.post("GetMatchFormMachines");
+        setForm(response.data.data || []);
       }
     } catch (error) {
-      // messageHeader = error.message;
-      // message = error.response.data.errors;
-      // type = "error";
+      console.error("Error fetching question data:", error);
     }
-    // ShowMessages(messageHeader, message, type);
     setIsLoading(false);
   };
 
-  // const tableData = ["", "", ""];
-  // form.flatMap((item) => {
-  //   // machine.forEach((machine) => {
+  const tableData = matchForm.map((item) => {
+    return [
+      item.MachineName,
+      item.FormName,
+      item.IsActive,
+      item.DisplayOrder,
+      item.MFMachineID,
+      item.MFMachineID,
+    ];
+  });
 
-  //   // })
-  //   return ["", "", ""];
-  // });
-
-  // const tableHead = ["List Name", "Edit", "Delete"];
+  const tableHead = [
+    "Machine Name",
+    "Form Name",
+    "IsActive",
+    "Display Order",
+    "Edit",
+    "Delete",
+  ];
 
   const styles = StyleSheet.create({
     scrollView: {
@@ -189,8 +188,6 @@ const ListScreen = () => {
       color: colors.danger,
     },
   });
-
-  console.log(formState);
 
   return (
     <ScrollView style={styles.scrollView}>
@@ -262,14 +259,14 @@ const ListScreen = () => {
       <Card>
         <Card.Title>List Form in Machine</Card.Title>
         <Card.Divider />
-        {/* <CustomTable
+        <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          editIndex={1}
-          flexArr={[5, 1, 1]}
-          delIndex={2}
+          editIndex={4}
+          flexArr={[2, 3, 1, 1, 1, 1]}
+          delIndex={5}
           handleAction={handleAction}
-        /> */}
+        />
       </Card>
     </ScrollView>
   );

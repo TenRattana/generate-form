@@ -19,7 +19,7 @@ import {
   Easing,
 } from "react-native";
 
-import { Dialog, Input, Button } from "@rneui/themed";
+import { Dialog, Input, Button, Divider } from "@rneui/themed";
 import { DynamicForm, useResponsive, CustomDropdown } from "../../components";
 import { colors, spacing, fonts } from "../../../theme";
 import axios from "../../../config/axios";
@@ -205,7 +205,7 @@ const reducer = (state, action) => {
         ),
       };
     case "reset":
-      return { state: initial };
+      return { ...state, cards: initial.cards };
     default:
       return state;
   }
@@ -236,6 +236,7 @@ const FormBuilder = ({ route }) => {
     displayOrder: "",
     placeholder: "",
     hint: "",
+    require: false,
   });
   const [resetDropdown, setResetDropdown] = useState(false);
   const [list, setList] = useState([]);
@@ -246,13 +247,15 @@ const FormBuilder = ({ route }) => {
   const [dataType, setDataType] = useState([]);
   const [formData, setFormData] = useState([]);
   const [form, setForm] = useState({
+    mfmachineId: "",
+    mFormId: "",
     formId: "",
     formName: "",
     formDescription: "",
   });
   const [shouldRender, setShouldRender] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const { formIdforEdit } = route.params || {};
+  const { formIdforEdit, formIdMachine } = route.params || {};
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const { Toast } = useContext(ToastContext);
 
@@ -307,10 +310,11 @@ const FormBuilder = ({ route }) => {
   }, [shouldRender]);
 
   useEffect(() => {
-    if (isDataLoaded) {
+    if (isDataLoaded && formIdforEdit) {
       const fetchData = async () => {
         const data = {
           FormID: formIdforEdit || "",
+          MFMachineID: formIdMachine || "",
         };
 
         try {
@@ -321,6 +325,8 @@ const FormBuilder = ({ route }) => {
             const firstItem = formData[0];
 
             setForm({
+              mfmachineId: firstItem.mfmachineId || "",
+              mFormId: firstItem.MFormID || "",
               formId: firstItem.FormID || "",
               formName: firstItem.FormName || "",
               formDescription: firstItem.Description || "",
@@ -341,12 +347,13 @@ const FormBuilder = ({ route }) => {
                   matchListDetailId: itemDetail.MLDetailID,
                   listId: itemDetail.ListID,
                   mListId: itemDetail.MListID,
-                  description: "",
+                  description: itemDetail.Description,
                   listTypeId: itemDetail.TypeID,
                   dataTypeId: itemDetail.DTypeID,
                   displayOrder: itemDetail.DisplayOrder,
-                  placeholder: "",
-                  hint: "Hello",
+                  placeholder: itemDetail.Placeholder,
+                  hint: itemDetail.Hint,
+                  require: false,
                 };
                 fields.push({ field, index });
               });
@@ -374,7 +381,7 @@ const FormBuilder = ({ route }) => {
       };
       fetchData();
     }
-  }, [formIdforEdit, isDataLoaded]);
+  }, [formIdforEdit, isDataLoaded, formIdMachine]);
 
   useEffect(() => {
     if (Toast && messages.messageLabel && messages.messageTitle.length > 0) {
@@ -389,7 +396,7 @@ const FormBuilder = ({ route }) => {
 
   useEffect(() => {
     console.log(route);
-
+    setForm({ formId: "", formName: "", formDescription: "" });
     dispatch({ type: "reset", payload: {} });
   }, [route]);
 
@@ -440,7 +447,9 @@ const FormBuilder = ({ route }) => {
   const saveForm = async () => {
     const data = {
       Cards: JSON.stringify(state.cards || []),
-      FormID: "",
+      MFMachineID: form.mfmachineId || "",
+      MFormID: form.mFormId || "",
+      FormID: form.formId || "",
       FormName: form.formName || "",
       FormDescription: form.formDescription || "",
     };
@@ -510,6 +519,7 @@ const FormBuilder = ({ route }) => {
       displayOrder: "",
       placeholder: "",
       hint: "",
+      require: false,
     });
     setError({});
     setShowFieldDialog(false);
@@ -663,7 +673,8 @@ const FormBuilder = ({ route }) => {
     textHeader: {
       fontSize: responsive === "small" ? fonts.xmd : fonts.lg,
       fontWeight: "bold",
-      paddingLeft: "10%",
+      marginLeft: 20,
+      paddingTop: 10,
       color: colors.palette.light,
     },
     containerInput: {
@@ -1054,6 +1065,16 @@ const FormBuilder = ({ route }) => {
                   onChangeText={(text) => handleChange("placeholder", text)}
                   value={formState.placeholder}
                 />
+
+                <Input
+                  label="Hint"
+                  placeholder="Enter Hint"
+                  labelStyle={[styles.text, { color: colors.text }]}
+                  inputStyle={[styles.text, { color: colors.text }]}
+                  disabledInputStyle={styles.containerInput}
+                  onChangeText={(text) => handleChange("hint", text)}
+                  value={formState.hint}
+                />
               </Animated.View>
             ) : null}
 
@@ -1112,9 +1133,24 @@ const FormBuilder = ({ route }) => {
       </View>
 
       <View style={styles.layout2}>
-        <Text style={[styles.textHeader, { color: colors.palette.dark }]}>
+        <Text
+          style={[
+            styles.textHeader,
+            { color: colors.palette.dark, marginBottom: 10 },
+          ]}
+        >
           {form.formName ? form.formName : "Content Name"}
         </Text>
+        <Divider
+          style={{ left: -50 }}
+          subHeader={form.formDescription || "Content Description"}
+          inset={true}
+          subHeaderStyle={{
+            marginTop: 2,
+            left: -50,
+            color: colors.palette.dark,
+          }}
+        />
         {renderLayout2()}
       </View>
     </ScrollView>

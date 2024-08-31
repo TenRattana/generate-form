@@ -1,10 +1,17 @@
-import { StyleSheet, ScrollView, Text, View } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import axios from "../../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { colors, spacing, fonts } from "../../../theme";
 import { CustomTable, useResponsive } from "../../components";
 import CreateFormScreen from "./CreateFormScreen";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 const Forms = ({ navigation }) => {
   const [form, setForm] = useState([]);
@@ -30,11 +37,11 @@ const Forms = ({ navigation }) => {
       if (action === "edit") {
         navigation.navigate("Create Form", { formIdforEdit: item });
       } else if (action === "del") {
-        const response1 = await axios.post("Delete", {
-          QuestionID: item,
+        const response1 = await axios.post("DeleteMatchList", {
+          FormID: item,
         });
-        const response2 = await axios.post("GetQuestions");
-        setQuestion(response2.data || []);
+        const response = await axios.post("GetForms");
+        setForm(response.data.data || []);
       }
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -42,6 +49,9 @@ const Forms = ({ navigation }) => {
     setIsLoading(false);
   };
 
+  const handleNewForm = () => {
+    navigation.navigate("Create Form");
+  };
   const tableData = form.map((item) => {
     return [item.FormName, item.FormID, item.FormID, item.FormID];
   });
@@ -62,12 +72,12 @@ const Forms = ({ navigation }) => {
       color: colors.text,
     },
     buttonContainer: {
-      flexDirection: responsive === "large" ? "row" : "column",
-      justifyContent: "center",
-      alignItems: "center",
+      justifyContent: "flex-start",
+      marginLeft: 30,
+      width: responsive === "small" ? "90%" : 150,
     },
     containerButton: {
-      width: responsive === "large" ? 300 : "90%",
+      width: responsive === "small" ? "90%" : 300,
       marginVertical: "1%",
       marginHorizontal: "2%",
     },
@@ -86,13 +96,31 @@ const Forms = ({ navigation }) => {
       top: -spacing.xxs,
       color: colors.danger,
     },
+    button: {
+      padding: 10,
+      backgroundColor: colors.palette.background2,
+      justifyContent: responsive === "small" ? "center" : "flex-start",
+      flexDirection: "row",
+      paddingLeft: 10,
+      width: "100%",
+    },
   });
 
   return (
     <ScrollView style={styles.scrollView}>
       <Card>
-        <Card.Title>List Question</Card.Title>
+        <Card.Title>List Form</Card.Title>
         <Card.Divider />
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={handleNewForm}>
+            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
+            <Text style={[styles.text, { color: colors.palette.light }]}>
+              New Form
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}

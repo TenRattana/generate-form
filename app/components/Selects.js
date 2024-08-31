@@ -32,9 +32,7 @@ const Selects = ({ field, formData, handleChange }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginVertical: spacing.sm,
-  },
+  container: {},
   dropdown: {
     marginVertical: spacing.sm,
     borderColor: colors.border,
@@ -43,7 +41,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   picker: {
-    height: 50,
+    height: 40,
     width: "100%",
   },
   label: {

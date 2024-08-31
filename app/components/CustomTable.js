@@ -107,6 +107,15 @@ export const CustomTable = ({
       alignItems: "center",
       justifyContent: "center",
     },
+    booleanText: {
+      fontSize: fonts.sm,
+      color: colors.text,
+      textAlign: "center",
+    },
+    booleanIcon: {
+      fontSize: 20,
+      textAlign: "center",
+    },
   });
 
   const renderActionButton = (data, action) => {
@@ -136,13 +145,36 @@ export const CustomTable = ({
     return null;
   };
 
+  const renderCellContent = (cell) => {
+    if (typeof cell === "boolean") {
+      return (
+        <Text style={styles.booleanText}>
+          {cell ? (
+            <AntDesign
+              name="checkcircle"
+              style={styles.booleanIcon}
+              color={colors.palette.green}
+            />
+          ) : (
+            <AntDesign
+              name="closecircle"
+              style={styles.booleanIcon}
+              color={colors.palette.danger}
+            />
+          )}
+        </Text>
+      );
+    }
+    return <Text style={styles.text}>{cell}</Text>;
+  };
+
   const rowsData = Tabledata.map((rowData, index) =>
     responsive === "small" ? (
       <View key={index} style={styles.cardRow}>
         {Tablehead.map((header, i) => (
           <View key={i} style={{ marginBottom: spacing.xs }}>
             <Text style={styles.titleStyled}>{header}:</Text>
-            <Text style={styles.text}>{rowData[i]}</Text>
+            {renderCellContent(rowData[i])}
           </View>
         ))}
         <View style={{ flexDirection: "row", marginTop: spacing.md }}>
@@ -153,17 +185,13 @@ export const CustomTable = ({
       </View>
     ) : (
       rowData.map((cellData, cellIndex, copyIndex) =>
-        cellIndex === editIndex ? (
-          renderActionButton(cellData, "edit")
-        ) : cellIndex === delIndex ? (
-          renderActionButton(cellData, "del")
-        ) : cellIndex === copyIndex ? (
-          renderActionButton(cellData, "copy")
-        ) : (
-          <Text key={cellIndex} style={styles.text}>
-            {cellData}
-          </Text>
-        )
+        cellIndex === editIndex
+          ? renderActionButton(cellData, "edit")
+          : cellIndex === delIndex
+          ? renderActionButton(cellData, "del")
+          : cellIndex === copyIndex
+          ? renderActionButton(cellData, "copy")
+          : renderCellContent(cellData)
       )
     )
   );
@@ -184,22 +212,9 @@ export const CustomTable = ({
             row.map((cell, cellIndex) =>
               cellIndex === editIndex ||
               cellIndex === delIndex ||
-              cellIndex === copyIndex ? (
-                cell
-              ) : (
-                <Text
-                  key={cellIndex}
-                  style={[
-                    styles.text,
-                    {
-                      alignSelf: TextAlie ? TextAlie : "center",
-                      paddingLeft: TextAlie ? spacing.md : 0,
-                    },
-                  ]}
-                >
-                  {cell}
-                </Text>
-              )
+              cellIndex === copyIndex
+                ? cell
+                : renderCellContent(cell)
             )
           )}
           style={styles.row}

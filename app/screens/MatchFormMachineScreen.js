@@ -107,14 +107,13 @@ const ListScreen = ({ navigation }) => {
     setIsLoading(false);
   };
 
-  const handleAction = async (action, item, matchform) => {
+  const handleAction = async (action, item) => {
     setIsLoading(true);
 
     try {
       if (action === "edit") {
         navigation.navigate("Create Form", {
-          formIdforEdit: item,
-          formIdMachine: matchform,
+          formIdMachine: item,
         });
       } else if (action === "del") {
         const response1 = await axios.post("DeleteMatchList", {

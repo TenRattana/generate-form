@@ -310,7 +310,7 @@ const FormBuilder = ({ route }) => {
   }, [shouldRender]);
 
   useEffect(() => {
-    if (isDataLoaded && formIdforEdit) {
+    if (isDataLoaded && (formIdforEdit || formIdMachine)) {
       const fetchData = async () => {
         const data = {
           FormID: formIdforEdit || "",
@@ -325,7 +325,7 @@ const FormBuilder = ({ route }) => {
             const firstItem = formData[0];
 
             setForm({
-              mfmachineId: firstItem.mfmachineId || "",
+              mfmachineId: firstItem.MFMachineID || "",
               mFormId: firstItem.MFormID || "",
               formId: firstItem.FormID || "",
               formName: firstItem.FormName || "",

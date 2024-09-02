@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -6,22 +6,28 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Table, Row, Rows, TableWrapper } from "react-native-table-component";
+import { Table, Row, Rows } from "react-native-table-component";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors, spacing, fonts } from "../../theme";
 import { useResponsive } from "./useResponsive";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 export const CustomTable = ({
   Tabledata,
   Tablehead,
   flexArr,
-  editIndex,
-  delIndex,
   handleAction,
-  TextAlie,
-  copyIndex,
+  actionIndex,
 }) => {
   const responsive = useResponsive();
+  const [action, setAction] = useState([]);
+
+  console.log("CustomTable");
+
+  useMemo(() => {
+    if (actionIndex && Array.isArray(actionIndex)) setAction(actionIndex || []);
+    else setAction([]);
+  }, [actionIndex]);
 
   const styles = StyleSheet.create({
     containerTable: {
@@ -106,11 +112,11 @@ export const CustomTable = ({
           : spacing.xl,
       alignItems: "center",
       justifyContent: "center",
+      userSelect: "none",
     },
     booleanText: {
       fontSize: fonts.sm,
       color: colors.text,
-      textAlign: "center",
     },
     booleanIcon: {
       fontSize: 20,
@@ -123,26 +129,38 @@ export const CustomTable = ({
       handleAction(action, data);
     };
 
-    if (action === "edit") {
-      return (
-        <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <AntDesign name="edit" size={20} color={colors.palette.primary} />
-        </TouchableOpacity>
-      );
-    } else if (action === "del") {
-      return (
-        <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <AntDesign name="delete" size={20} color={colors.palette.danger} />
-        </TouchableOpacity>
-      );
-    } else if (action === "copy") {
-      return (
-        <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <AntDesign name="copy1" size={20} color={colors.palette.danger} />
-        </TouchableOpacity>
-      );
+    switch (action) {
+      case "editIndex":
+        return (
+          <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <AntDesign name="edit" size={20} color={colors.palette.primary} />
+          </TouchableOpacity>
+        );
+      case "delIndex":
+        return (
+          <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <AntDesign name="delete" size={20} color={colors.palette.danger} />
+          </TouchableOpacity>
+        );
+      case "changeIndex":
+        return (
+          <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <FontAwesome6
+              name="edit"
+              size={20}
+              color={colors.palette.primary}
+            />
+          </TouchableOpacity>
+        );
+      case "copyIndex":
+        return (
+          <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
+          </TouchableOpacity>
+        );
+      default:
+        return null;
     }
-    return null;
   };
 
   const renderCellContent = (cell) => {
@@ -168,38 +186,52 @@ export const CustomTable = ({
     return <Text style={styles.text}>{cell}</Text>;
   };
 
-  const rowsData = Tabledata.map((rowData, index) =>
-    responsive === "small" ? (
-      <View key={index} style={styles.cardRow}>
-        {Tablehead.map((header, i) => (
-          <View key={i} style={{ marginBottom: spacing.xs }}>
-            <Text style={styles.titleStyled}>{header}:</Text>
-            {renderCellContent(rowData[i])}
+  const rowsData = Tabledata.map((rowData, headerIndex) =>
+    responsive === "small"
+      ? action.map((v, actionIndex) => (
+          <View key={headerIndex} style={styles.cardRow}>
+            {Tablehead.map((header, i) => (
+              <View key={i} style={{ marginBottom: spacing.xs }}>
+                <Text style={styles.titleStyled}>{header}:</Text>
+                {renderCellContent(rowData[i])}
+              </View>
+            ))}
+            <View style={{ flexDirection: "row", marginTop: spacing.md }}>
+              {Object.entries(v).map(([key, value]) => (
+                <React.Fragment key={`${headerIndex}-${actionIndex}-${key}`}>
+                  {value >= 0 && renderActionButton(rowData[value], key)}
+                </React.Fragment>
+              ))}
+            </View>
           </View>
-        ))}
-        <View style={{ flexDirection: "row", marginTop: spacing.md }}>
-          {editIndex >= 0 && renderActionButton(rowData[editIndex], "edit")}
-          {delIndex >= 0 && renderActionButton(rowData[delIndex], "del")}
-          {copyIndex >= 0 && renderActionButton(rowData[copyIndex], "copy")}
-        </View>
-      </View>
-    ) : (
-      rowData.map((cellData, cellIndex, copyIndex) =>
-        cellIndex === editIndex
-          ? renderActionButton(cellData, "edit")
-          : cellIndex === delIndex
-          ? renderActionButton(cellData, "del")
-          : cellIndex === copyIndex
-          ? renderActionButton(cellData, "copy")
-          : renderCellContent(cellData)
-      )
-    )
+        ))
+      : rowData.map((cellData, cellIndex) =>
+          action.map((v, actionIndex) => {
+            const filteredEntries = Object.entries(v).filter(
+              ([key, value]) => value === cellIndex
+            );
+
+            return filteredEntries.length > 0 ? (
+              filteredEntries.map(([key, value]) => (
+                <React.Fragment key={`${headerIndex}-${actionIndex}-${key}`}>
+                  {renderActionButton(rowData[value], key)}
+                </React.Fragment>
+              ))
+            ) : (
+              <React.Fragment
+                key={`${headerIndex}-${actionIndex}-${cellIndex}`}
+              >
+                {renderCellContent(cellData)}
+              </React.Fragment>
+            );
+          })
+        )
   );
 
   return responsive === "small" ? (
     rowsData
   ) : (
-    <ScrollView style={styles.containerTable}>
+    <ScrollView contentContainerStyle={styles.containerTable}>
       <Table>
         <Row
           data={Tablehead}
@@ -208,15 +240,7 @@ export const CustomTable = ({
           flexArr={flexArr}
         />
         <Rows
-          data={rowsData.map((row) =>
-            row.map((cell, cellIndex) =>
-              cellIndex === editIndex ||
-              cellIndex === delIndex ||
-              cellIndex === copyIndex
-                ? cell
-                : renderCellContent(cell)
-            )
-          )}
+          data={rowsData}
           style={styles.row}
           textStyle={styles.text}
           flexArr={flexArr}

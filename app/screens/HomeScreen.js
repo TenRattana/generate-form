@@ -1,13 +1,32 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useMemo, useContext } from "react";
 import axios from "../../config/axios";
-import { ThemeContext } from "../contexts";
+import { ThemeContext, ToastContext } from "../contexts";
+
+const fetchData = async () => {
+  try {
+    const response = await axios.post("GetMachines");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return [];
+  }
+};
 
 export default function HomeScreen() {
   const [list, setList] = useState([]);
   const { colors, fonts, spacing } = useContext(ThemeContext);
+  const { Toast } = useContext(ToastContext);
 
-  useEffect(() => {
+  const [messages, setMessages] = useState({
+    color: "",
+    messageLabel: "",
+    messageTitle: [],
+  });
+
+  console.log("HomeScreen");
+
+  useMemo(() => {
     const getData = async () => {
       const data = await fetchData();
       setList(data || []);
@@ -15,16 +34,6 @@ export default function HomeScreen() {
 
     getData();
   }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.post("GetMachines");
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      return [];
-    }
-  };
 
   const styles = StyleSheet.create({
     container: {
@@ -42,14 +51,6 @@ export default function HomeScreen() {
       margin: spacing.xs,
       marginTop: spacing.xl,
       color: colors.text,
-    },
-    buttonTouche: {
-      width: "30%",
-      margin: spacing.xs,
-      height: 35,
-      borderRadius: 10,
-      elevation: 3,
-      backgroundColor: colors.dark,
     },
     textInTouche: {
       fontSize: 16,

@@ -32,6 +32,7 @@ const ListScreen = ({ navigation }) => {
       text2Style: [styles.text, { color: colors.palette.dark }],
     });
   };
+  console.log("ListScreen");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,14 +112,20 @@ const ListScreen = ({ navigation }) => {
     setIsLoading(true);
 
     try {
-      if (action === "edit") {
+      if (action === "changeIndex") {
         navigation.navigate("Create Form", {
           formIdMachine: item,
         });
-      } else if (action === "del") {
-        const response1 = await axios.post("DeleteMatchList", {
-          FormID: item,
-        });
+      } else {
+        if (action === "delIndex") {
+          const response1 = await axios.post("DeleteMatchFormMachine", {
+            MFMachineID: item,
+          });
+        } else if (action === "editIndex") {
+          const response1 = await axios.post("GetMatchFormMachine", {
+            MFMachineID: item,
+          });
+        }
         const response = await axios.post("GetMatchFormMachines");
         setForm(response.data.data || []);
       }
@@ -136,6 +143,7 @@ const ListScreen = ({ navigation }) => {
       item.DisplayOrder,
       item.MFMachineID,
       item.MFMachineID,
+      item.MFMachineID,
     ];
   });
 
@@ -144,6 +152,7 @@ const ListScreen = ({ navigation }) => {
     "Form Name",
     "IsActive",
     "Display Order",
+    "Change",
     "Edit",
     "Delete",
   ];
@@ -189,7 +198,7 @@ const ListScreen = ({ navigation }) => {
   });
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
         <Card.Title>Create Form in Machine</Card.Title>
         <Card.Divider />
@@ -242,7 +251,7 @@ const ListScreen = ({ navigation }) => {
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
-            onPress={saveData}
+            onPress={() => saveData}
             loading={isLoading}
           />
           <Button
@@ -250,7 +259,7 @@ const ListScreen = ({ navigation }) => {
             type="outline"
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
-            onPress={resetForm}
+            onPress={() => resetForm}
           />
         </View>
       </Card>
@@ -261,9 +270,8 @@ const ListScreen = ({ navigation }) => {
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          editIndex={4}
-          flexArr={[2, 3, 1, 1, 1, 1]}
-          delIndex={5}
+          actionIndex={[{ changeIndex: 4, editIndex: 5, delIndex: 6 }]}
+          flexArr={[2, 3, 1, 1, 1, 1, 1]}
           handleAction={handleAction}
         />
       </Card>

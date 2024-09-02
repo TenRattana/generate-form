@@ -3,20 +3,21 @@ import { CheckBox } from "@rneui/themed";
 import { View, Text, StyleSheet } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 
-const Radios = ({ field, formData, handleChange }) => {
-  if (!field.MatchListDetail || field.MatchListDetail.length === 0) {
+const Radios = ({ name, option, formData, handleChange }) => {
+  if (!option || option === 0) {
     return "";
   }
+  console.log("Radios");
 
-  return field.MatchListDetail.map((option, LDetailID) => (
-    <View key={LDetailID} style={styles.container}>
+  return option.map((option, index) => (
+    <View key={index} style={styles.container}>
       <CheckBox
-        checked={formData[field.mListId] === option.LDetailName}
-        onPress={() => handleChange(field.mListId, option.LDetailName)}
+        checked={formData[name] === option.label}
+        onPress={() => handleChange(name, option.label)}
         containerStyle={styles.checkboxContainer}
         textStyle={styles.checkboxText}
       />
-      <Text style={styles.label}>{option.LDetailName}</Text>
+      <Text style={styles.label}>{option.label}</Text>
     </View>
   ));
 };

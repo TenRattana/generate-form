@@ -10,6 +10,8 @@ const DynamicForm = ({ fields, onChange }) => {
 
   const responsive = useResponsive();
 
+  console.log("Dynamic Form");
+
   const handleChange = (fieldName, value) => {
     setFormState((prevState) => ({
       ...prevState,
@@ -20,11 +22,18 @@ const DynamicForm = ({ fields, onChange }) => {
   };
 
   const renderField = (field) => {
+    const option = field.MatchListDetail.map((item) => ({
+      label: item.LDetailName,
+    }));
+
     switch (field.TypeName) {
       case "Textinput":
         return (
           <Inputs
-            field={field}
+            placeholder={field.placeholder}
+            hint={field.hint}
+            label={field.ListName}
+            name={field.mListId}
             formData={formState}
             handleChange={handleChange}
           />
@@ -32,7 +41,10 @@ const DynamicForm = ({ fields, onChange }) => {
       case "Textaera":
         return (
           <Textareas
-            field={field}
+            placeholder={field.placeholder}
+            hint={field.hint}
+            label={field.ListName}
+            name={field.mListId}
             formData={formState}
             handleChange={handleChange}
           />
@@ -40,7 +52,8 @@ const DynamicForm = ({ fields, onChange }) => {
       case "Radio":
         return (
           <Radios
-            field={field}
+            name={field.mListId}
+            option={option}
             formData={formState}
             handleChange={handleChange}
           />
@@ -48,7 +61,9 @@ const DynamicForm = ({ fields, onChange }) => {
       case "Dropdown":
         return (
           <Selects
-            field={field}
+            name={field.mListId}
+            option={option}
+            hint={field.hint}
             formData={formState}
             handleChange={handleChange}
           />
@@ -56,7 +71,8 @@ const DynamicForm = ({ fields, onChange }) => {
       case "Checkbox":
         return (
           <Checkboxs
-            field={field}
+            name={field.mListId}
+            option={option}
             formData={formState}
             handleChange={handleChange}
           />
@@ -78,12 +94,6 @@ const DynamicForm = ({ fields, onChange }) => {
     },
     containerInput: {
       marginVertical: spacing.md,
-    },
-    containerButton: {
-      alignSelf: "center",
-      width: "90%",
-      marginVertical: "1%",
-      marginHorizontal: "2%",
     },
     section: {
       padding: "2%",

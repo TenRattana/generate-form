@@ -2,20 +2,31 @@ import React from "react";
 import { TextInput, View, StyleSheet, Text } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 
-const Textareas = ({ field, formData, handleChange }) => (
-  <View style={styles.container}>
-    <TextInput
-      placeholder={field.placeholder}
-      name={field.ListName}
-      onChangeText={(value) => handleChange(field.mListId, value)}
-      value={formData[field.ListName] || ""}
-      multiline
-      numberOfLines={4}
-      style={styles.textInput}
-    />
-    {field.hint ? <Text style={styles.label}>{field.hint}</Text> : null}
-  </View>
-);
+const Textareas = ({
+  placeholder,
+  hint,
+  label,
+  name,
+  formData,
+  handleChange,
+}) => {
+  console.log("Textareas");
+
+  return (
+    <View style={styles.container}>
+      <TextInput
+        placeholder={placeholder || ""}
+        name={label || ""}
+        onChangeText={(value) => handleChange(name, value)}
+        value={formData[name] || ""}
+        style={styles.textInput}
+        multiline
+        numberOfLines={4}
+      />
+      {hint ? <Text style={styles.label}>{hint}</Text> : null}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -1,17 +1,19 @@
-import { StyleSheet, ScrollView, Text, View } from "react-native";
 import React, { useState, useEffect, useContext } from "react";
+import { StyleSheet, ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { colors, spacing, fonts } from "../../theme";
-import { CustomTable, useResponsive } from "../components";
+import { CustomTable, CustomDropdown, useResponsive } from "../components";
 import validator from "validator";
 import { ToastContext } from "../contexts";
 
-const ListDetailScreen = () => {
-  const [listDetail, setListDetail] = useState([]);
+const MachineGroupScreen = () => {
+  const [machineGroup, setMachineGroup] = useState([]);
   const [formState, setFormState] = useState({
-    listDetailId: "",
-    listDetailName: "",
+    mgroupId: "",
+    groupName: "",
+    displayOrder: "",
+    description: "",
   });
   const [error, setError] = useState({});
   const [isEditing, setIsEditing] = useState(false);
@@ -28,17 +30,17 @@ const ListDetailScreen = () => {
       text2Style: [styles.text, { color: colors.palette.dark }],
     });
   };
-  console.log("ListDetailScreen");
+  console.log("MachineGroupScreen");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [listDetailResponse] = await Promise.all([
-          axios.post("GetListDetails"),
+        const [machineGroupResponse] = await Promise.all([
+          axios.post("GetMachineGroups"),
         ]);
-        setListDetail(listDetailResponse.data.data || []);
+        setMachineGroup(machineGroupResponse.data.data || []);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        ShowMessages(error.message, error.response.data.errors, "error");
       }
     };
 
@@ -48,8 +50,13 @@ const ListDetailScreen = () => {
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
 
-    if (fieldName === "listDetailName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The List Detail Name field is required.";
+    if (fieldName === "groupName" && validator.isEmpty(value.trim())) {
+      errorMessage = "The Machine Group Name field is required.";
+    } else if (
+      fieldName === "displayOrder" &&
+      !validator.isNumeric(value.trim())
+    ) {
+      errorMessage = "The Display Order field must be numeric.";
     }
 
     setError((prevError) => ({
@@ -67,80 +74,90 @@ const ListDetailScreen = () => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "listDetailId") {
+        if (!isEditing && key === "mgroupId") {
           return true;
         }
-        return value !== "" && value !== "" && String(value).trim() !== "";
+        return value !== "" && String(value).trim() !== "";
       }) && Object.values(error).every((err) => err === "")
     );
   };
 
   const resetForm = () => {
-    setFormState({ listDetailId: "", listDetailName: "" });
+    setFormState({
+      mgroupId: "",
+      groupName: "",
+      displayOrder: "",
+      description: "",
+    });
     setError({});
     setIsEditing(false);
   };
 
   const saveData = async () => {
     setIsLoading(true);
+
     const data = {
-      LDetailID: formState.listDetailId,
-      LDetailName: formState.listDetailName,
+      MGroupID: formState.mgroupId,
+      GroupName: formState.groupName,
+      DisplayOrder: formState.displayOrder,
+      Description: formState.description,
     };
 
     try {
-      const responseData = await axios.post("SaveListDetail", data);
-      const response = await axios.post("GetListDetails");
-      setListDetail(response.data.data || []);
+      const responseData = await axios.post("SaveMachineGroup", data);
+
+      const response = await axios.post("GetMachineGroups");
+      setMachineGroup(response.data.data || []);
       resetForm();
-    } catch (error) {
-      console.error("Error inserting data:", error);
-    }
+    } catch (error) {}
     setIsLoading(false);
   };
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
-    let messageHeader = "";
-    let message = "";
-    let type = "";
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetListDetail", {
-          LDetailID: item,
+        const response = await axios.post("GetMachineGroup", {
+          MGroupID: item,
         });
-        const listDetailResponse = response.data.data[0] || {};
-
-        messageHeader = response.data.status ? "Success" : "Error";
-        message = response.data.message;
-        type = response.data.status ? "success" : "error";
-
+        const machineGroupData = response.data.data[0] || {};
         setFormState({
-          listDetailId: listDetailResponse.LDetailID || "",
-          listDetailName: listDetailResponse.LDetailName || "",
+          mgroupId: machineGroupData.MGroupID || "",
+          groupName: machineGroupData.GroupName || "",
+          description: machineGroupData.Description || "",
+          displayOrder: String(machineGroupData.DisplayOrder) || "",
         });
+        setIsEditing(true);
       } else if (action === "delIndex") {
-        const response1 = await axios.post("DeleteListDetail", {
-          LDetailID: item,
+        const responseData = await axios.post("DeleteMachineGroup", {
+          MGroupID: item,
         });
-        const response2 = await axios.post("GetListDetails");
-        setListDetail(response2.data.data || []);
+
+        const response = await axios.post("GetMachineGroups");
+        setMachineGroup(response.data.data || []);
       }
-    } catch (error) {
-      messageHeader = error.message;
-      message = error.response.data.errors;
-      type = "error";
-    }
-    // ShowMessages(messageHeader, message, type);
+    } catch (error) {}
     setIsLoading(false);
   };
 
-  const tableData = listDetail.map((item) => {
-    return [item.LDetailName, item.LDetailID, item.LDetailID];
+  const tableData = machineGroup.map((item) => {
+    return [
+      item.GroupName,
+      item.Description,
+      item.DisplayOrder,
+      item.MGroupID,
+      item.MGroupID,
+    ];
   });
 
-  const tableHead = ["List Detail Name", "Edit", "Delete"];
+  const tableHead = [
+    "Machine Group Name",
+    "Description",
+    "Priority",
+    "Edit",
+    "Delete",
+  ];
 
   const styles = StyleSheet.create({
     scrollView: {
@@ -185,20 +202,46 @@ const ListDetailScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
-        <Card.Title>Create Option</Card.Title>
+        <Card.Title>Create Machine</Card.Title>
         <Card.Divider />
 
         <Input
-          placeholder="Enter List Detail Name"
-          label="List Detail Name"
+          placeholder="Enter Machine Group Name"
+          label="Machine Group Name"
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("listDetailName", text)}
-          value={formState.listDetailName}
+          onChangeText={(text) => handleChange("groupName", text)}
+          value={formState.groupName}
         />
-        {error.listDetailName ? (
-          <Text style={styles.errorText}>{error.listDetailName}</Text>
+        {error.groupName ? (
+          <Text style={styles.errorText}>{error.groupName}</Text>
+        ) : null}
+
+        <Input
+          placeholder="Enter Description"
+          label="Description"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) => handleChange("description", text)}
+          value={formState.description}
+        />
+        {error.description ? (
+          <Text style={styles.errorText}>{error.description}</Text>
+        ) : null}
+
+        <Input
+          placeholder="Enter Display Order"
+          label="Display Order"
+          labelStyle={styles.text}
+          inputStyle={styles.text}
+          disabledInputStyle={styles.containerInput}
+          onChangeText={(text) => handleChange("displayOrder", text)}
+          value={formState.displayOrder}
+        />
+        {error.displayOrder ? (
+          <Text style={styles.errorText}>{error.displayOrder}</Text>
         ) : null}
 
         <View style={styles.buttonContainer}>
@@ -222,13 +265,13 @@ const ListDetailScreen = () => {
       </Card>
 
       <Card>
-        <Card.Title>List Detail</Card.Title>
+        <Card.Title>List Machine</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[5, 1, 1]}
-          actionIndex={[{ editIndex: 1, delIndex: 2 }]}
+          flexArr={[3, 4, 1, 1, 1]}
+          actionIndex={[{ editIndex: 3, delIndex: 4 }]}
           handleAction={handleAction}
         />
       </Card>
@@ -236,4 +279,4 @@ const ListDetailScreen = () => {
   );
 };
 
-export default ListDetailScreen;
+export default MachineGroupScreen;

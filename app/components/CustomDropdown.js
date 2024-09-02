@@ -1,4 +1,4 @@
-import React, { useState , useMemo} from "react";
+import React, { useState, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -20,6 +20,7 @@ export const CustomDropdown = ({
   const [value, setValue] = useState("");
   const [option, setOption] = useState([]);
   const responsive = useResponsive();
+  console.log("CustomDropdown");
 
   useMemo(() => {
     if (data && Array.isArray(data)) {

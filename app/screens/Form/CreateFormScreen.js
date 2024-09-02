@@ -264,6 +264,7 @@ const FormBuilder = ({ route }) => {
     messageLabel: "",
     messageTitle: [],
   });
+  console.log("FormBuilder");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -395,7 +396,6 @@ const FormBuilder = ({ route }) => {
   }, [messages, Toast]);
 
   useEffect(() => {
-    console.log(route);
     setForm({ formId: "", formName: "", formDescription: "" });
     dispatch({ type: "reset", payload: {} });
   }, [route]);
@@ -630,11 +630,7 @@ const FormBuilder = ({ route }) => {
       padding: 10,
       backgroundColor: "#fff",
       borderRadius: 8,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.8)",
     },
     cardTitle: {
       marginVertical: 10,
@@ -903,7 +899,7 @@ const FormBuilder = ({ route }) => {
             />
             <Button
               title="Cancel"
-              onPress={resetForm}
+              onPress={() => resetForm}
               titleStyle={styles.text}
               containerStyle={[
                 styles.containerButton,
@@ -988,7 +984,7 @@ const FormBuilder = ({ route }) => {
               )}
               <Button
                 title="Cancel"
-                onPress={resetForm}
+                onPress={() => resetForm}
                 titleStyle={styles.text}
                 containerStyle={[
                   styles.containerButton,
@@ -1120,7 +1116,7 @@ const FormBuilder = ({ route }) => {
 
               <Button
                 title="Cancel"
-                onPress={resetForm}
+                onPress={() => resetForm}
                 titleStyle={styles.text}
                 containerStyle={[
                   styles.containerButton,

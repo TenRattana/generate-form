@@ -3,24 +3,25 @@ import { CheckBox } from "@rneui/themed";
 import { View, Text, StyleSheet } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 
-const Checkboxs = ({ field, formData, handleChange }) => {
+const Checkboxs = ({ name, option, formData, handleChange }) => {
   const [checkedOptions, setCheckedOptions] = useState({});
+  console.log("Checkboxs");
 
   useEffect(() => {
     const initialState = {};
-    field.MatchListDetail.forEach((option) => {
-      const isChecked = Array.isArray(formData[field.mListId])
-        ? formData[field.mListId].includes(option.ListName)
+    option.forEach((option) => {
+      const isChecked = Array.isArray(formData[name])
+        ? formData[name].includes(option.label)
         : false;
-      initialState[option.ListName] = isChecked;
+      initialState[option.label] = isChecked;
     });
     setCheckedOptions(initialState);
-  }, [formData, field]);
+  }, [formData, option]);
 
-  const handleCheckBoxChange = (ListName) => {
+  const handleCheckBoxChange = (value) => {
     const newCheckedOptions = {
       ...checkedOptions,
-      [ListName]: !checkedOptions[ListName],
+      [value]: !checkedOptions[value],
     };
 
     setCheckedOptions(newCheckedOptions);
@@ -29,22 +30,22 @@ const Checkboxs = ({ field, formData, handleChange }) => {
       (key) => newCheckedOptions[key]
     );
 
-    handleChange(field.mListId, selectedOptions, "CHECKBOX");
+    handleChange(name, selectedOptions);
   };
 
-  if (!field.MatchListDetail || field.MatchListDetail.length === 0) {
+  if (!option || option.length === 0) {
     return null;
   }
 
-  return field.MatchListDetail.map((option, LDetailID) => (
+  return option.map((option, LDetailID) => (
     <View key={LDetailID} style={styles.container}>
       <CheckBox
-        checked={checkedOptions[option.ListName] || false}
-        onPress={() => handleCheckBoxChange(option.ListName)}
+        checked={checkedOptions[option.label] || false}
+        onPress={() => handleCheckBoxChange(option.label)}
         containerStyle={styles.checkboxContainer}
         textStyle={styles.checkboxText}
       />
-      <Text style={styles.label}>{option.ListName}</Text>
+      <Text style={styles.label}>{option.label}</Text>
     </View>
   ));
 };

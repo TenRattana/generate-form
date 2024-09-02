@@ -40,6 +40,8 @@ const MatchListDetailScreen = () => {
     });
   };
 
+  console.log("MatchListDetailScreen");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -135,7 +137,7 @@ const MatchListDetailScreen = () => {
     setIsLoading(true);
 
     try {
-      if (action === "edit") {
+      if (action === "editIndex") {
         const response = await axios.post("GetMatchListDetail", {
           MLDetailID: item,
         });
@@ -152,7 +154,7 @@ const MatchListDetailScreen = () => {
             ) || [],
           description: matchListDetailData.Description || "",
         });
-      } else if (action === "del") {
+      } else if (action === "delIndex") {
         await axios.post("DeleteMatchListDetail", {
           ID: item,
         });
@@ -239,7 +241,7 @@ const MatchListDetailScreen = () => {
   });
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
         <Card.Title>Create List Detail</Card.Title>
         <Card.Divider />
@@ -292,7 +294,7 @@ const MatchListDetailScreen = () => {
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
-            onPress={saveData}
+            onPress={() => saveData}
             loading={isLoading}
           />
           <Button
@@ -300,7 +302,7 @@ const MatchListDetailScreen = () => {
             type="outline"
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
-            onPress={resetForm}
+            onPress={() => resetForm}
           />
         </View>
       </Card>
@@ -312,8 +314,7 @@ const MatchListDetailScreen = () => {
           Tabledata={tableData}
           Tablehead={tableHead}
           flexArr={[1, 3, 3, 5, 1, 1]}
-          editIndex={4}
-          delIndex={5}
+          actionIndex={[{ editIndex: 4, delIndex: 5 }]}
           handleAction={handleAction}
         />
       </Card>

@@ -18,6 +18,7 @@ const ListScreen = () => {
   const responsive = useResponsive();
   // const { Toast } = useContext(ToastContext);
   const { colors, fonts, spacing } = useContext(ThemeContext);
+  console.log("ListScreen");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +91,7 @@ const ListScreen = () => {
     setIsLoading(true);
 
     try {
-      if (action === "edit") {
+      if (action === "editIndex") {
         const response = await axios.post("GetList", { ListID: item });
         const listData = response.data.data[0] || {};
 
@@ -101,7 +102,7 @@ const ListScreen = () => {
         messageHeader = response.data.status ? "Success" : "Error";
         message = response.data.message;
         type = response.data.status ? "success" : "error";
-      } else if (action === "del") {
+      } else if (action === "delIndex") {
         await axios.post("DeleteList", {
           ListID: item,
         });
@@ -159,7 +160,7 @@ const ListScreen = () => {
   });
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
         <Card.Title>Create List</Card.Title>
         <Card.Divider />
@@ -171,6 +172,7 @@ const ListScreen = () => {
           disabledInputStyle={styles.containerInput}
           value={formState.listName}
           onChangeText={(text) => handleChange("listName", text)}
+          readOnly={false}
         />
         {error.listName ? (
           <Text style={styles.errorText}>{error.listName}</Text>
@@ -183,7 +185,7 @@ const ListScreen = () => {
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
-            onPress={saveData}
+            onPress={() => saveData}
             loading={isLoading}
           />
           <Button
@@ -191,7 +193,7 @@ const ListScreen = () => {
             type="outline"
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
-            onPress={resetForm}
+            onPress={() => resetForm}
           />
         </View>
       </Card>
@@ -202,9 +204,8 @@ const ListScreen = () => {
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          editIndex={1}
           flexArr={[5, 1, 1]}
-          delIndex={2}
+          actionIndex={[{ editIndex: 1, delIndex: 2 }]}
           handleAction={handleAction}
         />
       </Card>

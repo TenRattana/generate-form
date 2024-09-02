@@ -2,17 +2,19 @@ import React from "react";
 import { TextInput, View, StyleSheet, Text } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 
-const Inputs = ({ field, formData, handleChange }) => {
+const Inputs = ({ placeholder, hint, label, name, formData, handleChange }) => {
+  console.log("Inputs");
+
   return (
     <View style={styles.container}>
       <TextInput
-        placeholder={field.placeholder}
-        name={field.ListName}
-        onChangeText={(value) => handleChange(field.mListId, value)}
-        value={formData[field.mListId] || ""}
+        placeholder={placeholder || ""}
+        name={label || ""}
+        onChangeText={(value) => handleChange(name, value)}
+        value={formData[name] || ""}
         style={styles.textInput}
       />
-      {field.hint ? <Text style={styles.label}>{field.hint}</Text> : null}
+      {hint ? <Text style={styles.label}>{hint}</Text> : null}
     </View>
   );
 };

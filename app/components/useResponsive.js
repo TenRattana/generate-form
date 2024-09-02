@@ -1,17 +1,19 @@
-import { useWindowDimensions } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useWindowDimensions } from "react-native";
+import { useState, useEffect } from "react";
 
 export function useResponsive() {
   const { width } = useWindowDimensions();
-  const [responsive, setResponsive] = useState('small');
+  const [responsive, setResponsive] = useState("small");
+
+  console.log("useResponsive");
 
   useEffect(() => {
     if (width > 900) {
-      setResponsive('large');
+      setResponsive("large");
     } else if (width > 600) {
-      setResponsive('medium');
+      setResponsive("medium");
     } else {
-      setResponsive('small');
+      setResponsive("small");
     }
   }, [width]);
 

@@ -17,7 +17,8 @@ export const CustomDropdownMulti = ({
 }) => {
   const [selected, setSelected] = useState([]);
   const [option, setOption] = useState([]);
-  
+  console.log("CustomDropdownMulti");
+
   useMemo(() => {
     if (data && Array.isArray(data)) {
       setOption(
@@ -148,17 +149,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 14,
     backgroundColor: "white",
-    shadowColor: "#000",
+    boxShadow: "0px 1px 1.41px rgba(0, 0, 0, 0.2)",
     marginLeft: 12,
     marginVertical: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
     elevation: 2,
   },
   textSelectedStyle: {

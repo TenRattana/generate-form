@@ -99,6 +99,8 @@ const ViewFormScreen = () => {
   const responsive = useResponsive();
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
+  console.log("ViewFormScreen");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -137,7 +139,7 @@ const ViewFormScreen = () => {
         };
 
         try {
-          const listResponse = await axios.post("GetForm", data);
+          const listResponse = await axios.post("ViewForm", data);
           const formDataResponse = listResponse.data.data;
 
           if (formDataResponse.length > 0) {
@@ -233,11 +235,7 @@ const ViewFormScreen = () => {
       padding: 10,
       backgroundColor: "#fff",
       borderRadius: 8,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.8)",
     },
     cardTitle: {
       marginVertical: 10,
@@ -299,12 +297,12 @@ const ViewFormScreen = () => {
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.sectionHead}>{form.formName}</Text>
       {renderLayout()}
       <Button
         title="Submit"
-        onPress={handleSubmit}
+        onPress={() => handleSubmit}
         containerStyle={styles.containerButton}
       />
     </ScrollView>

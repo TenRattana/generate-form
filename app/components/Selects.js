@@ -3,30 +3,31 @@ import { Picker } from "@react-native-picker/picker";
 import { View, StyleSheet, Text } from "react-native";
 import { colors, spacing, fonts } from "../../theme";
 
-const Selects = ({ field, formData, handleChange }) => {
-  if (!field.MatchListDetail || field.MatchListDetail.length === 0) {
+const Selects = ({ hint, name, option, formData, handleChange }) => {
+  if (!option || option.length === 0) {
     return "";
   }
+  console.log("Selects");
 
   return (
     <View style={styles.container}>
       <View style={styles.dropdown}>
         <Picker
-          selectedValue={formData[field.mListId]}
-          onValueChange={(value) => handleChange(field.mListId, value)}
+          selectedValue={formData[name]}
+          onValueChange={(value) => handleChange(name, value)}
           style={styles.picker}
         >
           <Picker.Item label="Select..." value="" />
-          {field.MatchListDetail.map((option, LDetailID) => (
+          {option.map((option, value) => (
             <Picker.Item
-              key={LDetailID}
-              label={option.LDetailName}
-              value={option.LDetailName}
+              key={`${value}`}
+              label={option.label}
+              value={option.label}
             />
           ))}
         </Picker>
       </View>
-      {field.hint ? <Text style={styles.label}>{field.hint}</Text> : null}
+      {hint ? <Text style={styles.label}>{hint}</Text> : null}
     </View>
   );
 };

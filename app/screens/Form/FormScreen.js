@@ -17,6 +17,7 @@ const Forms = ({ navigation }) => {
   const [form, setForm] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const responsive = useResponsive();
+  console.log("Forms");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,9 +35,9 @@ const Forms = ({ navigation }) => {
   const handleAction = async (action, item) => {
     setIsLoading(true);
     try {
-      if (action === "edit") {
+      if (action === "editIndex") {
         navigation.navigate("Create Form", { formIdforEdit: item });
-      } else if (action === "del") {
+      } else if (action === "delIndex") {
         const response1 = await axios.post("DeleteMatchList", {
           FormID: item,
         });
@@ -107,7 +108,7 @@ const Forms = ({ navigation }) => {
   });
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
         <Card.Title>List Form</Card.Title>
         <Card.Divider />
@@ -125,9 +126,7 @@ const Forms = ({ navigation }) => {
           Tabledata={tableData}
           Tablehead={tableHead}
           flexArr={[4, 1, 1, 1]}
-          copyIndex={1}
-          editIndex={2}
-          delIndex={3}
+          actionIndex={[{ copyIndex: 1, editIndex: 2, delIndex: 3 }]}
           TextAlie={["left"]}
           handleAction={handleAction}
         />

@@ -23,6 +23,7 @@ const MachineScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const responsive = useResponsive();
   const { Toast } = useContext(ToastContext);
+  console.log("MachineScreen");
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({
@@ -143,7 +144,7 @@ const MachineScreen = () => {
     let type = "";
 
     try {
-      if (action === "edit") {
+      if (action === "editIndex") {
         const response = await axios.post("GetMachine", { machineID: item });
         const machineData = response.data.data[0] || {};
         setFormState({
@@ -157,7 +158,7 @@ const MachineScreen = () => {
         messageHeader = response.data.status ? "Success" : "Error";
         message = response.data.message;
         type = response.data.status ? "success" : "error";
-      } else if (action === "del") {
+      } else if (action === "delIndex") {
         const responseData = await axios.post("DeleteMachine", {
           MachineID: item,
         });
@@ -241,7 +242,7 @@ const MachineScreen = () => {
   });
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
         <Card.Title>Create Machine</Card.Title>
         <Card.Divider />
@@ -307,7 +308,7 @@ const MachineScreen = () => {
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
-            onPress={saveData}
+            onPress={() => saveData}
             loading={isLoading}
           />
           <Button
@@ -315,7 +316,7 @@ const MachineScreen = () => {
             type="outline"
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
-            onPress={resetForm}
+            onPress={() => resetForm}
           />
         </View>
       </Card>
@@ -327,8 +328,7 @@ const MachineScreen = () => {
           Tabledata={tableData}
           Tablehead={tableHead}
           flexArr={[2, 2, 3, 1, 1, 1]}
-          editIndex={4}
-          delIndex={5}
+          actionIndex={[{ editIndex: 4, delIndex: 5 }]}
           handleAction={handleAction}
         />
       </Card>

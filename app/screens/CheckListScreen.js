@@ -6,7 +6,7 @@ import { CustomTable, useResponsive } from "../components";
 import validator from "validator";
 import { ThemeContext } from "../contexts";
 
-const ListScreen = () => {
+const CheckListScreen = React.memo(() => {
   const [list, setList] = useState([]);
   const [formState, setFormState] = useState({
     listId: "",
@@ -172,7 +172,6 @@ const ListScreen = () => {
           disabledInputStyle={styles.containerInput}
           value={formState.listName}
           onChangeText={(text) => handleChange("listName", text)}
-          readOnly={false}
         />
         {error.listName ? (
           <Text style={styles.errorText}>{error.listName}</Text>
@@ -211,6 +210,6 @@ const ListScreen = () => {
       </Card>
     </ScrollView>
   );
-};
+});
 
-export default ListScreen;
+export default CheckListScreen;

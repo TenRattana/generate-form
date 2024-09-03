@@ -1,15 +1,13 @@
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { LoadingSpinner } from "./components";
-import { ThemeProvider, ToastProvider } from "./contexts";
+import { ThemeProvider, ToastProvider, ResponsiveProvider } from "./contexts";
 
 import {
   HomeScreen,
   MachineGroupScreen,
   MachineScreen,
-  ListScreen,
-  ListDetailScreen,
-  MatchListDetailScreen,
+  CheckListScreen,
+  CheckListOptionScreen,
   MatchFormMachineScreen,
   CreateFormScreen,
   ViewFormScreen,
@@ -28,11 +26,10 @@ export default function App() {
           <Drawer.Screen name="HomeScreen" component={HomeScreen} />
           <Drawer.Screen name="Machine Group" component={MachineGroupScreen} />
           <Drawer.Screen name="Machine" component={MachineScreen} />
-          <Drawer.Screen name="List" component={ListScreen} />
-          <Drawer.Screen name="List Detail" component={ListDetailScreen} />
+          <Drawer.Screen name="Check List" component={CheckListScreen} />
           <Drawer.Screen
-            name="Match List & List Detail"
-            component={MatchListDetailScreen}
+            name="Check List Option"
+            component={CheckListOptionScreen}
           />
           <Drawer.Screen name="Create Form" component={CreateFormScreen} />
           <Drawer.Screen name="View Form" component={ViewFormScreen} />

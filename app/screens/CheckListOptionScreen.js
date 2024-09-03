@@ -7,7 +7,7 @@ import { CustomTable, useResponsive } from "../components";
 import validator from "validator";
 import { ToastContext } from "../contexts";
 
-const ListDetailScreen = () => {
+const CheckListOptionScreen = React.memo(() => {
   const [listDetail, setListDetail] = useState([]);
   const [formState, setFormState] = useState({
     listDetailId: "",
@@ -16,7 +16,6 @@ const ListDetailScreen = () => {
   const [error, setError] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const responsive = useResponsive();
   const { Toast } = useContext(ToastContext);
 
   const ShowMessages = (textH, textT, color) => {
@@ -234,6 +233,6 @@ const ListDetailScreen = () => {
       </Card>
     </ScrollView>
   );
-};
+});
 
-export default ListDetailScreen;
+export default CheckListOptionScreen;

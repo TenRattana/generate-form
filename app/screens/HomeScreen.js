@@ -1,39 +1,31 @@
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import React, { useState, useMemo, useContext } from "react";
-import axios from "../../config/axios";
-import { ThemeContext, ToastContext } from "../contexts";
+import { useTheme, useToast } from "../contexts";
+import { axios } from "../../config";
+import { useIsFocused } from "@react-navigation/native";
 
-const fetchData = async () => {
-  try {
-    const response = await axios.post("GetMachines");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return [];
-  }
-};
+const HomeScreen = () => {
+  const { colors, spacing } = useTheme();
+  const { Toast } = useToast();
+  const [machineGroup, setMachineGroup] = useState([]);
+  const isFocused = useIsFocused();
 
-export default function HomeScreen() {
-  const [list, setList] = useState([]);
-  const { colors, fonts, spacing } = useContext(ThemeContext);
-  const { Toast } = useContext(ToastContext);
+  useEffect(() => {
+    if (isFocused) {
+      const fetchData = async () => {
+        try {
+          const response = await axios.post("GetMachineGroups");
+          setMachineGroup(response.data.data || []);
+        } catch (error) {
+          console.log(error);
+        }
+      };
 
-  const [messages, setMessages] = useState({
-    color: "",
-    messageLabel: "",
-    messageTitle: [],
-  });
+      fetchData();
+    }
+  }, [isFocused]);
 
-  console.log("HomeScreen");
-
-  useMemo(() => {
-    const getData = async () => {
-      const data = await fetchData();
-      setList(data || []);
-    };
-
-    getData();
-  }, []);
+  console.log("Home");
 
   const styles = StyleSheet.create({
     container: {
@@ -52,11 +44,10 @@ export default function HomeScreen() {
       marginTop: spacing.xl,
       color: colors.text,
     },
-    textInTouche: {
+    errorText: {
       fontSize: 16,
-      color: colors.light,
-      alignSelf: "center",
-      padding: spacing.xs,
+      color: "red",
+      textAlign: "center",
     },
   });
 
@@ -65,4 +56,6 @@ export default function HomeScreen() {
       <Text style={styles.textHeader}>KFM Form</Text>
     </View>
   );
-}
+};
+
+export default HomeScreen;

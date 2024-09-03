@@ -1,56 +1,49 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, ScrollView, Text, View } from "react-native";
-import axios from "../../config/axios";
+import { axios } from "../../config";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing, fonts } from "../../theme";
-import { CustomTable, CustomDropdown, useResponsive } from "../components";
+import { CustomTable } from "../components";
 import validator from "validator";
-import { ToastContext } from "../contexts";
+import { useTheme, useToast } from "../contexts";
+import { useIsFocused } from "@react-navigation/native";
 
 const MachineGroupScreen = () => {
   const [machineGroup, setMachineGroup] = useState([]);
   const [formState, setFormState] = useState({
     mgroupId: "",
-    groupName: "",
+    mgroupName: "",
     displayOrder: "",
     description: "",
   });
   const [error, setError] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const responsive = useResponsive();
-  const { Toast } = useContext(ToastContext);
+  const isFocused = useIsFocused();
 
-  const ShowMessages = (textH, textT, color) => {
-    Toast.show({
-      type: color,
-      text1: textH,
-      text2: textT,
-      text1Style: [styles.text, { color: colors.palette.dark }],
-      text2Style: [styles.text, { color: colors.palette.dark }],
-    });
-  };
-  console.log("MachineGroupScreen");
+  const { Toast } = useToast();
+  const { colors, fonts, spacing } = useTheme();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [machineGroupResponse] = await Promise.all([
-          axios.post("GetMachineGroups"),
-        ]);
-        setMachineGroup(machineGroupResponse.data.data || []);
-      } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
-      }
-    };
+    if (isFocused) {
+      const fetchData = async () => {
+        try {
+          const [machineGroupResponse] = await Promise.all([
+            axios.post("GetMachineGroups"),
+          ]);
+          setMachineGroup(machineGroupResponse.data.data || []);
+        } catch (error) {
+          ShowMessages(error.message, error.response.data.errors, "error");
+        }
+      };
 
-    fetchData();
+      fetchData();
+    }
   }, []);
 
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
 
-    if (fieldName === "groupName" && validator.isEmpty(value.trim())) {
+    if (fieldName === "mgroupName" && validator.isEmpty(value.trim())) {
       errorMessage = "The Machine Group Name field is required.";
     } else if (
       fieldName === "displayOrder" &&
@@ -85,7 +78,7 @@ const MachineGroupScreen = () => {
   const resetForm = () => {
     setFormState({
       mgroupId: "",
-      groupName: "",
+      mgroupName: "",
       displayOrder: "",
       description: "",
     });
@@ -98,19 +91,26 @@ const MachineGroupScreen = () => {
 
     const data = {
       MGroupID: formState.mgroupId,
-      GroupName: formState.groupName,
+      MGroupName: formState.mgroupName,
       DisplayOrder: formState.displayOrder,
       Description: formState.description,
     };
 
     try {
-      const responseData = await axios.post("SaveMachineGroup", data);
-
+      await axios.post("SaveMachineGroup", data);
       const response = await axios.post("GetMachineGroups");
       setMachineGroup(response.data.data || []);
       resetForm();
-    } catch (error) {}
-    setIsLoading(false);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        position: "bottom",
+        text1: "Error",
+        text2: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAction = async (action, item) => {
@@ -124,32 +124,33 @@ const MachineGroupScreen = () => {
         const machineGroupData = response.data.data[0] || {};
         setFormState({
           mgroupId: machineGroupData.MGroupID || "",
-          groupName: machineGroupData.GroupName || "",
+          mgroupName: machineGroupData.MGroupName || "",
           description: machineGroupData.Description || "",
           displayOrder: String(machineGroupData.DisplayOrder) || "",
         });
         setIsEditing(true);
       } else if (action === "delIndex") {
-        const responseData = await axios.post("DeleteMachineGroup", {
+        await axios.post("DeleteMachineGroup", {
           MGroupID: item,
         });
 
         const response = await axios.post("GetMachineGroups");
         setMachineGroup(response.data.data || []);
       }
-    } catch (error) {}
-    setIsLoading(false);
+    } catch (error) {
+      // Handle error if necessary
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const tableData = machineGroup.map((item) => {
-    return [
-      item.GroupName,
-      item.Description,
-      item.DisplayOrder,
-      item.MGroupID,
-      item.MGroupID,
-    ];
-  });
+  const tableData = machineGroup.map((item) => [
+    item.MGroupName,
+    item.Description,
+    item.DisplayOrder,
+    item.MGroupID,
+    item.MGroupID,
+  ]);
 
   const tableHead = [
     "Machine Group Name",
@@ -164,21 +165,16 @@ const MachineGroupScreen = () => {
       flex: 1,
     },
     text: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
+      fontSize: fonts.xsm,
       color: colors.text,
     },
     buttonContainer: {
-      flexDirection: responsive === "large" ? "row" : "column",
+      flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
     },
     containerButton: {
-      width: responsive === "large" ? 300 : "90%",
+      width: 300,
       marginVertical: "1%",
       marginHorizontal: "2%",
     },
@@ -187,12 +183,7 @@ const MachineGroupScreen = () => {
       marginVertical: spacing.md,
     },
     errorText: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
+      fontSize: fonts.xsm,
       marginLeft: spacing.xs,
       top: -spacing.xxs,
       color: colors.danger,
@@ -211,11 +202,11 @@ const MachineGroupScreen = () => {
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("groupName", text)}
-          value={formState.groupName}
+          onChangeText={(text) => handleChange("mgroupName", text)}
+          value={formState.mgroupName}
         />
-        {error.groupName ? (
-          <Text style={styles.errorText}>{error.groupName}</Text>
+        {error.mgroupName ? (
+          <Text style={styles.errorText}>{error.mgroupName}</Text>
         ) : null}
 
         <Input
@@ -251,7 +242,7 @@ const MachineGroupScreen = () => {
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
-            onPress={() => saveData}
+            onPress={saveData} // เพิ่มวงเล็บ
             loading={isLoading}
           />
           <Button
@@ -259,7 +250,7 @@ const MachineGroupScreen = () => {
             type="outline"
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
-            onPress={() => resetForm}
+            onPress={resetForm} // เพิ่มวงเล็บ
           />
         </View>
       </Card>

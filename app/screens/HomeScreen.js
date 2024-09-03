@@ -2,28 +2,24 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTheme, useToast } from "../contexts";
 import { axios } from "../../config";
-import { useIsFocused } from "@react-navigation/native";
 
 const HomeScreen = () => {
   const { colors, spacing } = useTheme();
   const { Toast } = useToast();
   const [machineGroup, setMachineGroup] = useState([]);
-  const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (isFocused) {
-      const fetchData = async () => {
-        try {
-          const response = await axios.post("GetMachineGroups");
-          setMachineGroup(response.data.data || []);
-        } catch (error) {
-          console.log(error);
-        }
-      };
+    const fetchData = async () => {
+      try {
+        const response = await axios.post("GetMachineGroups");
+        setMachineGroup(response.data.data || []);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-      fetchData();
-    }
-  }, [isFocused]);
+    fetchData();
+  }, []);
 
   console.log("Home");
 

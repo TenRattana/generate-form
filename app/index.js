@@ -1,6 +1,6 @@
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { ThemeProvider, ToastProvider, ResponsiveProvider } from "./contexts";
+import { ThemeProvider, ToastProvider } from "./contexts";
 
 import {
   HomeScreen,
@@ -22,7 +22,13 @@ export default function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <Drawer.Navigator>
+        <Drawer.Navigator
+          screenOptions={{
+            drawerStyle: {
+              backgroundColor: "#2c74de",
+            },
+          }}
+        >
           <Drawer.Screen name="HomeScreen" component={HomeScreen} />
           <Drawer.Screen name="Machine Group" component={MachineGroupScreen} />
           <Drawer.Screen name="Machine" component={MachineScreen} />

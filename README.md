@@ -1,185 +1,158 @@
--- Create Table MachineGroups
+Create Table
 ```sql
-CREATE TABLE MachineGroups (
-    MGroupID VARCHAR(10) PRIMARY KEY,
-    GroupName VARCHAR(255),
-    Description TEXT,
-    DisplayOrder INT
+
+-- Table: CheckListTypes
+CREATE TABLE CheckListTypes (
+    CTypeID VARCHAR(10) PRIMARY KEY,
+    CTypeName VARCHAR(50) NOT NULL
 );
-```
-```sql
-CREATE TABLE Machines (
-    MachineID VARCHAR(10) PRIMARY KEY,
-    MGroupID VARCHAR(10),
-    MachineName VARCHAR(255),
-    Description TEXT,
-    DisplayOrder INT,
-    FOREIGN KEY (MGroupID) REFERENCES MachineGroups(MGroupID)
-);
-```
-```sql
-CREATE TABLE ListTypes (
-    TypeID VARCHAR(10) PRIMARY KEY,
-    TypeName VARCHAR(50)
-);
-```
-```sql
-CREATE TABLE DataType (
+
+-- Table: DataTypes
+CREATE TABLE DataTypes (
     DTypeID VARCHAR(10) PRIMARY KEY,
-    DTypeName VARCHAR(50)
+    DTypeName VARCHAR(50) NOT NULL
 );
-```
-```sql
-CREATE TABLE Lists (
-    ListID VARCHAR(10) PRIMARY KEY,
-    ListName VARCHAR(255)
+
+-- Table: CheckLists
+CREATE TABLE CheckLists (
+    CListID VARCHAR(10) PRIMARY KEY,
+    CListName VARCHAR(255) NOT NULL
 );
-```
-```sql
-CREATE TABLE ListDetails (
-    LDetailID VARCHAR(10) PRIMARY KEY,
-    LDetailName VARCHAR(255)
+
+-- Table: CheckListOptions
+CREATE TABLE CheckListOptions (
+    CLOptionID VARCHAR(10) PRIMARY KEY,
+    CLOptionName VARCHAR(255) NOT NULL
 );
-```
-```sql
-CREATE TABLE Cards (
-    CardID VARCHAR(10) PRIMARY KEY,
-    CardName VARCHAR(50),
-    Columns TINYINT,
-    DisplayOrder TINYINT
-);
-```
-```sql
- CREATE TABLE Forms (
+
+-- Table: Forms
+CREATE TABLE Forms (
     FormID VARCHAR(10) PRIMARY KEY,
-    FormName VARCHAR(50),
-    DisplayOrder TINYINT
+    FormName VARCHAR(50) NOT NULL,
+    Description VARCHAR(255),
+    IsActive BIT NOT NULL
 );
-```
-```sql
-CREATE TABLE MatchListDetail (
-    ID INT PRIMARY KEY,
-    MLDetailID VARCHAR(10),
-    ListID VARCHAR(10),
-    LDetailID VARCHAR(10),
-    Description TEXT,
-    DisplayOrder INT,
-    FOREIGN KEY (ListID) REFERENCES Lists(ListID),
-    FOREIGN KEY (LDetailID) REFERENCES ListDetails(LDetailID)
-);
-```
-```sql C
-REATE TABLE MatchList (
-    MListID VARCHAR(10) PRIMARY KEY,
-    ListID VARCHAR(10),
-    MLDetailID VARCHAR(10),
-    TypeID VARCHAR(10),
-    DTypeID VARCHAR(10),
-    CardID VARCHAR(10),
-    DisplayOrder INT,
-    FOREIGN KEY (ListID) REFERENCES Lists(ListID),
-    FOREIGN KEY (MLDetailID) REFERENCES MatchListDetail(MLDetailID),
-    FOREIGN KEY (TypeID) REFERENCES ListTypes(TypeID),
-    FOREIGN KEY (DTypeID) REFERENCES DataType(DTypeID),
-    FOREIGN KEY (CardID) REFERENCES Cards(CardID)
-);
-```
-```sql
-CREATE TABLE Rules (
-    RuleID VARCHAR(10) PRIMARY KEY,
-    RuleName VARCHAR(50),
-    RuleValue VARCHAR(50)
-);
-```
-```sql
-CREATE TABLE MatchRule (
-    MValidationID VARCHAR(10) PRIMARY KEY,
-    MListID VARCHAR(10),
-    RuleID VARCHAR(10),
-    Description TEXT,
-    DisplayOrder INT,
-    FOREIGN KEY (MListID) REFERENCES MatchList(MListID),
-    FOREIGN KEY (RuleID) REFERENCES Rules(RuleID)
-);
-```
-```sql
-CREATE TABLE MatchForm (
-    MFormID VARCHAR(10) PRIMARY KEY,
-    MachineID VARCHAR(50),
-    CardID VARCHAR(10),
+
+-- Table: SubForms
+CREATE TABLE SubForms (
+    SFormID VARCHAR(10) PRIMARY KEY,
     FormID VARCHAR(10),
-    FOREIGN KEY (MachineID) REFERENCES Machines(MachineID),
-    FOREIGN KEY (CardID) REFERENCES Cards(CardID),
+    SFormName VARCHAR(50) NOT NULL,
+    Columns TINYINT NOT NULL,
+    DisplayOrder TINYINT NOT NULL,
     FOREIGN KEY (FormID) REFERENCES Forms(FormID)
 );
-```
-```sql
+
+-- Table: MatchCheckList
+CREATE TABLE MatchCheckList (
+    MCListID int PRIMARY KEY IDENTITY,
+    CListID VARCHAR(10),
+    CLOptionID VARCHAR(10),
+    CTypeID VARCHAR(10),
+    DTypeID VARCHAR(10),
+    DTypeValue VARCHAR(10),
+    SFormID VARCHAR(10),
+    Required BIT NOT NULL,
+    MinLength TINYINT,
+    MaxLength TINYINT,
+    Placeholder VARCHAR(50),
+    Hint VARCHAR(50),
+    DisplayOrder TINYINT NOT NULL,
+    FOREIGN KEY (CListID) REFERENCES CheckLists(CListID),
+    FOREIGN KEY (CLOptionID) REFERENCES CheckListOptions(CLOptionID),
+    FOREIGN KEY (CTypeID) REFERENCES CheckListTypes(CTypeID),
+    FOREIGN KEY (DTypeID) REFERENCES DataTypes(DTypeID),
+    FOREIGN KEY (SFormID) REFERENCES SubForms(SFormID)
+);
+
+-- Table: MachineGroups
+CREATE TABLE MachineGroups (
+    MGroupID VARCHAR(10) PRIMARY KEY,
+    MGroupName VARCHAR(255) NOT NULL,
+    Description VARCHAR(255),
+    DisplayOrder TINYINT NOT NULL
+);
+
+-- Table: Machines
+CREATE TABLE Machines (
+    MachineID VARCHAR(10) PRIMARY KEY,
+    FormID VARCHAR(10),
+    MGroupID VARCHAR(10),
+    MachineName VARCHAR(255) NOT NULL,
+    Description VARCHAR(255),
+    DisplayOrder TINYINT NOT NULL,
+    FOREIGN KEY (FormID) REFERENCES Forms(FormID),
+    FOREIGN KEY (MGroupID) REFERENCES MachineGroups(MGroupID)
+);
+
+-- Table: ExpectedResults
 CREATE TABLE ExpectedResults (
-    ExpectedResultID VARCHAR(10) PRIMARY KEY,
-    MFormID VARCHAR(10),
-    MListID VARCHAR(10),
+    EResultID VARCHAR(10) PRIMARY KEY,
+    MListID int,
+    FormID VARCHAR(10),
+    MachineID VARCHAR(10),
     TableID VARCHAR(50),
-    ExpectedResult TEXT,
-    CreateDate DATE,
-    FOREIGN KEY (MFormID) REFERENCES MatchForm(MFormID),
-    FOREIGN KEY (MListID) REFERENCES MatchList(MListID)
+    EResult VARCHAR(255),
+    CreateDate DATE NOT NULL,
+    FOREIGN KEY (MListID) REFERENCES MatchCheckList(MCListID),
+    FOREIGN KEY (FormID) REFERENCES Forms(FormID),
+    FOREIGN KEY (MachineID) REFERENCES Machines(MachineID)
 );
 ```
+
+Insert 
 ```sql
-INSERT INTO MachineGroups (MGroupID, GroupName, Description, DisplayOrder) VALUES
-('MG01', 'Group 1', 'Description for Group 1', 1),
-('MG02', 'Group 2', 'Description for Group 2', 2);
+-- Insert into CheckListTypes
+INSERT INTO CheckListTypes (CTypeID, CTypeName) VALUES
+('CT001', 'Textinput'),
+('CT002', 'Textaera'),
+('CT003', 'Dropdown'),
+('CT004', 'Radio'),
+('CT005', 'Checkbox');
 
-INSERT INTO Machines (MachineID, MGroupID, MachineName, Description, DisplayOrder) VALUES
-('M01', 'MG01', 'Machine 1', 'Description for Machine 1', 1),
-('M02', 'MG01', 'Machine 2', 'Description for Machine 2', 2),
-('M03', 'MG02', 'Machine 3', 'Description for Machine 3', 1);
+-- Insert into DataTypes
+INSERT INTO DataTypes (DTypeID, DTypeName) VALUES
+('DT001', 'String'),
+('DT002', 'Integer'),
+('DT003', 'Float');
 
-INSERT INTO ListTypes (TypeID, TypeName) VALUES
-('T01', 'Type 1'),
-('T02', 'Type 2');
+-- Insert into CheckLists
+INSERT INTO CheckLists (CListID, CListName) VALUES
+('CL001', 'CheckList1'),
+('CL002', 'CheckList2');
 
-INSERT INTO DataType (DTypeID, DTypeName) VALUES
-('DT01', 'Data Type 1'),
-('DT02', 'Data Type 2');
+-- Insert into CheckListOptions
+INSERT INTO CheckListOptions (CLOptionID, CLOptionName) VALUES
+('CO001', 'Option1'),
+('CO002', 'Option2');
 
-INSERT INTO Lists (ListID, ListName) VALUES
-('L01', 'List 1'),
-('L02', 'List 2');
+-- Insert into Forms
+INSERT INTO Forms (FormID, FormName, Description, IsActive) VALUES
+('F001', 'Form1', 'Description for Form1', 1),
+('F002', 'Form2', 'Description for Form2', 1);
 
-INSERT INTO ListDetails (LDetailID, LDetailName) VALUES
-('LD01', 'List Detail 1'),
-('LD02', 'List Detail 2');
+-- Insert into SubForms
+INSERT INTO SubForms (SFormID, FormID, SFormName, Columns, DisplayOrder) VALUES
+('SF001', 'F001', 'SubForm1', 3, 1),
+('SF002', 'F002', 'SubForm2', 2, 2);
 
-INSERT INTO Cards (CardID, CardName, Columns, DisplayOrder) VALUES
-('C01', 'Card 1', 3, 1),
-('C02', 'Card 2', 2, 2);
+-- Insert into MatchCheckList
+INSERT INTO MatchCheckList ( CListID, CLOptionID, CTypeID, DTypeID, DTypeValue, SFormID, Required, MinLength, MaxLength, Placeholder, Hint, DisplayOrder) VALUES
+( 'CL001', 'CO001', 'CT001', 'DT001', 'Value1', 'SF001', 1, 1, 10, 'Placeholder1', 'Hint1', 1),
+( 'CL002', 'CO002', 'CT002', 'DT002', 'Value2', 'SF002', 0, 2, 20, 'Placeholder2', 'Hint2', 2);
 
-INSERT INTO Forms (FormID, FormName, DisplayOrder) VALUES
-('F01', 'Form 1', 1),
-('F02', 'Form 2', 2);
+-- Insert into MachineGroups
+INSERT INTO MachineGroups (MGroupID, MGroupName, Description, DisplayOrder) VALUES
+('MG001', 'Group1', 'Description for Group1', 1),
+('MG002', 'Group2', 'Description for Group2', 2);
 
-INSERT INTO MatchListDetail (ID, MLDetailID, ListID, LDetailID, Description, DisplayOrder) VALUES
-(1, 'MLD01', 'L01', 'LD01', 'Detail for List 1', 1),
-(2, 'MLD02', 'L02', 'LD02', 'Detail for List 2', 2);
+-- Insert into Machines
+INSERT INTO Machines (MachineID, FormID, MGroupID, MachineName, Description, DisplayOrder) VALUES
+('M001', 'F001', 'MG001', 'Machine1', 'Description for Machine1', 1),
+('M002', 'F002', 'MG002', 'Machine2', 'Description for Machine2', 2);
 
-INSERT INTO MatchList (MListID, ListID, MLDetailID, TypeID, DTypeID, CardID, DisplayOrder) VALUES
-('ML01', 'L01', 'MLD01', 'T01', 'DT01', 'C01', 1),
-('ML02', 'L02', 'MLD02', 'T02', 'DT02', 'C02', 2);
-
-INSERT INTO Rules (RuleID, RuleName, RuleValue) VALUES
-('R01', 'Rule 1', 'Value 1'),
-('R02', 'Rule 2', 'Value 2');
-
-INSERT INTO MatchRule (MValidationID, MListID, RuleID, Description, DisplayOrder) VALUES
-('MR01', 'ML01', 'R01', 'Validation Rule 1', 1),
-('MR02', 'ML02', 'R02', 'Validation Rule 2', 2);
-
-INSERT INTO MatchForm (MFormID, MachineID, CardID, FormID) VALUES
-('MF01', 'M01', 'C01', 'F01'),
-('MF02', 'M02', 'C02', 'F02');
-
-INSERT INTO ExpectedResults (ExpectedResultID, MFormID, MListID, TableID, ExpectedResult, CreateDate) VALUES
-('ER01', 'MF01', 'ML01', 'T01', 'Expected Result 1', '2024-08-27'),
-('ER02', 'MF02', 'ML02', 'T02', 'Expected Result 2', '2024-08-27');
+-- Insert into ExpectedResults
+INSERT INTO ExpectedResults (EResultID, MCListID, FormID, MachineID, TableID, EResult, CreateDate) VALUES
+('ER001', 1, 'F001', 'M001', 'Table1', 'Result1', '2024-09-01'),
+('ER002', 2, 'F002', 'M002', 'Table2', 'Result2', '2024-09-02');
 ```

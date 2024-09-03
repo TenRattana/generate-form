@@ -1,43 +1,43 @@
-Create Table
+### Create Table
 ```sql
 
 -- Table: CheckListTypes
 CREATE TABLE CheckListTypes (
-    CTypeID VARCHAR(10) PRIMARY KEY,
-    CTypeName VARCHAR(50) NOT NULL
+    CTypeID NCHAR(5) PRIMARY KEY,
+    CTypeName NVARCHAR(150) NOT NULL
 );
 
 -- Table: DataTypes
 CREATE TABLE DataTypes (
-    DTypeID VARCHAR(10) PRIMARY KEY,
-    DTypeName VARCHAR(50) NOT NULL
+    DTypeID NCHAR(5) PRIMARY KEY,
+    DTypeName NVARCHAR(150) NOT NULL
 );
 
 -- Table: CheckLists
 CREATE TABLE CheckLists (
-    CListID VARCHAR(10) PRIMARY KEY,
-    CListName VARCHAR(255) NOT NULL
+    CListID NCHAR(5) PRIMARY KEY,
+    CListName NVARCHAR(255) NOT NULL
 );
 
 -- Table: CheckListOptions
 CREATE TABLE CheckListOptions (
-    CLOptionID VARCHAR(10) PRIMARY KEY,
-    CLOptionName VARCHAR(255) NOT NULL
+    CLOptionID NCHAR(6) PRIMARY KEY,
+    CLOptionName NVARCHAR(255) NOT NULL
 );
 
 -- Table: Forms
 CREATE TABLE Forms (
-    FormID VARCHAR(10) PRIMARY KEY,
-    FormName VARCHAR(50) NOT NULL,
-    Description VARCHAR(255),
+    FormID NCHAR(5) PRIMARY KEY,
+    FormName NVARCHAR(150) NOT NULL,
+    Description NVARCHAR(255),
     IsActive BIT NOT NULL
 );
 
 -- Table: SubForms
 CREATE TABLE SubForms (
-    SFormID VARCHAR(10) PRIMARY KEY,
-    FormID VARCHAR(10),
-    SFormName VARCHAR(50) NOT NULL,
+    SFormID NCHAR(6) PRIMARY KEY,
+    FormID NCHAR(5),
+    SFormName NVARCHAR(150) NOT NULL,
     Columns TINYINT NOT NULL,
     DisplayOrder TINYINT NOT NULL,
     FOREIGN KEY (FormID) REFERENCES Forms(FormID)
@@ -45,18 +45,18 @@ CREATE TABLE SubForms (
 
 -- Table: MatchCheckList
 CREATE TABLE MatchCheckList (
-    MCListID int PRIMARY KEY IDENTITY,
-    CListID VARCHAR(10),
-    CLOptionID VARCHAR(10),
-    CTypeID VARCHAR(10),
-    DTypeID VARCHAR(10),
-    DTypeValue VARCHAR(10),
-    SFormID VARCHAR(10),
+    MCListID INT PRIMARY KEY IDENTITY,
+    CListID NCHAR(5),
+    CLOptionID NCHAR(6),
+    CTypeID NCHAR(5),
+    DTypeID NCHAR(5),
+    DTypeValue tinyINT,
+    SFormID NCHAR(6),
     Required BIT NOT NULL,
     MinLength TINYINT,
     MaxLength TINYINT,
-    Placeholder VARCHAR(50),
-    Hint VARCHAR(50),
+    Placeholder NVARCHAR(150),
+    HINT NVARCHAR(150),
     DisplayOrder TINYINT NOT NULL,
     FOREIGN KEY (CListID) REFERENCES CheckLists(CListID),
     FOREIGN KEY (CLOptionID) REFERENCES CheckListOptions(CLOptionID),
@@ -67,19 +67,19 @@ CREATE TABLE MatchCheckList (
 
 -- Table: MachineGroups
 CREATE TABLE MachineGroups (
-    MGroupID VARCHAR(10) PRIMARY KEY,
-    MGroupName VARCHAR(255) NOT NULL,
-    Description VARCHAR(255),
+    MGroupID NCHAR(5) PRIMARY KEY,
+    MGroupName NVARCHAR(150) NOT NULL,
+    Description NVARCHAR(255),
     DisplayOrder TINYINT NOT NULL
 );
 
 -- Table: Machines
 CREATE TABLE Machines (
-    MachineID VARCHAR(10) PRIMARY KEY,
-    FormID VARCHAR(10),
-    MGroupID VARCHAR(10),
-    MachineName VARCHAR(255) NOT NULL,
-    Description VARCHAR(255),
+    MachineID NCHAR(4) PRIMARY KEY,
+    FormID NCHAR(5),
+    MGroupID NCHAR(5),
+    MachineName NVARCHAR(150) NOT NULL,
+    Description NVARCHAR(255),
     DisplayOrder TINYINT NOT NULL,
     FOREIGN KEY (FormID) REFERENCES Forms(FormID),
     FOREIGN KEY (MGroupID) REFERENCES MachineGroups(MGroupID)
@@ -87,20 +87,20 @@ CREATE TABLE Machines (
 
 -- Table: ExpectedResults
 CREATE TABLE ExpectedResults (
-    EResultID VARCHAR(10) PRIMARY KEY,
-    MListID int,
-    FormID VARCHAR(10),
-    MachineID VARCHAR(10),
-    TableID VARCHAR(50),
-    EResult VARCHAR(255),
-    CreateDate DATE NOT NULL,
+    EResultID INT PRIMARY KEY IDENTITY,
+    MListID INT,
+    FormID NCHAR(5),
+    MachineID NCHAR(4),
+    TableID NCHAR(10),
+    EResult NVARCHAR(255),
+    CreateDate DATETIME NOT NULL,
     FOREIGN KEY (MListID) REFERENCES MatchCheckList(MCListID),
     FOREIGN KEY (FormID) REFERENCES Forms(FormID),
     FOREIGN KEY (MachineID) REFERENCES Machines(MachineID)
 );
 ```
 
-Insert 
+### Insert 
 ```sql
 -- Insert into CheckListTypes
 INSERT INTO CheckListTypes (CTypeID, CTypeName) VALUES

@@ -12,6 +12,7 @@
     "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.1.18",
+    "@reduxjs/toolkit": "^2.2.7",
     "@rneui/themed": "^4.0.0-rc.8",
     "axios": "^1.7.4",
     "expo": "~51.0.28",
@@ -30,6 +31,8 @@
     "react-native-table-component": "github:sturmenta/react-native-table-component#e1582aaba92b7e070c31c98b116eea9c23e17f6d",
     "react-native-toast-message": "^2.2.0",
     "react-native-web": "^0.19.12",
+    "react-redux": "^9.1.2",
+    "redux": "^5.0.1",
     "validator": "^13.12.0"
   },
   "devDependencies": {

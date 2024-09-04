@@ -115,7 +115,9 @@ export const CustomDropdownMulti = ({
 
 const styles = StyleSheet.create({
   dropdown: {
-    margin: spacing.sm,
+    marginHorizontal: spacing.xsm,
+    marginVertical: spacing.xsm,
+    marginTop: 0,
     height: 50,
     borderBottomColor: "gray",
     borderBottomWidth: 0.5,

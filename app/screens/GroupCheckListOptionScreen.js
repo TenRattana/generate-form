@@ -2,25 +2,29 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, ScrollView, Text, View } from "react-native";
 import { axios } from "../../config";
 import { Button, Card, Input } from "@rneui/themed";
-import { CustomTable } from "../components";
+import { CustomTable, CustomDropdownMulti } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 
-const MachineGroupScreen = () => {
-  const [machineGroup, setMachineGroup] = useState([]);
+const GroupCheckListOptionScreen = React.memo(() => {
+  const [checkListOption, setCheckListOption] = useState([]);
+  const [matchCheckListOption, setMatchCheckListOption] = useState([]);
   const [formState, setFormState] = useState({
-    machineGroupId: "",
-    machineGroupName: "",
-    displayOrder: "",
+    matchCheckListOptionId: "",
+    matchCheckListOptionName: "",
+    checkListOption: [],
     description: "",
+    displayOrder: "",
   });
   const [error, setError] = useState({});
+  const [resetDropdown, setResetDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
-  console.log("MachineGroup");
+  console.log("GroupCheckListOptionScreen");
+  console.log(formState);
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({
@@ -35,10 +39,13 @@ const MachineGroupScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [machineGroupResponse] = await Promise.all([
-          axios.post("GetMachineGroups"),
-        ]);
-        setMachineGroup(machineGroupResponse.data.data ?? []);
+        const [checkListOptionResponse, matchCheckListOptionResponse] =
+          await Promise.all([
+            axios.post("GetCheckListOptions"),
+            axios.post("GetMatchCheckListOptions"),
+          ]);
+        setCheckListOption(checkListOptionResponse.data.data ?? []);
+        setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
       } catch (error) {
         ShowMessages(error.message, error.response.data.errors, "error");
       }
@@ -50,13 +57,11 @@ const MachineGroupScreen = () => {
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
 
-    if (fieldName === "machineGroupName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The Machine Group Name field is required.";
-    } else if (
-      fieldName === "displayOrder" &&
-      !validator.isNumeric(value.trim())
+    if (
+      fieldName === "matchCheckListOptionName" &&
+      validator.isEmpty(value.trim())
     ) {
-      errorMessage = "The Display Order field must be numeric.";
+      errorMessage = "The Group Check List Option Name field is required.";
     }
 
     setError((prevError) => ({
@@ -74,39 +79,43 @@ const MachineGroupScreen = () => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "machineGroupId") {
+        if (!isEditing && key === "matchCheckListOptionId") {
           return true;
         }
-        return value !== "" && String(value).trim() !== "";
+        return value !== "" && value !== "" && String(value).trim() !== "";
       }) && Object.values(error).every((err) => err === "")
     );
   };
 
   const resetForm = () => {
     setFormState({
-      machineGroupId: "",
-      machineGroupName: "",
-      displayOrder: "",
+      matchCheckListOptionId: "",
+      matchCheckListOptionName: "",
+      checkListOption: [],
       description: "",
+      displayOrder: "",
     });
     setError({});
     setIsEditing(false);
+    setResetDropdown(true);
+    setTimeout(() => setResetDropdown(false), 0);
   };
 
   const saveData = async () => {
     setIsLoading(true);
 
     const data = {
-      MGroupID: formState.machineGroupId,
-      MGroupName: formState.machineGroupName,
-      DisplayOrder: formState.displayOrder,
+      MCLOptionID: formState.matchCheckListOptionId,
+      MCLOptionName: formState.matchCheckListOptionName,
       Description: formState.description,
+      DisplayOrder: formState.displayOrder,
+      CLOptionID: JSON.stringify(formState.checkListOption),
     };
 
     try {
-      await axios.post("SaveMachineGroup", data);
-      const response = await axios.post("GetMachineGroups");
-      setMachineGroup(response.data.data ?? []);
+      await axios.post("SaveMatchCheckListOption", data);
+      const response = await axios.post("GetMatchCheckListOptions");
+      setMatchCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
       ShowMessages(error.message, error.response.data.errors, "error");
@@ -120,24 +129,31 @@ const MachineGroupScreen = () => {
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetMachineGroup", {
-          MGroupID: item,
+        const response = await axios.post("GetMatchCheckListOption", {
+          MCLOptionID: item,
         });
-        const machineGroupData = response.data.data[0] ?? {};
+        const matchCheckListOptionResponse = response.data.data[0] ?? {};
+
         setFormState({
-          machineGroupId: machineGroupData.MGroupID ?? "",
-          machineGroupName: machineGroupData.MGroupName ?? "",
-          description: machineGroupData.Description ?? "",
-          displayOrder: String(machineGroupData.DisplayOrder) ?? "",
-        });
-        setIsEditing(true);
-      } else if (action === "delIndex") {
-        await axios.post("DeleteMachineGroup", {
-          MGroupID: item,
+          matchCheckListOptionId:
+            matchCheckListOptionResponse.MCLOptionID ?? "",
+          matchCheckListOptionName:
+            matchCheckListOptionResponse.MCLOptionName ?? "",
+          checkListOption: matchCheckListOptionResponse.CheckListOptions.map(
+            (option) => option.CLOptionID
+          ),
+          description: matchCheckListOptionResponse.Description ?? "",
+          displayOrder: matchCheckListOptionResponse.DisplayOrder ?? "",
         });
 
-        const response = await axios.post("GetMachineGroups");
-        setMachineGroup(response.data.data ?? []);
+        setIsEditing(true);
+      } else if (action === "delIndex") {
+        await axios.post("DeleteMatchCheckListOption", {
+          ID: item,
+        });
+
+        const response = await axios.post("GetMatchCheckListOptions");
+        setMatchCheckListOption(response.data.data ?? []);
       }
     } catch (error) {
       ShowMessages(error.message, error.response.data.errors, "error");
@@ -146,18 +162,30 @@ const MachineGroupScreen = () => {
     }
   };
 
-  const tableData = machineGroup.map((item) => [
-    item.MGroupName,
-    item.Description,
-    item.DisplayOrder,
-    item.MGroupID,
-    item.MGroupID,
-  ]);
+  const tableData = matchCheckListOption.flatMap((item) =>
+    item.CheckListOptions.map((option) => {
+      const matchedOption = checkListOption.find(
+        (group) => group.CLOptionID === option.CLOptionID
+      );
+
+      return [
+        option.MCLOptionName,
+        matchedOption?.CLOptionName,
+        option.Description,
+        option.DisplayOrder,
+        option.MCLOptionID,
+        option.ID,
+      ];
+    })
+  );
+
+  console.log(tableData);
 
   const tableHead = [
-    "Machine Group Name",
+    "Group Option Name",
+    "Option Name",
     "Description",
-    "Priority",
+    "Display Order",
     "Edit",
     "Delete",
   ];
@@ -167,16 +195,21 @@ const MachineGroupScreen = () => {
       flex: 1,
     },
     text: {
-      fontSize: fonts.xsm,
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
       color: colors.text,
     },
     buttonContainer: {
-      flexDirection: "row",
+      flexDirection: responsive === "large" ? "row" : "column",
       justifyContent: "center",
       alignItems: "center",
     },
     containerButton: {
-      width: 300,
+      width: responsive === "large" ? 300 : "90%",
       marginVertical: "1%",
       marginHorizontal: "2%",
     },
@@ -185,7 +218,12 @@ const MachineGroupScreen = () => {
       marginVertical: spacing.md,
     },
     errorText: {
-      fontSize: fonts.xsm,
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
       marginLeft: spacing.xs,
       top: -spacing.xxs,
       color: colors.danger,
@@ -195,20 +233,37 @@ const MachineGroupScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
-        <Card.Title>Create Machine</Card.Title>
+        <Card.Title>Create Option</Card.Title>
         <Card.Divider />
 
         <Input
-          placeholder="Enter Machine Group Name"
-          label="Machine Group Name"
+          placeholder="Enter List Detail Name"
+          label="List Detail Name"
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("mgroupName", text)}
-          value={formState.mgroupName}
+          onChangeText={(text) =>
+            handleChange("matchCheckListOptionName", text)
+          }
+          value={formState.matchCheckListOptionName}
         />
-        {error.mgroupName ? (
-          <Text style={styles.errorText}>{error.mgroupName}</Text>
+        {error.matchCheckListOptionName ? (
+          <Text style={styles.errorText}>{error.matchCheckListOptionName}</Text>
+        ) : null}
+
+        <CustomDropdownMulti
+          fieldName="checkListOption"
+          title="Machine Group"
+          labels="CLOptionName"
+          values="CLOptionID"
+          data={checkListOption}
+          updatedropdown={handleChange}
+          reset={resetDropdown}
+          selectedValue={formState.checkListOption}
+        />
+
+        {error.checkListOption ? (
+          <Text style={styles.errorText}>{error.checkListOption}</Text>
         ) : null}
 
         <Input
@@ -225,8 +280,8 @@ const MachineGroupScreen = () => {
         ) : null}
 
         <Input
-          placeholder="Enter Display Order"
-          label="Display Order"
+          placeholder="Enter DisplayOrder"
+          label="DisplayOrder"
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
@@ -258,18 +313,18 @@ const MachineGroupScreen = () => {
       </Card>
 
       <Card>
-        <Card.Title>List Machine</Card.Title>
+        <Card.Title>List Detail</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[3, 4, 1, 1, 1]}
-          actionIndex={[{ editIndex: 3, delIndex: 4 }]}
+          flexArr={[3, 3, 5, 1, 1, 1]}
+          actionIndex={[{ editIndex: 4, delIndex: 5 }]}
           handleAction={handleAction}
         />
       </Card>
     </ScrollView>
   );
-};
+});
 
-export default MachineGroupScreen;
+export default GroupCheckListOptionScreen;

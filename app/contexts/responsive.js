@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -6,10 +6,7 @@ import {
 
 export const ResponsiveContext = createContext();
 export const ResponsiveProvider = ({ children }) => {
-  const responsive = {
-    widthPercentage: wp,
-    heightPercentage: hp,
-  };
+  const [responsive, setResponsive] = useState("small");
 
   return (
     <ResponsiveContext.Provider value={{ responsive }}>
@@ -18,4 +15,4 @@ export const ResponsiveProvider = ({ children }) => {
   );
 };
 
-export const useResponsive = () => useContext(ResponsiveContext);
+export const useRes = () => useContext(ResponsiveContext);

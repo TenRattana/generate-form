@@ -49,7 +49,7 @@ const toastConfig = {
   customToast: ({ text1, text2, props }) => (
     <View style={styles.container}>
       <View>
-        <Text style={[styles.text1Style, { color: props.color }]}>{text1}</Text>
+        <Text style={[styles.text1Style]}>{text1}</Text>
         {text2 &&
           text2.map((element, index) => (
             <Text key={index} style={styles.text2Style}>

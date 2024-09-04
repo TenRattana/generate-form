@@ -1,43 +1,44 @@
+import React, { useState, useEffect } from "react";
 import { StyleSheet, ScrollView, Text, View } from "react-native";
-import React, { useState, useEffect, useContext } from "react";
-import axios from "../../config/axios";
+import { axios } from "../../config";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing, fonts } from "../../theme";
-import { CustomTable, useResponsive } from "../components";
+import { CustomTable } from "../components";
 import validator from "validator";
-import { ToastContext } from "../contexts";
+import { useTheme, useToast, useRes } from "../contexts";
 
 const CheckListOptionScreen = React.memo(() => {
-  const [listDetail, setListDetail] = useState([]);
+  const [checkListOption, setCheckListOption] = useState([]);
   const [formState, setFormState] = useState({
-    listDetailId: "",
-    listDetailName: "",
+    checkListOptionId: "",
+    checkListOptionName: "",
   });
   const [error, setError] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { Toast } = useContext(ToastContext);
+  const { colors, fonts, spacing } = useTheme();
+  const { Toast } = useToast();
+  const { responsive } = useRes();
+  console.log("checkListOptionScreen");
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({
-      type: color,
+      type: "customToast",
       text1: textH,
       text2: textT,
       text1Style: [styles.text, { color: colors.palette.dark }],
       text2Style: [styles.text, { color: colors.palette.dark }],
     });
   };
-  console.log("ListDetailScreen");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [listDetailResponse] = await Promise.all([
-          axios.post("GetListDetails"),
+        const [checkListOptionResponse] = await Promise.all([
+          axios.post("GetCheckListOptions"),
         ]);
-        setListDetail(listDetailResponse.data.data || []);
+        setCheckListOption(checkListOptionResponse.data.data ?? []);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        ShowMessages(error.message, error.response.data.errors, "error");
       }
     };
 
@@ -47,8 +48,11 @@ const CheckListOptionScreen = React.memo(() => {
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
 
-    if (fieldName === "listDetailName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The List Detail Name field is required.";
+    if (
+      fieldName === "checkListOptionName" &&
+      validator.isEmpty(value.trim())
+    ) {
+      errorMessage = "The Check List Option Name field is required.";
     }
 
     setError((prevError) => ({
@@ -66,7 +70,7 @@ const CheckListOptionScreen = React.memo(() => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "listDetailId") {
+        if (!isEditing && key === "checkListOptionId") {
           return true;
         }
         return value !== "" && value !== "" && String(value).trim() !== "";
@@ -75,71 +79,66 @@ const CheckListOptionScreen = React.memo(() => {
   };
 
   const resetForm = () => {
-    setFormState({ listDetailId: "", listDetailName: "" });
+    setFormState({ checkListOptionId: "", checkListOptionName: "" });
     setError({});
     setIsEditing(false);
   };
 
   const saveData = async () => {
     setIsLoading(true);
+
     const data = {
-      LDetailID: formState.listDetailId,
-      LDetailName: formState.listDetailName,
+      CLOptionID: formState.checkListOptionId,
+      CLOptionName: formState.checkListOptionName,
     };
 
     try {
-      const responseData = await axios.post("SaveListDetail", data);
-      const response = await axios.post("GetListDetails");
-      setListDetail(response.data.data || []);
+      await axios.post("SaveCheckListOption", data);
+      const response = await axios.post("GetCheckListOptions");
+      setCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      console.error("Error inserting data:", error);
+      ShowMessages(error.message, error.response.data.errors, "error");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
-    let messageHeader = "";
-    let message = "";
-    let type = "";
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetListDetail", {
-          LDetailID: item,
+        const response = await axios.post("GetCheckListOption", {
+          CLOptionID: item,
         });
-        const listDetailResponse = response.data.data[0] || {};
-
-        messageHeader = response.data.status ? "Success" : "Error";
-        message = response.data.message;
-        type = response.data.status ? "success" : "error";
+        const checkListOptionResponse = response.data.data[0] ?? {};
 
         setFormState({
-          listDetailId: listDetailResponse.LDetailID || "",
-          listDetailName: listDetailResponse.LDetailName || "",
+          checkListOptionId: checkListOptionResponse.CLOptionID ?? "",
+          checkListOptionName: checkListOptionResponse.CLOptionName ?? "",
         });
+        setIsEditing(true);
       } else if (action === "delIndex") {
-        const response1 = await axios.post("DeleteListDetail", {
-          LDetailID: item,
+        await axios.post("DeleteCheckListOption", {
+          CLOptionID: item,
         });
-        const response2 = await axios.post("GetListDetails");
-        setListDetail(response2.data.data || []);
+
+        const response = await axios.post("GetCheckListOptions");
+        setCheckListOption(response.data.data ?? []);
       }
     } catch (error) {
-      messageHeader = error.message;
-      message = error.response.data.errors;
-      type = "error";
+      ShowMessages(error.message, error.response.data.errors, "error");
+    } finally {
+      setIsLoading(false);
     }
-    // ShowMessages(messageHeader, message, type);
-    setIsLoading(false);
   };
 
-  const tableData = listDetail.map((item) => {
-    return [item.LDetailName, item.LDetailID, item.LDetailID];
+  const tableData = checkListOption.map((item) => {
+    return [item.CLOptionName, item.CLOptionID, item.CLOptionID];
   });
 
-  const tableHead = ["List Detail Name", "Edit", "Delete"];
+  const tableHead = ["Check List Option Name", "Edit", "Delete"];
 
   const styles = StyleSheet.create({
     scrollView: {
@@ -193,11 +192,11 @@ const CheckListOptionScreen = React.memo(() => {
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("listDetailName", text)}
-          value={formState.listDetailName}
+          onChangeText={(text) => handleChange("checkListOptionName", text)}
+          value={formState.checkListOptionName}
         />
-        {error.listDetailName ? (
-          <Text style={styles.errorText}>{error.listDetailName}</Text>
+        {error.checkListOptionName ? (
+          <Text style={styles.errorText}>{error.checkListOptionName}</Text>
         ) : null}
 
         <View style={styles.buttonContainer}>
@@ -207,7 +206,7 @@ const CheckListOptionScreen = React.memo(() => {
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
-            onPress={() => saveData}
+            onPress={saveData}
             loading={isLoading}
           />
           <Button
@@ -215,7 +214,7 @@ const CheckListOptionScreen = React.memo(() => {
             type="outline"
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
-            onPress={() => resetForm}
+            onPress={resetForm}
           />
         </View>
       </Card>

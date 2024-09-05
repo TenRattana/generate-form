@@ -4,7 +4,7 @@ import React from "react";
 export default function layoutform() {
   const renderLayout2 = () => (
     <FlatList
-      data={state.cards}
+      data={state.subForms}
       renderItem={({ item, index }) => (
         <View style={styles.card} key={`card-${index}`}>
           <Text style={styles.cardTitle}>{item.cardName}</Text>
@@ -19,7 +19,6 @@ export default function layoutform() {
                 flexGrow: field.displayOrder || 1,
                 padding: 5,
               };
-
               return (
                 <View
                   key={`field-${fieldIndex}-${item.cardName}`}

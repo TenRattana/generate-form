@@ -1,9 +1,8 @@
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { ThemeProvider, ToastProvider, ResponsiveProvider } from "./contexts";
-
 import { Provider } from "react-redux";
-import store from "./stores";
+import { store } from "./store";
 
 import {
   HomeScreen,
@@ -19,10 +18,8 @@ import {
 } from "./screens";
 
 const Drawer = createDrawerNavigator();
-
+console.log("app");
 export default function App() {
-  console.log("App");
-
   return (
     <Provider store={store}>
       <ThemeProvider>

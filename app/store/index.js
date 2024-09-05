@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import counterForm from "../features/crades/cardsSlice";
+import counterSubForm from "../slices/forms/counterSubForm";
+import couterField from "../slices/forms/couterField";
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
-    form: counterForm,
+    subForm: counterSubForm,
+    field: couterField,
   },
 });
-
-export default store;
+console.log("store");

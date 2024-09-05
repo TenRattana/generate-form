@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { axios } from "../../config";
 import { Button, Card, Input } from "@rneui/themed";
 import { CustomTable, CustomDropdown } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
+import { screenStyles } from "../styles";
 
 const MachineScreen = () => {
   const [machine, setMachine] = useState([]);
@@ -23,6 +24,7 @@ const MachineScreen = () => {
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
+  const styles = screenStyles({ colors, spacing, fonts, responsive });
   console.log("MachineScreen");
 
   const ShowMessages = (textH, textT, color) => {
@@ -173,46 +175,6 @@ const MachineScreen = () => {
     "Edit",
     "Delete",
   ];
-
-  const styles = StyleSheet.create({
-    scrollView: {
-      flex: 1,
-    },
-    text: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-      color: colors.text,
-    },
-    buttonContainer: {
-      flexDirection: responsive === "large" ? "row" : "column",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    containerButton: {
-      width: responsive === "large" ? 300 : "90%",
-      marginVertical: "1%",
-      marginHorizontal: "2%",
-    },
-    containerInput: {
-      backgroundColor: "darkgray",
-      marginVertical: spacing.md,
-    },
-    errorText: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-      marginLeft: spacing.xs,
-      top: -spacing.xxs,
-      color: colors.danger,
-    },
-  });
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>

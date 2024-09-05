@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { axios } from "../../config";
 import { Button, Card, Input } from "@rneui/themed";
 import { CustomTable } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
+import { screenStyles } from "../styles";
 
 const MachineGroupScreen = () => {
   const [machineGroup, setMachineGroup] = useState([]);
@@ -20,6 +21,8 @@ const MachineGroupScreen = () => {
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
+  const styles = screenStyles({ colors, spacing, fonts, responsive });
+
   console.log("MachineGroup");
 
   const ShowMessages = (textH, textT, color) => {
@@ -161,36 +164,6 @@ const MachineGroupScreen = () => {
     "Edit",
     "Delete",
   ];
-
-  const styles = StyleSheet.create({
-    scrollView: {
-      flex: 1,
-    },
-    text: {
-      fontSize: fonts.xsm,
-      color: colors.text,
-    },
-    buttonContainer: {
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    containerButton: {
-      width: 300,
-      marginVertical: "1%",
-      marginHorizontal: "2%",
-    },
-    containerInput: {
-      backgroundColor: "darkgray",
-      marginVertical: spacing.md,
-    },
-    errorText: {
-      fontSize: fonts.xsm,
-      marginLeft: spacing.xs,
-      top: -spacing.xxs,
-      color: colors.danger,
-    },
-  });
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>

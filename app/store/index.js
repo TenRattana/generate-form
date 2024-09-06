@@ -1,11 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import counterSubForm from "../slices/forms/counterSubForm";
-import couterField from "../slices/forms/couterField";
+import counterForm from "../slices/forms/counterForm";
 
 export const store = configureStore({
   reducer: {
-    subForm: counterSubForm,
-    field: couterField,
+    form: counterForm,
   },
 });
 console.log("store");

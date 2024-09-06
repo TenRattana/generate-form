@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { axios } from "../../config";
+import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
 import { CustomTable, CustomDropdownMulti } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
-import { screenStyles } from "../styles";
+import screenStyles from "../styles/screens/screen";
 
 const GroupCheckListOptionScreen = React.memo(() => {
   const [checkListOption, setCheckListOption] = useState([]);

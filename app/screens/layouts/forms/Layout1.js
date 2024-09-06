@@ -1,8 +1,15 @@
-import React, { useMemo, useState } from "react";
-import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import React, { useEffect, useRef } from "react";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  FlatList,
+  Animated,
+  Easing,
+} from "react-native";
 import { Input, Button, Dialog } from "@rneui/themed";
 import { Entypo, AntDesign } from "@expo/vector-icons";
-import { DynamicForm, CustomDropdown } from "../../../components";
+import { CustomDropdown } from "../../../components";
 
 export default function LayoutTool({
   style,
@@ -15,10 +22,10 @@ export default function LayoutTool({
   editMode,
   resetForm,
   setEditMode,
+  shouldRender,
   setShowDialogs,
   showDialogs,
   setSelectedIndex,
-  selectedIndex,
   setSubForm,
   handleForm,
   saveForm,
@@ -26,10 +33,36 @@ export default function LayoutTool({
   setFormState,
   handleFieldChange,
   formState,
+  checkList,
+  resetDropdown,
+  checkListType,
+  dataType,
 }) {
   console.log("Layout1");
-
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const { styles, colors, responsive } = style;
+
+  const startAnimation = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      easing: Easing.in,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const resetAnimation = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 0,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    resetAnimation();
+    startAnimation();
+  }, [shouldRender]);
 
   const renderSubForm = ({ item, index }) => (
     <View style={styles.cardshow}>
@@ -47,7 +80,7 @@ export default function LayoutTool({
       </TouchableOpacity>
       {item.fields.map((field, idx) => (
         <TouchableOpacity
-          key={`${field.ListName}-${idx}`}
+          key={`${field.CheckListName}-${idx}`}
           onPress={() => {
             setSelectedIndex((prev) => ({
               ...prev,
@@ -60,7 +93,7 @@ export default function LayoutTool({
           }}
           style={styles.button}
         >
-          <Text style={styles.text}>{field.ListName}</Text>
+          <Text style={styles.text}>{field.CheckListName}</Text>
           <Entypo name="chevron-right" size={18} color={colors.palette.light} />
         </TouchableOpacity>
       ))}
@@ -197,7 +230,7 @@ export default function LayoutTool({
           placeholder="Enter Sub Form Name"
           value={subForm.subFormName || ""}
           labelStyle={styles.text}
-          inputStyle={styles.text}
+          inputStyle={[styles.text, { color: colors.palette.dark }]}
           disabledInputStyle={styles.containerInput}
           onChangeText={(text) => handleSubForm("subFormName", text)}
         />
@@ -209,7 +242,7 @@ export default function LayoutTool({
           placeholder="Enter Number of Columns"
           value={subForm.columns || ""}
           labelStyle={styles.text}
-          inputStyle={styles.text}
+          inputStyle={[styles.text, { color: colors.palette.dark }]}
           disabledInputStyle={styles.containerInput}
           onChangeText={(text) => handleSubForm("columns", text)}
         />
@@ -221,7 +254,7 @@ export default function LayoutTool({
           placeholder="Enter Display Order Number"
           value={subForm.displayOrder || ""}
           labelStyle={styles.text}
-          inputStyle={styles.text}
+          inputStyle={[styles.text, { color: colors.palette.dark }]}
           disabledInputStyle={styles.containerInput}
           onChangeText={(text) => handleSubForm("displayOrder", text)}
         />
@@ -274,71 +307,88 @@ export default function LayoutTool({
         overlayStyle={styles.dialogContainer}
       >
         <View style={styles.viewDialog}>
-          {/* <CustomDropdown
-            fieldName="listId"
-            title="List"
-            labels="ListName"
-            values="ListID"
-            data={list}
-            updatedropdown={handleChange}
+          <CustomDropdown
+            fieldName="checkListId"
+            title="Check List"
+            labels="CListName"
+            values="CListID"
+            data={checkList}
+            updatedropdown={(f, v) => handleFieldChange(f, v)}
             reset={resetDropdown}
-            selectedValue={formState.listId}
-          /> */}
-          {/* <CustomDropdown
-            fieldName="listTypeId"
-            title="Type"
-            labels="TypeName"
-            values="TypeID"
-            data={listType}
-            updatedropdown={handleChange}
+            selectedValue={formState.checkListId}
+          />
+          <CustomDropdown
+            fieldName="checkListTypeId"
+            title="Check list Type"
+            labels="CTypeName"
+            values="CTypeID"
+            data={checkListType}
+            updatedropdown={(f, v) => handleFieldChange(f, v)}
             reset={resetDropdown}
-            selectedValue={formState.listTypeId}
-          /> */}
-          {/* {shouldRender === "detail" ? (
-            <Animated.View style={[styles.animatedText, { opacity: fadeAnim }]}> */}
-          {/* <CustomDropdown
+            selectedValue={formState.checkListTypeId}
+          />
+
+          <Animated.View style={[styles.animatedText, { opacity: fadeAnim }]}>
+            {shouldRender === "detail" ? (
+              <React.Fragment>
+                <Input
+                  label="Placeholder"
+                  placeholder="Enter Placeholder"
+                  labelStyle={[styles.text, { color: colors.text }]}
+                  inputStyle={[styles.text, { color: colors.text }]}
+                  disabledInputStyle={styles.containerInput}
+                  onChangeText={(text) =>
+                    handleFieldChange("placeholder", text)
+                  }
+                  value={formState.placeholder}
+                />
+                {/* <CustomDropdown
                 fieldName="matchListDetailId"
                 title="Group List Detail"
                 labels="ListName"
                 values="MLDetailID"
                 data={matchListDetail}
-                updatedropdown={handleChange}
+                updatedropdown={(f, v) => handleFieldChange(f, v)}
                 reset={resetDropdown}
                 selectedValue={formState.matchListDetailId}
               /> */}
-          {/* </Animated.View>
-          ) : shouldRender === "text" ? (
-            <Animated.View style={[styles.animatedText, { opacity: fadeAnim }]}>
-              <CustomDropdown
-                fieldName="dataTypeId"
-                title="Data Type"
-                labels="DTypeName"
-                values="DTypeID"
-                data={dataType}
-                updatedropdown={handleChange}
-                reset={resetDropdown}
-                selectedValue={formState.dataTypeId}
-              /> */}
-          <Input
-            label="Placeholder"
-            placeholder="Enter Placeholder"
-            labelStyle={[styles.text, { color: colors.text }]}
-            inputStyle={[styles.text, { color: colors.text }]}
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleFieldChange("placeholder", text)}
-            value={formState.placeholder}
-          />
-          <Input
-            label="Hint"
-            placeholder="Enter Hint"
-            labelStyle={[styles.text, { color: colors.text }]}
-            inputStyle={[styles.text, { color: colors.text }]}
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleFieldChange("hint", text)}
-            value={formState.hint}
-          />
-          {/* </Animated.View>
-          ) : null} */}
+              </React.Fragment>
+            ) : shouldRender === "text" ? (
+              <React.Fragment>
+                <CustomDropdown
+                  fieldName="dataTypeId"
+                  title="Data Type"
+                  labels="DTypeName"
+                  values="DTypeID"
+                  data={dataType}
+                  updatedropdown={(f, v) => handleFieldChange(f, v)}
+                  reset={resetDropdown}
+                  selectedValue={formState.dataTypeId}
+                />
+                <Input
+                  label="Placeholder"
+                  placeholder="Enter Placeholder"
+                  labelStyle={[styles.text, { color: colors.text }]}
+                  inputStyle={[styles.text, { color: colors.text }]}
+                  disabledInputStyle={styles.containerInput}
+                  onChangeText={(text) =>
+                    handleFieldChange("placeholder", text)
+                  }
+                  value={formState.placeholder}
+                />
+                <Input
+                  label="Hint"
+                  placeholder="Enter Hint"
+                  labelStyle={[styles.text, { color: colors.text }]}
+                  inputStyle={[styles.text, { color: colors.text }]}
+                  disabledInputStyle={styles.containerInput}
+                  onChangeText={(text) => handleFieldChange("hint", text)}
+                  value={formState.hint}
+                />
+              </React.Fragment>
+            ) : null}
+          </Animated.View>
+
           <Input
             label="Display Order"
             placeholder="Enter Display Order"

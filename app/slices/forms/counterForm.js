@@ -55,13 +55,8 @@ const subFormSlice = createSlice({
       state.subForms.splice(selectedSubFormIndex, 1);
     },
     addField(state, action) {
-      const {
-        formState,
-        selectedSubFormIndex,
-        checkList,
-        checkListType,
-        matchCheckListOption,
-      } = action.payload;
+      const { formState, selectedSubFormIndex, checkList, checkListType } =
+        action.payload;
 
       if (state.subForms[selectedSubFormIndex]) {
         state.subForms[selectedSubFormIndex].fields = [
@@ -87,7 +82,6 @@ const subFormSlice = createSlice({
         selectedFieldIndex,
         checkList,
         checkListType,
-        matchCheckListOption,
       } = action.payload;
 
       if (

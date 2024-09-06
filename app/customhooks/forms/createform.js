@@ -270,7 +270,6 @@ export const useFormBuilder = (route) => {
       selectedSubFormIndex: selectedIndex.subForm,
       checkList,
       checkListType,
-      matchCheckListOption,
     };
 
     if (option === "add") {

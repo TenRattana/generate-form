@@ -1,6 +1,9 @@
 import axios from "axios";
+import Constants from "expo-constants";
 
-axios.defaults.baseURL = "http://10.99.100.105/demo/ServiceDemo.asmx/";
+const apiUrl = Constants.expoConfig.extra.apiUrl;
+
+axios.defaults.baseURL = apiUrl;
 axios.defaults.headers.post["Content-Type"] =
   "application/x-www-form-urlencoded";
 

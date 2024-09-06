@@ -52,14 +52,14 @@ export const FieldDialog = ({
           {shouldRender === "detail" ? (
             <>
               <CustomDropdown
-                fieldName="matchCheckListOptionGroup"
+                fieldName="matchCheckListOption"
                 title="Match Check List Option Group"
                 labels="MCLOptionName"
                 values="MCLOptionID"
                 data={matchCheckListOption}
                 updatedropdown={(f, v) => onFieldChange(f, v)}
                 reset={resetDropdown}
-                selectedValue={formState.matchCheckListOptionGroup}
+                selectedValue={formState.matchCheckListOption}
               />
             </>
           ) : shouldRender === "text" ? (

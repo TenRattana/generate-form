@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
-import { Divider } from "@rneui/themed";
+import { Divider, Button } from "@rneui/themed";
 import { DynamicForm } from "./index";
 
 export const Layout2 = ({
@@ -12,6 +12,7 @@ export const Layout2 = ({
   formData,
   handleChange,
   matchCheckListOption,
+  handleSubmit,
 }) => {
   const { styles, colors, responsive } = style;
 
@@ -75,6 +76,16 @@ export const Layout2 = ({
         }}
       />
       {renderLayout2()}
+      {state.subForms.length > 0 && state.subForms[0].fields.length > 0 ? (
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Submit"
+            titleStyle={styles.text}
+            containerStyle={styles.containerButton}
+            onPress={() => handleSubmit()}
+          />
+        </View>
+      ) : null}
     </View>
   );
 };

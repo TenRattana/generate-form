@@ -16,7 +16,7 @@ export const DynamicForm = ({
 }) => {
   const renderField = (field, index) => {
     const option = matchCheckListOption
-      .find((option) => option.MCLOptionID === field.matchCheckListOptionGroup)
+      .find((option) => option.MCLOptionID === field.matchCheckListOption)
       ?.CheckListOptions.map((item) => ({
         label: item.CLOptionName,
       }));

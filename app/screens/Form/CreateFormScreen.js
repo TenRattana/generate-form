@@ -37,6 +37,8 @@ const FormBuilder = ({ route }) => {
     resetForm,
     saveField,
     handleChange,
+    handleSubmit,
+    ShowMessages,
   } = useFormBuilder(route);
 
   const { colors, spacing, fonts } = useTheme();
@@ -92,6 +94,7 @@ const FormBuilder = ({ route }) => {
           formData={formData}
           handleChange={handleChange}
           matchCheckListOption={matchCheckListOption}
+          handleSubmit={handleSubmit}
         />
       </View>
     </ScrollView>

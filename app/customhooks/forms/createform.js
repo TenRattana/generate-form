@@ -12,6 +12,8 @@ import {
   deleteField,
 } from "../../slices";
 import validator from "validator";
+import formStyles from "../../styles/forms/form";
+import { useTheme, useToast, useRes } from "../../contexts";
 
 export const useFormBuilder = (route) => {
   const dispatch = useDispatch();
@@ -67,6 +69,21 @@ export const useFormBuilder = (route) => {
   const [shouldRenderDT, setShouldRenderDT] = useState("");
   const { formIdforEdit } = route.params || {};
 
+  const { responsive } = useRes();
+  const { Toast } = useToast();
+  const { colors, spacing, fonts } = useTheme();
+  const styles = formStyles({ colors, spacing, fonts, responsive });
+
+  const ShowMessages = (textH, textT, color) => {
+    Toast.show({
+      type: "customToast",
+      text1: textH,
+      text2: textT,
+      text1Style: [styles.text, { color: colors.palette.dark }],
+      text2Style: [styles.text, { color: colors.palette.dark }],
+    });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -87,6 +104,11 @@ export const useFormBuilder = (route) => {
         setCheckListType(checkListTypeResponse.data.data ?? []);
         setDataType(dataTypeResponse.data.data ?? []);
         setIsDataLoaded(true);
+        ShowMessages(
+          checkListResponse.data.message,
+          checkListResponse.data.data.map((e) => e.CListName),
+          "error"
+        );
       } catch (error) {
         ShowMessages(error.message, error.response.data.errors, "error");
       }
@@ -190,6 +212,9 @@ export const useFormBuilder = (route) => {
 
   const saveForm = async () => {
     console.log(state);
+  };
+  const handleSubmit = () => {
+    console.log(formData);
   };
 
   const saveSubForm = (option) => {
@@ -309,6 +334,7 @@ export const useFormBuilder = (route) => {
     dataType,
     shouldRender,
     shouldRenderDT,
+    ShowMessages,
     setEditMode,
     setShowDialogs,
     setSelectedIndex,
@@ -323,5 +349,6 @@ export const useFormBuilder = (route) => {
     saveField,
     handleChange,
     matchCheckListOption,
+    handleSubmit,
   };
 };

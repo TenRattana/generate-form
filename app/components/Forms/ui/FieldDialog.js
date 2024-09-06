@@ -22,6 +22,7 @@ export const FieldDialog = ({
   colors,
   responsive,
   editMode,
+  matchCheckListOption,
 }) => {
   return (
     <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
@@ -50,14 +51,15 @@ export const FieldDialog = ({
         <Animated.View style={[styles.animatedText, { opacity: fadeAnim }]}>
           {shouldRender === "detail" ? (
             <>
-              <Input
-                label="Placeholder"
-                placeholder="Enter Placeholder"
-                labelStyle={[styles.text, { color: colors.text }]}
-                inputStyle={[styles.text, { color: colors.text }]}
-                disabledInputStyle={styles.containerInput}
-                onChangeText={(text) => onFieldChange("placeholder", text)}
-                value={formState.placeholder}
+              <CustomDropdown
+                fieldName="matchCheckListOptionGroup"
+                title="Match Check List Option Group"
+                labels="MCLOptionName"
+                values="MCLOptionID"
+                data={matchCheckListOption}
+                updatedropdown={(f, v) => onFieldChange(f, v)}
+                reset={resetDropdown}
+                selectedValue={formState.matchCheckListOptionGroup}
               />
             </>
           ) : shouldRender === "text" ? (

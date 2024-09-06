@@ -68,10 +68,6 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       justifyContent: "space-between",
       alignItems: "center",
     },
-    text: {
-      fontSize: responsive === "small" ? fonts.sm : fonts.xsm,
-      color: colors.palette.light,
-    },
     textHeader: {
       fontSize: responsive === "small" ? fonts.xmd : fonts.lg,
       fontWeight: "bold",
@@ -94,12 +90,6 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       borderRadius: 5,
       backgroundColor: "white",
     },
-    sectionHead: {
-      fontSize: 24,
-      fontWeight: "bold",
-      alignSelf: "center",
-      marginVertical: 5,
-    },
     sectionTitle: {
       fontSize: 18,
       fontWeight: "bold",
@@ -114,6 +104,22 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       marginLeft: spacing.xs,
       top: -spacing.xxs,
       color: colors.danger,
+    },
+    text: {
+      fontSize:
+        responsive === "small"
+          ? fonts.xsm
+          : responsive === "medium"
+          ? fonts.sm
+          : fonts.xsm,
+      color: colors.palette.light,
+    },
+    sectionHead: {
+      fontSize: 24,
+      fontWeight: "bold",
+      alignSelf: "center",
+      marginVertical: 5,
+      marginBottom: 20,
     },
   });
 };

@@ -1,41 +1,63 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
 import { Divider } from "@rneui/themed";
+import { DynamicForm } from "./index";
 
-export const Layout2 = ({ style, form }) => {
+export const Layout2 = ({
+  style,
+  form,
+  state,
+  checkListType,
+  checkList,
+  formData,
+  handleChange,
+  matchCheckListOption,
+}) => {
   const { styles, colors, responsive } = style;
-  // const renderLayout2 = () => (
-  //   <FlatList
-  //     data={state.subForms}
-  //     renderItem={({ item, index }) => (
-  //       <View style={styles.card} key={`card-${index}`}>
-  //         <Text style={styles.cardTitle}>{item.cardName}</Text>
-  //         <View style={styles.formContainer}>
-  //           {item.fields.map((field, fieldIndex) => {
-  //             const containerStyle = {
-  //               flexBasis: `${
-  //                 responsive === "small" || responsive === "medium"
-  //                   ? 100
-  //                   : 100 / item.cardColumns
-  //               }%`,
-  //               flexGrow: field.displayOrder || 1,
-  //               padding: 5,
-  //             };
-  //             return (
-  //               <View
-  //                 key={`field-${fieldIndex}-${item.cardName}`}
-  //                 style={containerStyle}
-  //               >
-  //                 <DynamicForm fields={[field]} onChange={handleFieldChange} />
-  //               </View>
-  //             );
-  //           })}
-  //         </View>
-  //       </View>
-  //     )}
-  //     keyExtractor={(item, index) => `card-${index}`}
-  //   />
-  // );
+
+  const renderLayout2 = () => (
+    <FlatList
+      data={state.subForms}
+      renderItem={({ item, index }) => (
+        <View style={styles.card} key={`card-${index}`}>
+          <Text style={styles.cardTitle}>{item.subFormName}</Text>
+          <View style={styles.formContainer}>
+            {item.fields.map((field, fieldIndex) => {
+              const containerStyle = {
+                flexBasis: `${
+                  responsive === "small" || responsive === "medium"
+                    ? 100
+                    : 100 / item.columns
+                }%`,
+                flexGrow: field.displayOrder || 1,
+                padding: 5,
+              };
+              return (
+                <View
+                  key={`field-${fieldIndex}-${item.subFormName}`}
+                  style={containerStyle}
+                >
+                  <DynamicForm
+                    styles={styles}
+                    colors={colors}
+                    responsive={responsive}
+                    fields={[field]}
+                    formData={formData}
+                    handleChange={handleChange}
+                    checkListType={checkListType}
+                    checkList={checkList}
+                    indexSubForm={index}
+                    matchCheckListOption={matchCheckListOption}
+                  />
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      )}
+      keyExtractor={(item) => item.subFormName || `subForm-${item.subFormId}`}
+    />
+  );
 
   return (
     <View>
@@ -52,7 +74,7 @@ export const Layout2 = ({ style, form }) => {
           color: colors.palette.dark,
         }}
       />
-      {/* {renderLayout2()} */}
+      {renderLayout2()}
     </View>
   );
 };

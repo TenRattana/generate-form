@@ -23,6 +23,7 @@ const FormBuilder = ({ route }) => {
     dataType,
     shouldRender,
     shouldRenderDT,
+    formData,
     setEditMode,
     setShowDialogs,
     setSelectedIndex,
@@ -35,6 +36,7 @@ const FormBuilder = ({ route }) => {
     saveSubForm,
     resetForm,
     saveField,
+    handleChange,
   } = useFormBuilder(route);
 
   const { colors, spacing, fonts } = useTheme();
@@ -42,6 +44,7 @@ const FormBuilder = ({ route }) => {
   const { responsive } = useRes();
 
   const styles = formStyles({ colors, spacing, fonts, responsive });
+  console.log(state);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -75,11 +78,21 @@ const FormBuilder = ({ route }) => {
             resetDropdown={resetDropdown}
             checkListType={checkListType}
             dataType={dataType}
+            matchCheckListOption={matchCheckListOption}
           />
         </View>
       </View>
       <View style={styles.layout2}>
-        <Layout2 form={form} style={{ styles, colors, responsive }} />
+        <Layout2
+          form={form}
+          style={{ styles, colors, responsive }}
+          state={state}
+          checkListType={checkListType}
+          checkList={checkList}
+          formData={formData}
+          handleChange={handleChange}
+          matchCheckListOption={matchCheckListOption}
+        />
       </View>
     </ScrollView>
   );

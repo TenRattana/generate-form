@@ -22,7 +22,7 @@ export const SubFormDialog = ({
         label="Sub Form Name"
         placeholder="Enter Sub Form Name"
         value={subForm.subFormName || ""}
-        labelStyle={styles.text}
+        labelStyle={[styles.text, { color: colors.palette.dark }]}
         inputStyle={[styles.text, { color: colors.palette.dark }]}
         disabledInputStyle={styles.containerInput}
         onChangeText={(text) => onChange("subFormName", text)}
@@ -34,7 +34,7 @@ export const SubFormDialog = ({
         label="Sub Form Column"
         placeholder="Enter Number of Columns"
         value={subForm.columns || ""}
-        labelStyle={styles.text}
+        labelStyle={[styles.text, { color: colors.palette.dark }]}
         inputStyle={[styles.text, { color: colors.palette.dark }]}
         disabledInputStyle={styles.containerInput}
         onChangeText={(text) => onChange("columns", text)}
@@ -46,7 +46,7 @@ export const SubFormDialog = ({
         label="Sub Form Display Order"
         placeholder="Enter Display Order Number"
         value={subForm.displayOrder || ""}
-        labelStyle={styles.text}
+        labelStyle={[styles.text, { color: colors.palette.dark }]}
         inputStyle={[styles.text, { color: colors.palette.dark }]}
         disabledInputStyle={styles.containerInput}
         onChangeText={(text) => onChange("displayOrder", text)}

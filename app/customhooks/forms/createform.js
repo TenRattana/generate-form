@@ -55,6 +55,7 @@ export const useFormBuilder = (route) => {
     hint: "",
     displayOrder: "",
   });
+  const [formData, setFormData] = useState({});
   const [error, setError] = useState({});
   const [editMode, setEditMode] = useState(false);
   const [resetDropdown, setResetDropdown] = useState(false);
@@ -93,6 +94,8 @@ export const useFormBuilder = (route) => {
 
     fetchData();
   }, []);
+
+  console.log(formData);
 
   useEffect(() => {
     if (isDataLoaded && formIdforEdit) {
@@ -241,6 +244,7 @@ export const useFormBuilder = (route) => {
       formState,
       selectedSubFormIndex: selectedIndex.subForm,
       checkList,
+      checkListType,
       matchCheckListOption,
     };
 
@@ -253,6 +257,15 @@ export const useFormBuilder = (route) => {
         : dispatch(updateField(payload));
     }
     resetForm();
+  };
+
+  const handleChange = (fieldName, value) => {
+    console.log(fieldName, value);
+
+    setFormData((prevState) => ({
+      ...prevState,
+      [fieldName]: value,
+    }));
   };
 
   useMemo(() => {
@@ -290,6 +303,7 @@ export const useFormBuilder = (route) => {
     editMode,
     resetDropdown,
     checkList,
+    formData,
     matchCheckListOption,
     checkListType,
     dataType,
@@ -307,5 +321,7 @@ export const useFormBuilder = (route) => {
     saveSubForm,
     resetForm,
     saveField,
+    handleChange,
+    matchCheckListOption,
   };
 };

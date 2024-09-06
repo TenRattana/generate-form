@@ -38,6 +38,7 @@ export const Layout1 = ({
   resetDropdown,
   checkListType,
   dataType,
+  matchCheckListOption,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnimDT = useRef(new Animated.Value(0)).current;
@@ -231,6 +232,7 @@ export const Layout1 = ({
         formState={formState}
         checkList={checkList}
         checkListType={checkListType}
+        matchCheckListOption={matchCheckListOption}
         dataType={dataType}
         onSave={(option) => saveField(option)}
         onDelete={() => saveField("delete")}

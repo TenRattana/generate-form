@@ -1,8 +1,8 @@
 import React from "react";
 import { ScrollView, View } from "react-native";
 import { useSelector } from "react-redux";
-import { useFormBuilder } from "../customhooks";
-import { Layout1 } from "../layouts";
+import { useFormBuilder } from "../../customhooks";
+import { Layout1 } from "../../components";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
 
@@ -22,6 +22,7 @@ const FormBuilder = ({ route }) => {
     checkListType,
     dataType,
     shouldRender,
+    shouldRenderDT,
     setEditMode,
     setShowDialogs,
     setSelectedIndex,
@@ -55,6 +56,7 @@ const FormBuilder = ({ route }) => {
             form={form}
             error={error}
             shouldRender={shouldRender}
+            shouldRenderDT={shouldRenderDT}
             editMode={editMode}
             resetForm={resetForm}
             setEditMode={setEditMode}

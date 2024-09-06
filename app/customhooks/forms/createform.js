@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "../../../../config/axios";
+import axios from "../../../config/axios";
 import {
   setSubForm,
   addSubForm,
@@ -10,7 +10,7 @@ import {
   addField,
   updateField,
   deleteField,
-} from "../../../slices";
+} from "../../slices";
 import validator from "validator";
 
 export const useFormBuilder = (route) => {
@@ -63,7 +63,7 @@ export const useFormBuilder = (route) => {
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
   const [shouldRender, setShouldRender] = useState("");
-
+  const [shouldRenderDT, setShouldRenderDT] = useState("");
   const { formIdforEdit } = route.params || {};
 
   useEffect(() => {
@@ -240,7 +240,6 @@ export const useFormBuilder = (route) => {
     const payload = {
       formState,
       selectedSubFormIndex: selectedIndex.subForm,
-      checkListType,
       checkList,
       matchCheckListOption,
     };
@@ -270,6 +269,16 @@ export const useFormBuilder = (route) => {
     }
   }, [formState.checkListTypeId, checkListType]);
 
+  useMemo(() => {
+    const dataTypeItem = dataType.find(
+      (item) => item.DTypeID === formState.dataTypeId
+    )?.DTypeName;
+
+    dataTypeItem === "Float"
+      ? setShouldRenderDT(true)
+      : setShouldRenderDT(false);
+  }, [formState.dataTypeId, dataType]);
+
   return {
     state,
     showDialogs,
@@ -285,6 +294,7 @@ export const useFormBuilder = (route) => {
     checkListType,
     dataType,
     shouldRender,
+    shouldRenderDT,
     setEditMode,
     setShowDialogs,
     setSelectedIndex,

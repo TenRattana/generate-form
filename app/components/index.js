@@ -9,3 +9,4 @@ export { default as Inputs } from "./Inputs";
 export { default as DynamicForm } from "./DynamicForm";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export * from "./useResponsive";
+export * from "./Forms";

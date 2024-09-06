@@ -58,7 +58,6 @@ const subFormSlice = createSlice({
       const {
         formState,
         selectedSubFormIndex,
-        checkListType,
         checkList,
         matchCheckListOption,
       } = action.payload;
@@ -68,9 +67,6 @@ const subFormSlice = createSlice({
           ...state.subForms[selectedSubFormIndex].fields,
           {
             ...formState,
-            CheckListTypeName:
-              checkListType.find((v) => v.CTypeID === formState.checkListTypeId)
-                ?.CTypeName || "",
             CheckListName:
               checkList.find((v) => v.CListID === formState.checkListId)
                 ?.CListName || "",
@@ -89,7 +85,6 @@ const subFormSlice = createSlice({
         formState,
         selectedSubFormIndex,
         selectedFieldIndex,
-        checkListType,
         checkList,
         matchCheckListOption,
       } = action.payload;
@@ -100,9 +95,6 @@ const subFormSlice = createSlice({
       ) {
         state.subForms[selectedSubFormIndex].fields[selectedFieldIndex] = {
           ...formState,
-          CheckListTypeName:
-            checkListType.find((v) => v.CTypeID === formState.checkListTypeId)
-              ?.CTypeName || "",
           CheckListName:
             checkList.find((v) => v.CListID === formState.checkListId)
               ?.CListName || "",

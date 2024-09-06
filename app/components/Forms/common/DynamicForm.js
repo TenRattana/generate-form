@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { colors, spacing, fonts } from "../../theme";
-import { useResponsive } from "./useResponsive";
+import { colors, spacing, fonts } from "../../../../theme";
+import { useResponsive } from "../../useResponsive";
 
-import { Selects, Radios, Checkboxs, Textareas, Inputs } from "./index";
+import { Selects, Radios, Checkboxs, Textareas, Inputs } from "../../index";
 
 const DynamicForm = ({ fields, onChange }) => {
   const [formState, setFormState] = useState({});

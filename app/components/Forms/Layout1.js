@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import { Input, Button } from "@rneui/themed";
 import { Entypo, AntDesign } from "@expo/vector-icons";
-import { SaveFormDialog, FieldDialog, SubFormDialog } from "./";
+import { SaveFormDialog, FieldDialog, SubFormDialog } from "./index";
 
-export default function LayoutTool({
+export const Layout1 = ({
   style,
   state,
   error,
@@ -38,7 +38,7 @@ export default function LayoutTool({
   resetDropdown,
   checkListType,
   dataType,
-}) {
+}) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnimDT = useRef(new Animated.Value(0)).current;
   const { styles, colors, responsive } = style;
@@ -244,4 +244,4 @@ export default function LayoutTool({
       />
     </View>
   );
-}
+};

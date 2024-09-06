@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text } from "react-native";
 import { Button, Dialog } from "@rneui/themed";
 
-const SaveFormDialog = ({
+export const SaveFormDialog = ({
   isVisible,
   onSave,
   onCancel,
@@ -58,5 +58,3 @@ const SaveFormDialog = ({
     </Dialog>
   );
 };
-
-export default SaveFormDialog;

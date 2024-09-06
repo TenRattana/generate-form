@@ -6,7 +6,7 @@ import {
 
 export const ResponsiveContext = createContext();
 export const ResponsiveProvider = ({ children }) => {
-  const [responsive, setResponsive] = useState("large");
+  const [responsive, setResponsive] = useState("small");
 
   return (
     <ResponsiveContext.Provider value={{ responsive }}>

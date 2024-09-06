@@ -211,7 +211,19 @@ export const useFormBuilder = (route) => {
   };
 
   const saveForm = async () => {
-    console.log(state);
+    const data = {
+      SubFormData: JSON.stringify(state.subForm),
+      FormData: JSON.stringify(form),
+    };
+
+    try {
+      await axios.post("SaveForm", data);
+      resetForm();
+    } catch (error) {
+      ShowMessages(error.message, error.response.data.errors, "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
   const handleSubmit = () => {
     console.log(formData);

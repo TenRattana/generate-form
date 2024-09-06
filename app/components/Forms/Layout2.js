@@ -44,7 +44,7 @@ export const Layout2 = ({ style, form }) => {
       </Text>
       <Divider
         style={{ left: -50 }}
-        subHeader={form.formDescription || "Content Description"}
+        subHeader={form.description || "Content Description"}
         inset={true}
         subHeaderStyle={{
           marginTop: 2,

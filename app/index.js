@@ -46,12 +46,12 @@ export default function App() {
                 component={GroupCheckListOptionScreen}
               />
               <Drawer.Screen name="Create Form" component={CreateFormScreen} />
-              <Drawer.Screen name="View Form" component={ViewFormScreen} />
+              {/* <Drawer.Screen name="View Form" component={ViewFormScreen} />
               <Drawer.Screen name="Forms" component={FormScreen} />
               <Drawer.Screen
                 name="Match Form & Machine"
                 component={MatchFormMachineScreen}
-              />
+              /> */}
             </Drawer.Navigator>
           </ResponsiveProvider>
         </ToastProvider>

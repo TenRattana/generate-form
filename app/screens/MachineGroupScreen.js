@@ -177,11 +177,11 @@ const MachineGroupScreen = () => {
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("mgroupName", text)}
-          value={formState.mgroupName}
+          onChangeText={(text) => handleChange("machineGroupName", text)}
+          value={formState.machineGroupName}
         />
-        {error.mgroupName ? (
-          <Text style={styles.errorText}>{error.mgroupName}</Text>
+        {error.machineGroupName ? (
+          <Text style={styles.errorText}>{error.machineGroupName}</Text>
         ) : null}
 
         <Input

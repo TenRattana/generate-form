@@ -1,33 +1,42 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useSelector } from "react-redux";
 import { Layout2 } from "../../components";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
-import { useViewForm } from "../../customhooks/forms/viewform";
+import axios from "../../../config/axios";
+
+// import { useViewForm } from "../../customhooks/forms/viewform";
 
 const FormBuilder = ({ route }) => {
-  const {
-    state,
-    form,
-    checkList,
-    matchCheckListOption,
-    checkListType,
-    formData,
-    handleChange,
-    handleSubmit,
-  } = useViewForm(route);
+  // const {} = useViewForm(route);
 
-  const { colors, spacing, fonts } = useTheme();
-  const { Toast } = useToast();
-  const { responsive } = useRes();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const formResponse = await axios.post("GetForm");
+      } catch (error) {
+        // ShowMessages(error.message, error.response.data.errors, "error");
+      }
+    };
 
-  const styles = formStyles({ colors, spacing, fonts, responsive });
+    fetchData();
+  }, []);
+
+  // const { colors, spacing, fonts } = useTheme();
+  // const { Toast } = useToast();
+  // const { responsive } = useRes();
+
+  // const styles = formStyles({ colors, spacing, fonts, responsive });
   console.log("CreateForm");
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.layout2}>
+    <ScrollView
+    // contentContainerStyle={styles.container}
+    >
+      <View
+      // style={styles.layout2}
+      >
         {/* <Layout2
         form={form}
         style={{ styles, colors, responsive }}

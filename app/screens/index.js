@@ -5,5 +5,6 @@ export { default as CheckListScreen } from "./CheckListScreen";
 export { default as CheckListOptionScreen } from "./CheckListOptionScreen";
 export { default as MatchFormMachineScreen } from "./MatchFormMachineScreen";
 export { default as GroupCheckListOptionScreen } from "./GroupCheckListOptionScreen";
+export { default as FormScreen } from "./FormScreen";
 
 export * from "./Form";

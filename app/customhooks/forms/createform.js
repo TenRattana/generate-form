@@ -220,7 +220,7 @@ export const useFormBuilder = (route) => {
     };
 
     try {
-      await axios.post("SaveForm", data);
+      await axios.post("SaveFormCheckList", data);
       resetForm();
     } catch (error) {
       ShowMessages(error.message, error.response.data.errors, "error");

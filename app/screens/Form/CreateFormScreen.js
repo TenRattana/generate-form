@@ -46,7 +46,7 @@ const FormBuilder = ({ route }) => {
   const { responsive } = useRes();
 
   const styles = formStyles({ colors, spacing, fonts, responsive });
-  console.log(state);
+  console.log("CreateForm");
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

@@ -68,7 +68,7 @@ export const useFormBuilder = (route) => {
   const [shouldRender, setShouldRender] = useState("");
   const [shouldRenderDT, setShouldRenderDT] = useState("");
   const { formIdforEdit } = route.params || {};
-
+  const [isLoading, setIsLoading] = useState(false);
   const { responsive } = useRes();
   const { Toast } = useToast();
   const { colors, spacing, fonts } = useTheme();
@@ -116,8 +116,6 @@ export const useFormBuilder = (route) => {
 
     fetchData();
   }, []);
-
-  console.log(formData);
 
   useEffect(() => {
     if (isDataLoaded && formIdforEdit) {
@@ -207,12 +205,17 @@ export const useFormBuilder = (route) => {
   };
 
   const handleFieldChange = (fieldName, value) => {
-    setFormState((prevState) => ({ ...prevState, [fieldName]: value }));
+    setFormState((prevState) => ({
+      ...prevState,
+      [fieldName]: value,
+    }));
   };
 
   const saveForm = async () => {
+    setIsLoading(true);
+
     const data = {
-      SubFormData: JSON.stringify(state.subForm),
+      SubFormData: JSON.stringify(state.subForms),
       FormData: JSON.stringify(form),
     };
 
@@ -277,11 +280,18 @@ export const useFormBuilder = (route) => {
   };
 
   const saveField = (option) => {
+    const defaultDTypeID = dataType.find(
+      (v) => v.DTypeName === "String"
+    )?.DTypeID;
+
+    formState.dataTypeId = formState.dataTypeId || defaultDTypeID;
+
     const payload = {
       formState,
       selectedSubFormIndex: selectedIndex.subForm,
       checkList,
       checkListType,
+      dataType,
     };
 
     if (option === "add") {
@@ -296,8 +306,6 @@ export const useFormBuilder = (route) => {
   };
 
   const handleChange = (fieldName, value) => {
-    console.log(fieldName, value);
-
     setFormData((prevState) => ({
       ...prevState,
       [fieldName]: value,

@@ -1,53 +1,55 @@
-import { StyleSheet, ScrollView, Text, View } from "react-native";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
+import { ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
-import { colors, spacing, fonts } from "../../theme";
+import { CustomTable, CustomDropdown } from "../components";
 import validator from "validator";
-import { ToastContext } from "../contexts";
-import { CustomTable, CustomDropdown, useResponsive } from "../components";
+import { useTheme, useToast, useRes } from "../contexts";
+import screenStyles from "../styles/screens/screen";
 
-const ListScreen = ({ navigation }) => {
+const MatchFormMachineScreen = React.memo(({ navigation }) => {
   const [form, setForm] = useState([]);
   const [machine, setMachine] = useState([]);
-  const [matchForm, setMatchform] = useState([]);
-  const [resetDropdown, setResetDropdown] = useState(false);
+  const [matchForm, setMatchForm] = useState([]);
   const [formState, setFormState] = useState({
     machineId: "",
     formId: "",
-    displayOrder: "",
+    isActive: false,
   });
   const [error, setError] = useState({});
+  const [resetDropdown, setResetDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const responsive = useResponsive();
-  const { Toast } = useContext(ToastContext);
+  const { colors, fonts, spacing } = useTheme();
+  const { Toast } = useToast();
+  const { responsive } = useRes();
+  const styles = screenStyles({ colors, spacing, fonts, responsive });
+  console.log("Forms");
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({
-      type: color,
+      type: "customToast",
       text1: textH,
       text2: textT,
       text1Style: [styles.text, { color: colors.palette.dark }],
       text2Style: [styles.text, { color: colors.palette.dark }],
     });
   };
-  console.log("ListScreen");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [formResponse, machineResponse, matchFormMachineResponse] =
+        const [machineResponse, formResponse, matchFormResponse] =
           await Promise.all([
-            axios.post("GetForms"),
             axios.post("GetMachines"),
+            axios.post("GetForms"),
             axios.post("GetMatchFormMachines"),
           ]);
-        setForm(formResponse.data.data || []);
-        setMachine(machineResponse.data.data || []);
-        setMatchform(matchFormMachineResponse.data.data || []);
+        setMachine(machineResponse.data.data ?? []);
+        setForm(formResponse.data.data ?? []);
+        setMatchForm(matchFormResponse.data.data ?? []);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        ShowMessages(error.message, error.response.data.errors, "error");
       }
     };
 
@@ -56,10 +58,6 @@ const ListScreen = ({ navigation }) => {
 
   const handleChange = (fieldName, value) => {
     let errorMessage = "";
-
-    if (fieldName === "listName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The List Name field is required.";
-    }
 
     setError((prevError) => ({
       ...prevError,
@@ -76,58 +74,70 @@ const ListScreen = ({ navigation }) => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "listId") {
+        if (!isEditing && key === "machineId") {
           return true;
         }
-        return value !== "" && value !== "" && String(value).trim() !== "";
+        return value !== "" && String(value).trim() !== "";
       }) && Object.values(error).every((err) => err === "")
     );
   };
 
   const resetForm = () => {
-    setFormState({ listId: "", listName: "" });
+    setFormState({
+      machineId: "",
+      formId: "",
+      isActive: false,
+    });
     setError({});
     setIsEditing(false);
+    setResetDropdown(true);
+    setTimeout(() => setResetDropdown(false), 0);
   };
 
   const saveData = async () => {
     setIsLoading(true);
+
     const data = {
-      ListId: formState.listId,
-      ListName: formState.listName,
+      MachineID: formState.machineId,
+      FormID: formState.formId,
     };
 
     try {
-      await axios.post("SaveList", data);
-      const response = await axios.post("GetLists");
-      setList(response.data.data || []);
+      await axios.post("SaveForm", data);
+      const response = await axios.post("GetMatchFormMachines");
+      setMatchForm(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      console.error("Error saving data:", error);
+      ShowMessages(error.message, error.response.data.errors, "error");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleAction = async (action, item) => {
     setIsLoading(true);
-
     try {
-      if (action === "changeIndex") {
-        navigation.navigate("Create Form", {
-          formIdMachine: item,
+      if (action === "editIndex") {
+        const response = await axios.post("GetMatchForm", {
+          FormID: item.form,
         });
-      } else {
-        if (action === "delIndex") {
-          const response1 = await axios.post("DeleteMatchFormMachine", {
-            MFMachineID: item,
-          });
-        } else if (action === "editIndex") {
-          const response1 = await axios.post("GetMatchFormMachine", {
-            MFMachineID: item,
-          });
-        }
+        const machineData = response.data.data[0] ?? {};
+        setFormState({
+          machineId: machineData.MachineID ?? "",
+          formId: machineData.FormID ?? "",
+        });
+        setIsEditing(true);
+      } else if (action === "delIndex") {
+        const response1 = await axios.post("DeleteMatchForm", {
+          FormID: item.form,
+          MachineID: item.machine,
+        });
         const response = await axios.post("GetMatchFormMachines");
-        setForm(response.data.data || []);
+        setMatchForm(response.data.data || []);
+      } else if (action === "changeIndex") {
+        navigation.navigate("Create Form", { formIdforEdit: item });
+      } else if (action === "preIndex") {
+        navigation.navigate("View Form", { formId: item });
       }
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -139,68 +149,28 @@ const ListScreen = ({ navigation }) => {
     return [
       item.MachineName,
       item.FormName,
-      item.IsActive,
-      item.DisplayOrder,
-      item.MFMachineID,
-      item.MFMachineID,
-      item.MFMachineID,
+      item.FormID,
+      item.FormID,
+      item.FormID,
+      { machine: item.MachineID, form: item.FormID },
+      { machine: item.MachineID, form: item.FormID },
     ];
   });
 
   const tableHead = [
     "Machine Name",
     "Form Name",
-    "IsActive",
-    "Display Order",
-    "Change",
+    "Change Form",
+    "Copy Template",
+    "Preview",
     "Edit",
     "Delete",
   ];
 
-  const styles = StyleSheet.create({
-    scrollView: {
-      flex: 1,
-    },
-    text: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-      color: colors.text,
-    },
-    buttonContainer: {
-      flexDirection: responsive === "large" ? "row" : "column",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    containerButton: {
-      width: responsive === "large" ? 300 : "90%",
-      marginVertical: "1%",
-      marginHorizontal: "2%",
-    },
-    containerInput: {
-      backgroundColor: "darkgray",
-      marginVertical: spacing.md,
-    },
-    errorText: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-      marginLeft: spacing.xs,
-      top: -spacing.xxs,
-      color: colors.danger,
-    },
-  });
-
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
-        <Card.Title>Create Form in Machine</Card.Title>
+        <Card.Title>List Form</Card.Title>
         <Card.Divider />
 
         <CustomDropdown
@@ -213,36 +183,17 @@ const ListScreen = ({ navigation }) => {
           reset={resetDropdown}
           selectedValue={formState.machineId}
         />
-        {error.machineId ? (
-          <Text style={styles.errorText}>{error.machineId}</Text>
-        ) : null}
 
         <CustomDropdown
           fieldName="formId"
           title="Form"
           labels="FormName"
-          values="MFormID"
+          values="FormID"
           data={form}
           updatedropdown={handleChange}
           reset={resetDropdown}
           selectedValue={formState.formId}
         />
-        {error.formId ? (
-          <Text style={styles.errorText}>{error.formId}</Text>
-        ) : null}
-
-        <Input
-          placeholder="Enter Display Order"
-          label="Display Order"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("displayOrder", text)}
-          value={formState.displayOrder}
-        />
-        {error.displayOrder ? (
-          <Text style={styles.errorText}>{error.displayOrder}</Text>
-        ) : null}
 
         <View style={styles.buttonContainer}>
           <Button
@@ -251,7 +202,7 @@ const ListScreen = ({ navigation }) => {
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
             disabled={!isFormValid()}
-            onPress={() => saveData}
+            onPress={saveData}
             loading={isLoading}
           />
           <Button
@@ -259,24 +210,32 @@ const ListScreen = ({ navigation }) => {
             type="outline"
             titleStyle={styles.text}
             containerStyle={styles.containerButton}
-            onPress={() => resetForm}
+            onPress={resetForm}
           />
         </View>
       </Card>
 
       <Card>
-        <Card.Title>List Form in Machine</Card.Title>
+        <Card.Title>List Machine</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          actionIndex={[{ changeIndex: 4, editIndex: 5, delIndex: 6 }]}
-          flexArr={[2, 3, 1, 1, 1, 1, 1]}
+          flexArr={[2, 2, 1, 1, 1, 1, 1]}
+          actionIndex={[
+            {
+              changeIndex: 2,
+              copyIndex: 3,
+              preIndex: 4,
+              editIndex: 5,
+              delIndex: 6,
+            },
+          ]}
           handleAction={handleAction}
         />
       </Card>
     </ScrollView>
   );
-};
+});
 
-export default ListScreen;
+export default MatchFormMachineScreen;

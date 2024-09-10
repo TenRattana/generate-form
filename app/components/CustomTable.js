@@ -158,6 +158,12 @@ export const CustomTable = ({
             <AntDesign name="copy1" size={20} color={colors.palette.danger} />
           </TouchableOpacity>
         );
+      case "preIndex":
+        return (
+          <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
+          </TouchableOpacity>
+        );
       default:
         return null;
     }
@@ -232,20 +238,26 @@ export const CustomTable = ({
     rowsData
   ) : (
     <ScrollView contentContainerStyle={styles.containerTable}>
-      <Table>
-        <Row
-          data={Tablehead}
-          style={styles.head}
-          textStyle={styles.textHead}
-          flexArr={flexArr}
-        />
-        <Rows
-          data={rowsData}
-          style={styles.row}
-          textStyle={styles.text}
-          flexArr={flexArr}
-        />
-      </Table>
+      {Tabledata.length == 0 ? (
+        <Text style={{ alignSelf: "center", padding: 10, fontStyle: "italic" }}>
+          Not found your data...
+        </Text>
+      ) : (
+        <Table>
+          <Row
+            data={Tablehead}
+            style={styles.head}
+            textStyle={styles.textHead}
+            flexArr={flexArr}
+          />
+          <Rows
+            data={rowsData}
+            style={styles.row}
+            textStyle={styles.text}
+            flexArr={flexArr}
+          />
+        </Table>
+      )}
     </ScrollView>
   );
 };

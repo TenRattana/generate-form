@@ -40,7 +40,11 @@ const CheckListOptionScreen = React.memo(() => {
         ]);
         setCheckListOption(checkListOptionResponse.data.data ?? []);
       } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
+        ShowMessages(
+          error.message || "Error",
+          error.response ? error.response.data.errors : ["Something wrong!"],
+          "error"
+        );
       }
     };
 
@@ -100,7 +104,11 @@ const CheckListOptionScreen = React.memo(() => {
       setCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +138,11 @@ const CheckListOptionScreen = React.memo(() => {
         setCheckListOption(response.data.data ?? []);
       }
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }

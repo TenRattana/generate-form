@@ -61,7 +61,7 @@ const subFormSlice = createSlice({
         fields: [],
       });
     },
-    updateSubForm(state, action) {
+    updateSubForm: (state, action) => {
       const { subForm, selectedSubFormIndex } = action.payload;
       const parseColumns = parseInt(subForm.columns, 10);
       const parseDisplayOrder = parseInt(subForm.displayOrder, 10);
@@ -75,11 +75,11 @@ const subFormSlice = createSlice({
         displayOrder: parseDisplayOrder,
       };
     },
-    deleteSubForm(state, action) {
+    deleteSubForm: (state, action) => {
       const { selectedSubFormIndex } = action.payload;
       state.subForms.splice(selectedSubFormIndex, 1);
     },
-    addField(state, action) {
+    addField: (state, action) => {
       const { formState, selectedSubFormIndex, checkList, checkListType } =
         action.payload;
 
@@ -100,7 +100,7 @@ const subFormSlice = createSlice({
       }
     },
 
-    updateField(state, action) {
+    updateField: (state, action) => {
       const {
         formState,
         selectedSubFormIndex,
@@ -126,7 +126,7 @@ const subFormSlice = createSlice({
       }
     },
 
-    deleteField(state, action) {
+    deleteField: (state, action) => {
       const { selectedSubFormIndex, selectedFieldIndex } = action.payload;
 
       if (state.subForms[selectedSubFormIndex]) {
@@ -134,6 +134,9 @@ const subFormSlice = createSlice({
           selectedSubFormIndex
         ].fields.filter((_, index) => index !== selectedFieldIndex);
       }
+    },
+    reset: (state, action) => {
+      state = initialState;
     },
   },
 });
@@ -147,6 +150,7 @@ export const {
   addField,
   updateField,
   deleteField,
+  reset,
 } = subFormSlice.actions;
 export default subFormSlice.reducer;
 

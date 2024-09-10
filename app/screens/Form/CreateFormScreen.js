@@ -27,7 +27,7 @@ const FormBuilder = ({ route }) => {
     setEditMode,
     setShowDialogs,
     setSelectedIndex,
-    setSubForm,
+    setSubInForm,
     setFormState,
     handleSubForm,
     handleForm,
@@ -69,7 +69,7 @@ const FormBuilder = ({ route }) => {
             showDialogs={showDialogs}
             setSelectedIndex={setSelectedIndex}
             selectedIndex={selectedIndex}
-            setSubForm={setSubForm}
+            setSubForm={setSubInForm}
             handleForm={handleForm}
             saveForm={saveForm}
             setFormState={setFormState}

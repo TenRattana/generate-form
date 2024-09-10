@@ -49,7 +49,11 @@ const GroupCheckListOptionScreen = React.memo(() => {
         setCheckListOption(checkListOptionResponse.data.data ?? []);
         setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
       } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
+        ShowMessages(
+          error.message || "Error",
+          error.response ? error.response.data.errors : ["Something wrong!"],
+          "error"
+        );
       }
     };
 
@@ -120,7 +124,11 @@ const GroupCheckListOptionScreen = React.memo(() => {
       setMatchCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +166,11 @@ const GroupCheckListOptionScreen = React.memo(() => {
         setMatchCheckListOption(response.data.data ?? []);
       }
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }

@@ -47,7 +47,11 @@ const MachineScreen = () => {
         setMachine(machineResponse.data.data ?? []);
         setMachineGroup(machineGroupResponse.data.data ?? []);
       } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
+        ShowMessages(
+          error.message || "Error",
+          error.response ? error.response.data.errors : ["Something wrong!"],
+          "error"
+        );
       }
     };
 
@@ -120,7 +124,11 @@ const MachineScreen = () => {
       setMachine(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -149,7 +157,11 @@ const MachineScreen = () => {
         setMachine(response.data.data ?? []);
       }
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }

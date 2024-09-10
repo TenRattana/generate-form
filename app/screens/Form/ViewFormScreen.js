@@ -4,10 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Layout2 } from "../../components";
 import axios from "../../../config/axios";
 import formStyles from "../../styles/forms/form";
-import { setSubForm, setField } from "../../slices";
+import { setSubForm, setField, reset } from "../../slices";
 import { useTheme, useToast, useRes } from "../../contexts";
 
-const ViewFormScreen = () => {
+const ViewFormScreen = ({ route }) => {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.form);
 
@@ -26,7 +26,9 @@ const ViewFormScreen = () => {
     formName: "",
     description: "",
   });
-  const styles = formStyles({ colors, spacing, fonts, responsive });
+  const { formId } = route.params || {};
+
+  const styles = formStyles({ route, colors, spacing, fonts, responsive });
   console.log("ViewForm");
 
   const ShowMessages = (textH, textT, color) => {
@@ -59,7 +61,11 @@ const ViewFormScreen = () => {
         setDataType(dataTypeResponse.data.data ?? []);
         setIsDataLoaded(true);
       } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
+        ShowMessages(
+          error.message || "Error",
+          error.response ? error.response.data.errors : ["Something wrong!"],
+          "error"
+        );
       }
     };
 
@@ -67,9 +73,11 @@ const ViewFormScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (isDataLoaded) {
+    if (isDataLoaded && formId) {
+      dispatch(reset());
+
       const fetchData = async () => {
-        const data = { FormID: "F001" };
+        const data = { FormID: formId };
         try {
           const formResponse = await axios.post("GetForm", data);
           const formData = formResponse.data.data[0] ?? [];
@@ -130,13 +138,17 @@ const ViewFormScreen = () => {
           dispatch(setSubForm(payloadSF));
           dispatch(setField(payloadF));
         } catch (error) {
-          ShowMessages(error.message, error.response.data.errors, "error");
+          ShowMessages(
+            error.message || "Error",
+            error.response ? error.response.data.errors : ["Something wrong!"],
+            "error"
+          );
         }
       };
 
       fetchData();
     }
-  }, [isDataLoaded]);
+  }, [formId, isDataLoaded]);
 
   const handleChange = (fieldName, value) => {
     setFormData((prevState) => ({

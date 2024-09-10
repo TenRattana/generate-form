@@ -43,7 +43,11 @@ const MachineGroupScreen = () => {
         ]);
         setMachineGroup(machineGroupResponse.data.data ?? []);
       } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
+        ShowMessages(
+          error.message || "Error",
+          error.response ? error.response.data.errors : ["Something wrong!"],
+          "error"
+        );
       }
     };
 
@@ -112,7 +116,11 @@ const MachineGroupScreen = () => {
       setMachineGroup(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +151,11 @@ const MachineGroupScreen = () => {
         setMachineGroup(response.data.data ?? []);
       }
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }

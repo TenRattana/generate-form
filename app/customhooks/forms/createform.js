@@ -3,13 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "../../../config/axios";
 import {
   setSubForm,
+  setField,
   addSubForm,
   updateSubForm,
   deleteSubForm,
-  setField,
   addField,
   updateField,
   deleteField,
+  reset,
 } from "../../slices";
 import validator from "validator";
 import formStyles from "../../styles/forms/form";
@@ -34,7 +35,7 @@ export const useFormBuilder = (route) => {
     formName: "",
     description: "",
   });
-  const [subForm, setSubForm] = useState({
+  const [subForm, setSubInForm] = useState({
     subFormId: "",
     subFormName: "",
     formId: "",
@@ -104,13 +105,12 @@ export const useFormBuilder = (route) => {
         setCheckListType(checkListTypeResponse.data.data ?? []);
         setDataType(dataTypeResponse.data.data ?? []);
         setIsDataLoaded(true);
+      } catch (error) {
         ShowMessages(
-          checkListResponse.data.message,
-          checkListResponse.data.data.map((e) => e.CListName),
+          error.message || "Error",
+          error.response ? error.response.data.errors : ["Something wrong!"],
           "error"
         );
-      } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
       }
     };
 
@@ -119,6 +119,8 @@ export const useFormBuilder = (route) => {
 
   useEffect(() => {
     if (isDataLoaded && formIdforEdit) {
+      dispatch(reset());
+
       const fetchData = async () => {
         const data = { FormID: formIdforEdit || "" };
         try {
@@ -134,7 +136,7 @@ export const useFormBuilder = (route) => {
           const subForms = [];
           const fields = [];
 
-          formData.forEach((item, index) => {
+          formData.SubForm.forEach((item) => {
             const subForm = {
               subFormId: item.SFormID || "",
               subFormName: item.SFormName || "",
@@ -142,7 +144,8 @@ export const useFormBuilder = (route) => {
               columns: item.Columns || "",
               displayOrder: item.DisplayOrder || "",
             };
-            item.MatchCheckListOption.forEach((itemOption) => {
+
+            item.MatchCheckList.forEach((itemOption) => {
               const field = {
                 matchCheckListId: itemOption.MCListID || "",
                 checkListId: itemOption.CListID || "",
@@ -160,22 +163,31 @@ export const useFormBuilder = (route) => {
                 displayOrder: itemOption.DisplayOrder || "",
               };
 
-              fields.push({ field, index });
+              fields.push({ field });
             });
             subForms.push(subForm);
           });
 
-          dispatch(setSubForm({ subForm: subForms }));
-          dispatch(
-            setField({
-              formState: fields,
-              checkList,
-              checkListType,
-              matchCheckListOption,
-            })
-          );
+          const payloadSF = {
+            subForms,
+          };
+
+          const payloadF = {
+            formState: fields,
+            checkList,
+            checkListType,
+            matchCheckListOption,
+            dataType,
+          };
+
+          dispatch(setSubForm(payloadSF));
+          dispatch(setField(payloadF));
         } catch (error) {
-          ShowMessages(error.message, error.response.data.errors, "error");
+          ShowMessages(
+            error.message || "Error",
+            error.response ? error.response.data.errors : ["Something wrong!"],
+            "error"
+          );
         }
       };
 
@@ -197,7 +209,7 @@ export const useFormBuilder = (route) => {
     }
 
     setError((prevError) => ({ ...prevError, [field]: errorMessage }));
-    setSubForm((prevState) => ({ ...prevState, [field]: value }));
+    setSubInForm((prevState) => ({ ...prevState, [field]: value }));
   };
 
   const handleForm = (field, value) => {
@@ -223,7 +235,11 @@ export const useFormBuilder = (route) => {
       await axios.post("SaveFormCheckList", data);
       resetForm();
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -264,7 +280,7 @@ export const useFormBuilder = (route) => {
       hint: "",
       displayOrder: "",
     });
-    setSubForm({
+    setSubInForm({
       subFormId: "",
       subFormName: "",
       formId: "",
@@ -357,7 +373,7 @@ export const useFormBuilder = (route) => {
     setEditMode,
     setShowDialogs,
     setSelectedIndex,
-    setSubForm,
+    setSubInForm,
     setFormState,
     handleSubForm,
     handleForm,

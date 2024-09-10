@@ -11,17 +11,42 @@ const subFormSlice = createSlice({
   name: "form",
   initialState,
   reducers: {
-    setSubForm(state, action) {
-      const subForm = action.payload.subForm;
-      state.subForms = subForm.map((sub) => ({
+    setSubForm: (state, action) => {
+      const { subForms } = action.payload;
+
+      state.subForms = subForms.map((sub) => ({
         subFormName: sub.subFormName,
-        subFormId: subForm.subFormId,
-        formId: subForm.formId,
+        subFormId: sub.subFormId,
+        formId: sub.formId,
         columns: parseInt(sub.columns, 10),
         displayOrder: parseInt(sub.displayOrder, 10),
         fields: [],
       }));
     },
+    setField: (state, action) => {
+      const { formState, checkList, checkListType } = action.payload;
+
+      state.subForms.forEach((sub, index) => {
+        const matchingForm = formState.filter(
+          (form) => form.field.subFormId === sub.subFormId
+        );
+
+        if (matchingForm) {
+          const update = matchingForm.map((v) => ({
+            ...v.field,
+            CheckListName:
+              checkList.find((item) => item.CListID === v.field.checkListId)
+                ?.CListName || "",
+            CheckListTypeName:
+              checkListType.find(
+                (item) => item.CTypeID === v.field.checkListTypeId
+              )?.CTypeName || "",
+          }));
+          state.subForms[index].fields = update;
+        }
+      });
+    },
+
     addSubForm: (state, action) => {
       const { subForm } = action.payload;
       const parseColumns = parseInt(subForm.columns, 10);
@@ -115,6 +140,7 @@ const subFormSlice = createSlice({
 
 export const {
   setSubForm,
+  setField,
   addSubForm,
   updateSubForm,
   deleteSubForm,

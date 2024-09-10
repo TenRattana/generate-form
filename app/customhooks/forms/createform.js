@@ -119,8 +119,6 @@ export const useFormBuilder = (route) => {
 
   useEffect(() => {
     if (isDataLoaded && formIdforEdit) {
-      dispatch(reset());
-
       const fetchData = async () => {
         const data = { FormID: formIdforEdit || "" };
         try {

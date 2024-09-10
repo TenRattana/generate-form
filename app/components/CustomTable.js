@@ -238,26 +238,28 @@ export const CustomTable = ({
     rowsData
   ) : (
     <ScrollView contentContainerStyle={styles.containerTable}>
-      {Tabledata.length == 0 ? (
-        <Text style={{ alignSelf: "center", padding: 10, fontStyle: "italic" }}>
-          Not found your data...
-        </Text>
-      ) : (
-        <Table>
-          <Row
-            data={Tablehead}
-            style={styles.head}
-            textStyle={styles.textHead}
-            flexArr={flexArr}
-          />
+      <Table>
+        <Row
+          data={Tablehead}
+          style={styles.head}
+          textStyle={styles.textHead}
+          flexArr={flexArr}
+        />
+        {Tabledata.length == 0 ? (
+          <Text
+            style={{ alignSelf: "center", padding: 10, fontStyle: "italic" }}
+          >
+            Not found your data...
+          </Text>
+        ) : (
           <Rows
             data={rowsData}
             style={styles.row}
             textStyle={styles.text}
             flexArr={flexArr}
           />
-        </Table>
-      )}
+        )}
+      </Table>
     </ScrollView>
   );
 };

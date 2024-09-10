@@ -135,8 +135,8 @@ const subFormSlice = createSlice({
         ].fields.filter((_, index) => index !== selectedFieldIndex);
       }
     },
-    reset: (state, action) => {
-      state = initialState;
+    reset: (state) => {
+      return initialState;
     },
   },
 });

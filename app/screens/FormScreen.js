@@ -40,23 +40,12 @@ const FormScreen = React.memo(({ navigation }) => {
 
   const handleAction = async (action, item) => {
     try {
-      if (action === "editIndex") {
-        const response = await axios.post("GetMatchForm", {
-          FormID: item.form,
+      if (action === "delIndex") {
+        const response1 = await axios.post("DeleteForm", {
+          FormID: item,
         });
-        const machineData = response.data.data[0] ?? {};
-        setFormState({
-          machineId: machineData.MachineID ?? "",
-          formId: machineData.FormID ?? "",
-        });
-        setIsEditing(true);
-      } else if (action === "delIndex") {
-        const response1 = await axios.post("DeleteMatchForm", {
-          FormID: item.form,
-          MachineID: item.machine,
-        });
-        const response = await axios.post("GetMatchFormMachines");
-        setMatchForm(response.data.data || []);
+        const response = await axios.post("GetForms");
+        setForm(response.data.data || []);
       } else if (action === "changeIndex") {
         navigation.navigate("Create Form", { formIdforEdit: item });
       } else if (action === "preIndex") {
@@ -71,16 +60,18 @@ const FormScreen = React.memo(({ navigation }) => {
     navigation.navigate("Create Form");
   };
 
-  const tableData = form.map((item) => {
-    return [
-      item.FormName,
-      item.Description,
-      item.FormID,
-      item.FormID,
-      item.FormID,
-      item.FormID,
-    ];
-  });
+  const tableData = form
+    .filter((item) => Boolean(item.IsActive) === false)
+    .map((item) => {
+      return [
+        item.FormName,
+        item.Description,
+        item.FormID,
+        item.FormID,
+        item.FormID,
+        item.FormID,
+      ];
+    });
 
   const tableHead = [
     "Form Name",

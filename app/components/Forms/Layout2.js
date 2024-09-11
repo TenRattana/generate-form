@@ -3,7 +3,7 @@ import React from "react";
 import { Divider, Button } from "@rneui/themed";
 import { DynamicForm } from "./index";
 
-export const Layout2 = ({
+const Layout2 = ({
   style,
   form,
   state,
@@ -90,4 +90,4 @@ export const Layout2 = ({
   );
 };
 
-const styles = StyleSheet.create({});
+export default Layout2;

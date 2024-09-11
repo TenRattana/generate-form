@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 import { Selects, Radios, Checkboxs, Textareas, Inputs } from "../../";
 
-export const DynamicForm = ({
+const DynamicForm = ({
   fields,
   checkListType,
   styles,
@@ -92,3 +92,5 @@ export const DynamicForm = ({
     </View>
   );
 };
+
+export default DynamicForm;

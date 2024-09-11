@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text } from "react-native";
 import { Button, Dialog, Input } from "@rneui/themed";
 
-export const SubFormDialog = ({
+const SubFormDialog = ({
   isVisible,
   subForm,
   onSave,
@@ -96,3 +96,5 @@ export const SubFormDialog = ({
     </Dialog>
   );
 };
+
+export default SubFormDialog;

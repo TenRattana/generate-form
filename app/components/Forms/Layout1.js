@@ -11,7 +11,7 @@ import { Input, Button } from "@rneui/themed";
 import { Entypo, AntDesign } from "@expo/vector-icons";
 import { SaveFormDialog, FieldDialog, SubFormDialog } from "./index";
 
-export const Layout1 = ({
+const Layout1 = ({
   style,
   state,
   error,
@@ -247,3 +247,5 @@ export const Layout1 = ({
     </View>
   );
 };
+
+export default Layout1;

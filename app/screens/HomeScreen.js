@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, FlatList } from "react-native";
+import { Text, View, FlatList, TouchableOpacity } from "react-native";
 import { Button, Card } from "@rneui/themed";
 import { useTheme, useToast, useRes } from "../contexts";
 import axios from "../../config/axios";
@@ -55,25 +55,15 @@ const HomeScreen = ({ navigation }) => {
 
   const renderItem = ({ item, index }) => {
     <View style={styles.cardshow}>
-      {/* {item.fields.map((field, idx) => (
-        <TouchableOpacity
-          key={`${field.CheckListName}-${idx}`}
-          onPress={() => {
-            setSelectedIndex((prev) => ({
-              ...prev,
-              subForm: index,
-              field: idx,
-            }));
-            setEditMode(true);
-            setFormState(field);
-            setShowDialogs((prev) => ({ ...prev, field: true }));
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.text}>{field.CheckListName}</Text>
-          <Entypo name="chevron-right" size={18} color={colors.palette.light} />
-        </TouchableOpacity>
-      ))} */}
+      <TouchableOpacity>
+        <Text style={styles.text}>Machine Group Name : {item.MGroupName}</Text>
+      </TouchableOpacity>
+      {machine.filter((field, idx) => {
+        if (field.MGroupID === item.MGroupID)
+          <TouchableOpacity key={`${field.index}-${idx}`} style={styles.button}>
+            <Text style={styles.text}>{field.MachineName}</Text>
+          </TouchableOpacity>;
+      })}
     </View>;
   };
 
@@ -150,7 +140,7 @@ const HomeScreen = ({ navigation }) => {
           <FlatList
             data={machineGroup}
             renderItem={renderItem}
-            keyExtractor={(_, index) => index}
+            keyExtractor={(item, index) => `mgroup-${index}`}
           />
         </View>
       </Card>

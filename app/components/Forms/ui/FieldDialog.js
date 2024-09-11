@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Animated } from "react-native";
 import { Button, Dialog, Input } from "@rneui/themed";
-import { CustomDropdown } from "../..";
+import { CustomDropdown } from "../../index";
 
-export const FieldDialog = ({
+const FieldDialog = ({
   isVisible,
   fadeAnim,
   fadeAnimDT,
@@ -183,3 +183,5 @@ export const FieldDialog = ({
     </Dialog>
   );
 };
+
+export default FieldDialog;

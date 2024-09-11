@@ -1,31 +1,23 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Dimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 
 export const ResponsiveContext = createContext();
 
 export const ResponsiveProvider = ({ children }) => {
+  const { width } = useWindowDimensions();
   const [responsive, setResponsive] = useState("small");
 
+  console.log("useResponsive");
+
   useEffect(() => {
-    const updateLayout = () => {
-      const { width } = Dimensions.get("window");
-      if (width < 600) {
-        setResponsive("small");
-      } else if (width < 800) {
-        setResponsive("medium");
-      } else {
-        setResponsive("large");
-      }
-    };
-
-    updateLayout();
-
-    const subscription = Dimensions.addEventListener("change", updateLayout);
-
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
+    if (width > 900) {
+      setResponsive("large");
+    } else if (width > 600) {
+      setResponsive("medium");
+    } else {
+      setResponsive("small");
+    }
+  }, [width]);
 
   return (
     <ResponsiveContext.Provider value={{ responsive }}>

@@ -9,12 +9,15 @@ const Checkboxs = ({ name, option, formData, handleChange }) => {
 
   useEffect(() => {
     const initialState = {};
-    option.forEach((option) => {
-      const isChecked = Array.isArray(formData[name])
-        ? formData[name].includes(option.label)
-        : false;
-      initialState[option.label] = isChecked;
-    });
+    if (option && option.length > 0) {
+      option.forEach((option) => {
+        const isChecked = Array.isArray(formData[name])
+          ? formData[name].includes(option.label)
+          : false;
+        initialState[option.label] = isChecked;
+      });
+    }
+
     setCheckedOptions(initialState);
   }, [formData, option]);
 

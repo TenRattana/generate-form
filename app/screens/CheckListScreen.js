@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
@@ -6,6 +6,7 @@ import { CustomTable } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
+import { useFocusEffect } from "@react-navigation/native";
 
 const CheckListScreen = React.memo(() => {
   const [checkList, setCheckList] = useState([]);
@@ -32,24 +33,29 @@ const CheckListScreen = React.memo(() => {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [checkListResponse] = await Promise.all([
-          axios.post("GetCheckLists"),
-        ]);
-        setCheckList(checkListResponse.data.data ?? []);
-      } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response ? error.response.data.errors : ["Something wrong!"],
-          "error"
-        );
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const [checkListResponse] = await Promise.all([
+            axios.post("GetCheckLists"),
+          ]);
+          setCheckList(checkListResponse.data.data ?? []);
+        } catch (error) {
+          ShowMessages(
+            error.message || "Error",
+            error.response ? error.response.data.errors : ["Something wrong!"],
+            "error"
+          );
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+      return () => {
+        resetForm();
+      };
+    }, [])
+  );
 
   const handleChange = (fieldName, value) => {
     let errorMessage = "";

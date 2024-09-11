@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
@@ -6,6 +6,7 @@ import { CustomTable, CustomDropdownMulti } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
+import { useFocusEffect } from "@react-navigation/native";
 
 const GroupCheckListOptionScreen = React.memo(() => {
   const [checkListOption, setCheckListOption] = useState([]);
@@ -38,27 +39,32 @@ const GroupCheckListOptionScreen = React.memo(() => {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [checkListOptionResponse, matchCheckListOptionResponse] =
-          await Promise.all([
-            axios.post("GetCheckListOptions"),
-            axios.post("GetMatchCheckListOptions"),
-          ]);
-        setCheckListOption(checkListOptionResponse.data.data ?? []);
-        setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
-      } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response ? error.response.data.errors : ["Something wrong!"],
-          "error"
-        );
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const [checkListOptionResponse, matchCheckListOptionResponse] =
+            await Promise.all([
+              axios.post("GetCheckListOptions"),
+              axios.post("GetMatchCheckListOptions"),
+            ]);
+          setCheckListOption(checkListOptionResponse.data.data ?? []);
+          setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
+        } catch (error) {
+          ShowMessages(
+            error.message || "Error",
+            error.response ? error.response.data.errors : ["Something wrong!"],
+            "error"
+          );
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+      return () => {
+        resetForm();
+      };
+    }, [])
+  );
 
   const handleChange = (fieldName, value) => {
     let errorMessage = "";

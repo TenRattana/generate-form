@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, FlatList, Pressable } from "react-native";
 import { Button, Card } from "@rneui/themed";
 import { useTheme, useToast, useRes } from "../contexts";
 import axios from "../../config/axios";
 import screenStyles from "../styles/screens/screen";
+import { useFocusEffect } from "@react-navigation/native";
 
 const HomeScreen = ({ navigation }) => {
   const [machineGroup, setMachineGroup] = useState({});
@@ -12,6 +13,15 @@ const HomeScreen = ({ navigation }) => {
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = screenStyles({ colors, spacing, fonts, responsive });
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log("ScreenA is focused");
+      return () => {
+        console.log("ScreenA is unfocused");
+      };
+    }, [])
+  );
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({

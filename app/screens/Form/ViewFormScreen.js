@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Layout2 } from "../../components/Forms";
@@ -6,6 +6,7 @@ import axios from "../../../config/axios";
 import formStyles from "../../styles/forms/form";
 import { setSubForm, setField, setExpected, reset } from "../../slices";
 import { useTheme, useToast, useRes } from "../../contexts";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ViewFormScreen = ({ route }) => {
   const dispatch = useDispatch();
@@ -40,6 +41,16 @@ const ViewFormScreen = ({ route }) => {
       text2Style: [styles.text, { color: colors.palette.dark }],
     });
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        dispatch(reset());
+        setVForm({});
+        setFormData({});
+      };
+    }, [])
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,7 +150,6 @@ const ViewFormScreen = ({ route }) => {
             matchCheckListOption,
             dataType,
           };
-          dispatch(reset());
           dispatch(setSubForm(payloadSF));
           dispatch(setField(payloadF));
         } catch (error) {

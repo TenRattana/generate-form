@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { ThemeProvider, ToastProvider, ResponsiveProvider } from "./contexts";
 import { Provider } from "react-redux";
@@ -18,10 +18,9 @@ import {
 } from "./screens";
 
 const Drawer = createDrawerNavigator();
+
 console.log("app");
 export default function App() {
-  const [shouldShowCreateForm, setShouldShowCreateForm] = useState(false);
-  const [shouldShowViewForm, setShouldShowViewForm] = useState(false);
   return (
     <Provider store={store}>
       <ThemeProvider>

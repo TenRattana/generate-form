@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card, Input } from "@rneui/themed";
@@ -6,6 +6,7 @@ import { CustomTable, CustomDropdown } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
+import { useFocusEffect } from "@react-navigation/native";
 
 const FormScreen = React.memo(({ navigation }) => {
   const [form, setForm] = useState([]);
@@ -25,18 +26,21 @@ const FormScreen = React.memo(({ navigation }) => {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [formResponse] = await Promise.all([axios.post("GetForms")]);
-        setForm(formResponse.data.data ?? []);
-      } catch (error) {
-        ShowMessages(error.message, error.response.data.errors, "error");
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const [formResponse] = await Promise.all([axios.post("GetForms")]);
+          setForm(formResponse.data.data ?? []);
+        } catch (error) {
+          ShowMessages(error.message, error.response?.data?.errors, "error");
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+      return () => {};
+    }, [])
+  );
 
   const handleAction = async (action, item) => {
     try {

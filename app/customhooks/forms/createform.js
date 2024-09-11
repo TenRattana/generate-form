@@ -15,6 +15,7 @@ import {
 import validator from "validator";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const useFormBuilder = (route) => {
   const dispatch = useDispatch();
@@ -85,6 +86,16 @@ export const useFormBuilder = (route) => {
       text2Style: [styles.text, { color: colors.palette.dark }],
     });
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        dispatch(reset());
+        resetForm();
+        setFormData({});
+      };
+    }, [])
+  );
 
   useEffect(() => {
     const fetchData = async () => {

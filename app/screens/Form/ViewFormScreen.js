@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Layout2 } from "../../components";
 import axios from "../../../config/axios";
 import formStyles from "../../styles/forms/form";
-import { setSubForm, setField, reset } from "../../slices";
+import { setSubForm, setField, setExpected, reset } from "../../slices";
 import { useTheme, useToast, useRes } from "../../contexts";
 
 const ViewFormScreen = ({ route }) => {
@@ -74,10 +74,14 @@ const ViewFormScreen = ({ route }) => {
 
   useEffect(() => {
     if (isDataLoaded && formId) {
-      dispatch(reset());
-
       const fetchData = async () => {
-        const data = { FormID: formId };
+        console.log(formId);
+
+        const data =
+          typeof formId === "object"
+            ? { FormID: formId.form }
+            : { FormID: formId };
+
         try {
           const formResponse = await axios.post("GetForm", data);
           const formData = formResponse.data.data[0] ?? [];
@@ -91,37 +95,43 @@ const ViewFormScreen = ({ route }) => {
           const subForms = [];
           const fields = [];
 
-          formData.SubForm.forEach((item) => {
-            const subForm = {
-              subFormId: item.SFormID || "",
-              subFormName: item.SFormName || "",
-              formId: item.FormID || "",
-              columns: item.Columns || "",
-              displayOrder: item.DisplayOrder || "",
-            };
-
-            item.MatchCheckList.forEach((itemOption) => {
-              const field = {
-                matchCheckListId: itemOption.MCListID || "",
-                checkListId: itemOption.CListID || "",
-                matchCheckListOption: itemOption.MCLOptionID || "",
-                checkListTypeId: itemOption.CTypeID || "",
-                dataTypeId: itemOption.DTypeID || "",
-                dataTypeValue: itemOption.DTypeValue || "",
-                subFormId: itemOption.SFormID || "",
-                require: itemOption.Required || false,
-                minLength: itemOption.MinLength || "",
-                maxLength: itemOption.MaxLength || "",
-                description: itemOption.Description || "",
-                placeholder: itemOption.Placeholder || "",
-                hint: itemOption.Hint || "",
-                displayOrder: itemOption.DisplayOrder || "",
+          if (formData && formData.SubForm) {
+            formData.SubForm.forEach((item) => {
+              const subForm = {
+                subFormId: item.SFormID || "",
+                subFormName: item.SFormName || "",
+                formId: item.FormID || "",
+                columns: item.Columns || "",
+                displayOrder: item.DisplayOrder || "",
+                machineId: typeof formId === "object" ? formId.machine : "",
               };
 
-              fields.push({ field });
+              if (item.MatchCheckList) {
+                item.MatchCheckList.forEach((itemOption) => {
+                  const field = {
+                    matchCheckListId: itemOption.MCListID || "",
+                    checkListId: itemOption.CListID || "",
+                    matchCheckListOption: itemOption.MCLOptionID || "",
+                    checkListTypeId: itemOption.CTypeID || "",
+                    dataTypeId: itemOption.DTypeID || "",
+                    dataTypeValue: itemOption.DTypeValue || "",
+                    subFormId: itemOption.SFormID || "",
+                    require: itemOption.Required || false,
+                    minLength: itemOption.MinLength || "",
+                    maxLength: itemOption.MaxLength || "",
+                    description: itemOption.Description || "",
+                    placeholder: itemOption.Placeholder || "",
+                    hint: itemOption.Hint || "",
+                    displayOrder: itemOption.DisplayOrder || "",
+                    expectedResult: "",
+                  };
+
+                  fields.push({ field });
+                });
+              }
+              subForms.push(subForm);
             });
-            subForms.push(subForm);
-          });
+          }
 
           const payloadSF = {
             subForms,
@@ -134,7 +144,7 @@ const ViewFormScreen = ({ route }) => {
             matchCheckListOption,
             dataType,
           };
-
+          dispatch(reset());
           dispatch(setSubForm(payloadSF));
           dispatch(setField(payloadF));
         } catch (error) {
@@ -156,9 +166,22 @@ const ViewFormScreen = ({ route }) => {
       [fieldName]: value,
     }));
   };
+  console.log(state);
 
-  const handleSubmit = () => {
-    console.log(formData);
+  const handleSubmit = async () => {
+    const payload = {
+      formData,
+    };
+    dispatch(setExpected(payload));
+    const data = {
+      FormData: JSON.stringify(state.subForms),
+    };
+
+    try {
+      await axios.post("SaveExpectedResult", data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

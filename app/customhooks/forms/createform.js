@@ -41,6 +41,7 @@ export const useFormBuilder = (route) => {
     formId: "",
     columns: "",
     displayOrder: "",
+    machineId: "",
   });
   const [formState, setFormState] = useState({
     matchCheckListId: "",
@@ -134,38 +135,42 @@ export const useFormBuilder = (route) => {
           const subForms = [];
           const fields = [];
 
-          formData.SubForm.forEach((item) => {
-            const subForm = {
-              subFormId: item.SFormID || "",
-              subFormName: item.SFormName || "",
-              formId: item.FormID || "",
-              columns: item.Columns || "",
-              displayOrder: item.DisplayOrder || "",
-            };
-
-            item.MatchCheckList.forEach((itemOption) => {
-              const field = {
-                matchCheckListId: itemOption.MCListID || "",
-                checkListId: itemOption.CListID || "",
-                matchCheckListOption: itemOption.MCLOptionID || "",
-                checkListTypeId: itemOption.CTypeID || "",
-                dataTypeId: itemOption.DTypeID || "",
-                dataTypeValue: itemOption.DTypeValue || "",
-                subFormId: itemOption.SFormID || "",
-                require: itemOption.Required || false,
-                minLength: itemOption.MinLength || "",
-                maxLength: itemOption.MaxLength || "",
-                description: itemOption.Description || "",
-                placeholder: itemOption.Placeholder || "",
-                hint: itemOption.Hint || "",
-                displayOrder: itemOption.DisplayOrder || "",
+          if (formData && formData.SubForm) {
+            formData.SubForm.forEach((item) => {
+              const subForm = {
+                subFormId: item.SFormID || "",
+                subFormName: item.SFormName || "",
+                formId: item.FormID || "",
+                columns: item.Columns || "",
+                displayOrder: item.DisplayOrder || "",
+                machineId: "",
               };
+              if (item.MatchCheckList) {
+                item.MatchCheckList.forEach((itemOption) => {
+                  const field = {
+                    matchCheckListId: itemOption.MCListID || "",
+                    checkListId: itemOption.CListID || "",
+                    matchCheckListOption: itemOption.MCLOptionID || "",
+                    checkListTypeId: itemOption.CTypeID || "",
+                    dataTypeId: itemOption.DTypeID || "",
+                    dataTypeValue: itemOption.DTypeValue || "",
+                    subFormId: itemOption.SFormID || "",
+                    require: itemOption.Required || false,
+                    minLength: itemOption.MinLength || "",
+                    maxLength: itemOption.MaxLength || "",
+                    description: itemOption.Description || "",
+                    placeholder: itemOption.Placeholder || "",
+                    hint: itemOption.Hint || "",
+                    displayOrder: itemOption.DisplayOrder || "",
+                    expectedResult: "",
+                  };
 
-              fields.push({ field });
+                  fields.push({ field });
+                });
+              }
+              subForms.push(subForm);
             });
-            subForms.push(subForm);
-          });
-
+          }
           const payloadSF = {
             subForms,
           };
@@ -178,6 +183,7 @@ export const useFormBuilder = (route) => {
             dataType,
           };
 
+          dispatch(reset());
           dispatch(setSubForm(payloadSF));
           dispatch(setField(payloadF));
         } catch (error) {
@@ -192,6 +198,8 @@ export const useFormBuilder = (route) => {
       fetchData();
     }
   }, [formIdforEdit, isDataLoaded]);
+
+  console.log(state);
 
   const handleSubForm = (field, value) => {
     let errorMessage = "";

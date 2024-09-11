@@ -21,7 +21,7 @@ export const DynamicForm = ({
         label: item.CLOptionName,
       }));
 
-    console.log(option);
+    console.log(field);
 
     switch (field.CheckListTypeName) {
       case "Textinput":

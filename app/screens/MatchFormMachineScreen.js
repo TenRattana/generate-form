@@ -149,9 +149,9 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     return [
       item.MachineName,
       item.FormName,
-      item.FormID,
-      item.FormID,
-      item.FormID,
+      { machine: item.MachineID, form: item.FormID },
+      { machine: item.MachineID, form: item.FormID },
+      { machine: item.MachineID, form: item.FormID },
       { machine: item.MachineID, form: item.FormID },
       { machine: item.MachineID, form: item.FormID },
     ];

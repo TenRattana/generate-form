@@ -20,6 +20,7 @@ const subFormSlice = createSlice({
         formId: sub.formId,
         columns: parseInt(sub.columns, 10),
         displayOrder: parseInt(sub.displayOrder, 10),
+        machineId: sub.machineId,
         fields: [],
       }));
     },
@@ -46,7 +47,6 @@ const subFormSlice = createSlice({
         }
       });
     },
-
     addSubForm: (state, action) => {
       const { subForm } = action.payload;
       const parseColumns = parseInt(subForm.columns, 10);
@@ -58,6 +58,7 @@ const subFormSlice = createSlice({
         formId: subForm.formId,
         columns: parseColumns,
         displayOrder: parseDisplayOrder,
+        machineId: subForm.machineId,
         fields: [],
       });
     },
@@ -99,7 +100,6 @@ const subFormSlice = createSlice({
         sort(state.subForms[selectedSubFormIndex].fields);
       }
     },
-
     updateField: (state, action) => {
       const {
         formState,
@@ -125,7 +125,6 @@ const subFormSlice = createSlice({
         sort(state.subForms[selectedSubFormIndex].fields);
       }
     },
-
     deleteField: (state, action) => {
       const { selectedSubFormIndex, selectedFieldIndex } = action.payload;
 
@@ -135,6 +134,18 @@ const subFormSlice = createSlice({
         ].fields.filter((_, index) => index !== selectedFieldIndex);
       }
     },
+    setExpected: (state, action) => {
+      const { formData } = action.payload;
+      console.log(formData);
+
+      state.subForms.forEach((sub) => {
+        sub.fields.forEach((field) => {
+          field.expectedResult = formData[field.matchCheckListId] || null;
+        });
+      });
+      return state;
+    },
+
     reset: (state) => {
       return initialState;
     },
@@ -150,6 +161,7 @@ export const {
   addField,
   updateField,
   deleteField,
+  setExpected,
   reset,
 } = subFormSlice.actions;
 export default subFormSlice.reducer;

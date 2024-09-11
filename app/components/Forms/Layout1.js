@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import {
   Text,
   View,
-  TouchableOpacity,
+  Pressable,
   FlatList,
   Animated,
   Easing,
@@ -93,7 +93,7 @@ const Layout1 = ({
 
   const renderSubForm = ({ item, index }) => (
     <View style={styles.cardshow}>
-      <TouchableOpacity
+      <Pressable
         onPress={() => {
           setSubForm(item);
           setSelectedIndex((prev) => ({ ...prev, subForm: index }));
@@ -104,9 +104,9 @@ const Layout1 = ({
       >
         <Text style={styles.text}>Sub Form : {item.subFormName}</Text>
         <Entypo name="chevron-right" size={18} color={colors.palette.light} />
-      </TouchableOpacity>
+      </Pressable>
       {item.fields.map((field, idx) => (
-        <TouchableOpacity
+        <Pressable
           key={`${field.CheckListName}-${idx}`}
           onPress={() => {
             setSelectedIndex((prev) => ({
@@ -122,9 +122,9 @@ const Layout1 = ({
         >
           <Text style={styles.text}>{field.CheckListName}</Text>
           <Entypo name="chevron-right" size={18} color={colors.palette.light} />
-        </TouchableOpacity>
+        </Pressable>
       ))}
-      <TouchableOpacity
+      <Pressable
         onPress={() => {
           setSelectedIndex((prev) => ({ ...prev, subForm: index }));
           setShowDialogs((prev) => ({ ...prev, field: true }));
@@ -134,7 +134,7 @@ const Layout1 = ({
           <AntDesign name="plus" size={16} color={colors.palette.blue} />
           Add Field
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 
@@ -160,7 +160,7 @@ const Layout1 = ({
           value={form.description}
         />
 
-        <TouchableOpacity
+        <Pressable
           onPress={() => {
             setEditMode(false);
             setShowDialogs((prev) => ({ ...prev, save: true }));
@@ -178,10 +178,10 @@ const Layout1 = ({
           >
             Save Form
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
-      <TouchableOpacity
+      <Pressable
         onPress={() => {
           setEditMode(false);
           setShowDialogs((prev) => ({ ...prev, subForm: true }));
@@ -191,7 +191,7 @@ const Layout1 = ({
           <AntDesign name="plus" size={16} color={colors.palette.blue} />
           Add Sub Form
         </Text>
-      </TouchableOpacity>
+      </Pressable>
 
       <FlatList
         data={state.subForms}

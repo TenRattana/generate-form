@@ -121,9 +121,13 @@ export const useFormBuilder = (route) => {
   useEffect(() => {
     if (isDataLoaded && formIdforEdit) {
       const fetchData = async () => {
-        const data = { FormID: formIdforEdit || "" };
         try {
-          const formResponse = await axios.post("GetForm", data);
+          const formResponse = await axios.post("GetForm", {
+            FormID:
+              typeof formIdforEdit === "object"
+                ? formIdforEdit.form
+                : formIdforEdit,
+          });
           const formData = formResponse.data.data[0] ?? [];
 
           setForm({

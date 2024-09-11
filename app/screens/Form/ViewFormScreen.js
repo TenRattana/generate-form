@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Layout2 } from "../../components";
+import { Layout2 } from "../../components/Forms";
 import axios from "../../../config/axios";
 import formStyles from "../../styles/forms/form";
 import { setSubForm, setField, setExpected, reset } from "../../slices";
@@ -75,15 +75,10 @@ const ViewFormScreen = ({ route }) => {
   useEffect(() => {
     if (isDataLoaded && formId) {
       const fetchData = async () => {
-        console.log(formId);
-
-        const data =
-          typeof formId === "object"
-            ? { FormID: formId.form }
-            : { FormID: formId };
-
         try {
-          const formResponse = await axios.post("GetForm", data);
+          const formResponse = await axios.post("GetForm", {
+            FormID: typeof formId === "object" ? formId.form : formId,
+          });
           const formData = formResponse.data.data[0] ?? [];
 
           setVForm({

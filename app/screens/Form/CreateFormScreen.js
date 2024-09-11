@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useSelector } from "react-redux";
 import { useFormBuilder } from "../../customhooks";
-import { Layout1, Layout2 } from "../../components";
+import { Layout1, Layout2 } from "../../components/Forms";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
 

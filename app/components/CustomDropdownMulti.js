@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import { StyleSheet, View, Pressable, Text } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors, spacing, fonts } from "../../theme";
@@ -101,12 +101,12 @@ export const CustomDropdownMulti = ({
         )}
         renderItem={renderItem}
         renderSelectedItem={(item, unSelect) => (
-          <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+          <Pressable onPress={() => unSelect && unSelect(item)}>
             <View style={styles.selectedStyle}>
               <Text style={styles.textSelectedStyle}>{item.label}</Text>
               <AntDesign color="black" name="delete" size={17} />
             </View>
-          </TouchableOpacity>
+          </Pressable>
         )}
       />
     </View>

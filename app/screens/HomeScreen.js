@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, FlatList, TouchableOpacity } from "react-native";
+import { Text, View, FlatList, Pressable } from "react-native";
 import { Button, Card } from "@rneui/themed";
 import { useTheme, useToast, useRes } from "../contexts";
 import axios from "../../config/axios";
@@ -55,14 +55,14 @@ const HomeScreen = ({ navigation }) => {
 
   const renderItem = ({ item, index }) => {
     <View style={styles.cardshow}>
-      <TouchableOpacity>
+      <Pressable>
         <Text style={styles.text}>Machine Group Name : {item.MGroupName}</Text>
-      </TouchableOpacity>
+      </Pressable>
       {machine.filter((field, idx) => {
         if (field.MGroupID === item.MGroupID)
-          <TouchableOpacity key={`${field.index}-${idx}`} style={styles.button}>
+          <Pressable key={`${field.index}-${idx}`} style={styles.button}>
             <Text style={styles.text}>{field.MachineName}</Text>
-          </TouchableOpacity>;
+          </Pressable>;
       })}
     </View>;
   };

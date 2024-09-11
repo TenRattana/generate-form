@@ -6,7 +6,5 @@ export { default as Radios } from "./Radios";
 export { default as Textareas } from "./Textareas";
 export { default as Checkboxs } from "./Checkboxs";
 export { default as Inputs } from "./Inputs";
-export { default as DynamicForm } from "./Forms/ui/DynamicForm";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export * from "./useResponsive";
-export * from "./Forms";

@@ -1,11 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { StyleSheet, View, Text, Pressable, ScrollView } from "react-native";
 import { Table, Row, Rows } from "react-native-table-component";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors, spacing, fonts } from "../../theme";
@@ -132,37 +126,37 @@ export const CustomTable = ({
     switch (action) {
       case "editIndex":
         return (
-          <TouchableOpacity style={styles.button} onPress={handlePress}>
+          <Pressable style={styles.button} onPress={handlePress}>
             <AntDesign name="edit" size={20} color={colors.palette.primary} />
-          </TouchableOpacity>
+          </Pressable>
         );
       case "delIndex":
         return (
-          <TouchableOpacity style={styles.button} onPress={handlePress}>
+          <Pressable style={styles.button} onPress={handlePress}>
             <AntDesign name="delete" size={20} color={colors.palette.danger} />
-          </TouchableOpacity>
+          </Pressable>
         );
       case "changeIndex":
         return (
-          <TouchableOpacity style={styles.button} onPress={handlePress}>
+          <Pressable style={styles.button} onPress={handlePress}>
             <FontAwesome6
               name="edit"
               size={20}
               color={colors.palette.primary}
             />
-          </TouchableOpacity>
+          </Pressable>
         );
       case "copyIndex":
         return (
-          <TouchableOpacity style={styles.button} onPress={handlePress}>
+          <Pressable style={styles.button} onPress={handlePress}>
             <AntDesign name="copy1" size={20} color={colors.palette.danger} />
-          </TouchableOpacity>
+          </Pressable>
         );
       case "preIndex":
         return (
-          <TouchableOpacity style={styles.button} onPress={handlePress}>
+          <Pressable style={styles.button} onPress={handlePress}>
             <AntDesign name="copy1" size={20} color={colors.palette.danger} />
-          </TouchableOpacity>
+          </Pressable>
         );
       default:
         return null;

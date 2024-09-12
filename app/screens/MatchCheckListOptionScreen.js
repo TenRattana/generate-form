@@ -8,14 +8,14 @@ import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
-const MatchFormMachineScreen = React.memo(({ navigation }) => {
-  const [form, setForm] = useState([]);
-  const [machine, setMachine] = useState([]);
-  const [matchForm, setMatchForm] = useState([]);
+const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
+  const [checkListOption, setCheckListOption] = useState([]);
+  const [groupCheckListOption, setGroupCheckListOption] = useState([]);
+  const [matchCheckListOption, setMatchCheckListOption] = useState([]);
   const [formState, setFormState] = useState({
-    machineId: "",
-    formId: "",
-    isActive: false,
+    matchCheckListOptionId: "",
+    checkListOptionId: "",
+    groupCheckListOptionId: "",
   });
   const [error, setError] = useState({});
   const [resetDropdown, setResetDropdown] = useState(false);
@@ -41,15 +41,18 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     useCallback(() => {
       const fetchData = async () => {
         try {
-          const [machineResponse, formResponse, matchFormResponse] =
-            await Promise.all([
-              axios.post("GetMachines"),
-              axios.post("GetForms"),
-              axios.post("GetMatchFormMachines"),
-            ]);
-          setMachine(machineResponse.data.data ?? []);
-          setForm(formResponse.data.data ?? []);
-          setMatchForm(matchFormResponse.data.data ?? []);
+          const [
+            checkListOptionResponse,
+            groupCheckListOptionResponse,
+            matchCheckListOptionResponse,
+          ] = await Promise.all([
+            axios.post("GetCheckListOptions"),
+            axios.post("GetGroupCheckListOptions"),
+            axios.post("GetMatchCheckListOptions"),
+          ]);
+          setCheckListOption(checkListOptionResponse.data.data ?? []);
+          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
+          setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
         } catch (error) {
           ShowMessages(error.message, error.response.data.errors, "error");
         }
@@ -80,7 +83,7 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "machineId") {
+        if (!isEditing && key === "matchCheckListOptionId") {
           return true;
         }
         return value !== "" && String(value).trim() !== "";
@@ -90,9 +93,9 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
 
   const resetForm = () => {
     setFormState({
-      machineId: "",
-      formId: "",
-      isActive: false,
+      matchCheckListOptionId: "",
+      checkListOptionId: "",
+      groupCheckListOptionId: "",
     });
     setError({});
     setIsEditing(false);
@@ -104,14 +107,15 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     setIsLoading(true);
 
     const data = {
-      MachineID: formState.machineId,
-      FormID: formState.formId,
+      MCLOptionID: formState.matchCheckListOptionId,
+      GCLOptionID: formState.groupCheckListOptionId,
+      CLOptionID: formState.checkListOptionId,
     };
 
     try {
-      await axios.post("SaveForm", data);
-      const response = await axios.post("GetMatchFormMachines");
-      setMatchForm(response.data.data ?? []);
+      await axios.post("SaveMatchCheckListOption", data);
+      const response = await axios.post("GetMatchCheckListOptions");
+      setMatchCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
       ShowMessages(error.message, error.response.data.errors, "error");
@@ -124,26 +128,22 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     setIsLoading(true);
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetMatchFormMachine", {
-          MachineID: item,
+        const response = await axios.post("GetMatchCheckListOption", {
+          MCLOptionID: item,
         });
-        const machineData = response.data.data[0] ?? {};
+        const matchCheckListOption = response.data.data[0] ?? {};
         setFormState({
-          machineId: machineData.MachineID ?? "",
-          formId: machineData.FormID ?? "",
+          matchCheckListOptionId: matchCheckListOption.MCLOptionID ?? "",
+          groupCheckListOptionId: matchCheckListOption.GCLOptionID ?? "",
+          checkListOptionId: matchCheckListOption.CLOptionID ?? "",
         });
         setIsEditing(true);
       } else if (action === "delIndex") {
-        const response1 = await axios.post("DeleteMatchForm", {
-          FormID: item.form,
-          MachineID: item.machine,
+        const response1 = await axios.post("DeleteMatchCheckListOption", {
+          MCLOptionID: item,
         });
-        const response = await axios.post("GetMatchFormMachines");
-        setMatchForm(response.data.data || []);
-      } else if (action === "changeIndex") {
-        navigation.navigate("Create Form", { machineId: item });
-      } else if (action === "preIndex") {
-        navigation.navigate("View Form", { machineId: item });
+        const response = await axios.post("GetMatchCheckListOptions");
+        setMatchCheckListOption(response.data.data || []);
       }
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -151,27 +151,16 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     setIsLoading(false);
   };
 
-  const tableData = matchForm.map((item) => {
+  const tableData = matchCheckListOption.map((item) => {
     return [
-      item.MachineName,
-      item.FormName,
-      item.MachineID,
-      item.MachineID,
-      item.MachineID,
-      item.MachineID,
-      item.FormID,
+      item.GCLOptionName,
+      item.CLOptionName,
+      item.MCLOptionID,
+      item.MCLOptionID,
     ];
   });
 
-  const tableHead = [
-    "Machine Name",
-    "Form Name",
-    "Change Form",
-    "Copy Template",
-    "Preview",
-    "Edit",
-    "Delete",
-  ];
+  const tableHead = ["Group Name", "Option Name", "Edit", "Delete"];
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
@@ -180,25 +169,25 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         <Card.Divider />
 
         <CustomDropdown
-          fieldName="machineId"
-          title="Machine"
-          labels="MachineName"
-          values="MachineID"
-          data={machine}
+          fieldName="groupCheckListOptionId"
+          title="Group Check List Option"
+          labels="GCLOptionName"
+          values="GCLOptionID"
+          data={groupCheckListOption}
           updatedropdown={handleChange}
           reset={resetDropdown}
-          selectedValue={formState.machineId}
+          selectedValue={formState.groupCheckListOptionId}
         />
 
         <CustomDropdown
-          fieldName="formId"
-          title="Form"
-          labels="FormName"
-          values="FormID"
-          data={form}
+          fieldName="checkListOptionId"
+          title="Check List Option"
+          labels="CLOptionName"
+          values="CLOptionID"
+          data={checkListOption}
           updatedropdown={handleChange}
           reset={resetDropdown}
-          selectedValue={formState.formId}
+          selectedValue={formState.checkListOptionId}
         />
 
         <View style={styles.containerFlexStyle}>
@@ -222,14 +211,11 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[2, 2, 1, 1, 1, 1, 1]}
+          flexArr={[4, 4, 1, 1]}
           actionIndex={[
             {
-              changeIndex: 2,
-              copyIndex: 3,
-              preIndex: 4,
-              editIndex: 5,
-              delIndex: 6,
+              editIndex: 2,
+              delIndex: 3,
             },
           ]}
           handleAction={handleAction}
@@ -239,4 +225,4 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
   );
 });
 
-export default MatchFormMachineScreen;
+export default MatchCheckListOptionScreen;

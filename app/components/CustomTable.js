@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react";
-import { StyleSheet, View, Text, Pressable, ScrollView } from "react-native";
+import React, { useRef, useMemo, useState } from "react";
+import { View, Text, Pressable, ScrollView, Animated } from "react-native";
 import { Table, Row, Rows } from "react-native-table-component";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { colors, spacing, fonts } from "../../theme";
-import { useResponsive } from "./useResponsive";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import customtableStyle from "../styles/components/customtable";
+import { useTheme, useToast, useRes } from "../contexts";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export const CustomTable = ({
   Tabledata,
@@ -13,8 +14,53 @@ export const CustomTable = ({
   handleAction,
   actionIndex,
 }) => {
-  const responsive = useResponsive();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const colorAnim = useRef(new Animated.Value(0)).current;
+  const [pressed, setPressed] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const [action, setAction] = useState([]);
+  const { colors, fonts, spacing } = useTheme();
+  const { Toast } = useToast();
+  const { responsive } = useRes();
+  const styles = customtableStyle({ colors, spacing, fonts, responsive });
+
+  const handlePressIn = () => {
+    setPressed(true);
+    Animated.spring(scaleAnim, {
+      toValue: 1.2,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    setPressed(false);
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      tension: 100,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePress = () => {
+    setIsActive((prev) => !prev);
+    Animated.timing(colorAnim, {
+      toValue: isActive ? 0 : 1,
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+  };
+  const backgroundColor = colorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["lightgray", "lightblue"],
+  });
+
+  const iconColor = colorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["gray", "green"],
+  });
 
   console.log("CustomTable");
 
@@ -23,107 +69,57 @@ export const CustomTable = ({
     else setAction([]);
   }, [actionIndex]);
 
-  const styles = StyleSheet.create({
-    containerTable: {
-      width: responsive === "small" ? "100%" : "95%",
-      alignSelf: "center",
-      marginVertical: 10,
-      borderRadius: 10,
-    },
-    head: {
-      height: responsive === "small" ? 40 : responsive === "medium" ? 50 : 60,
-      borderBottomWidth: 2,
-    },
-    headerCell: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: spacing.sm,
-    },
-    row: {
-      flexDirection: "row",
-      height: responsive === "small" ? 60 : responsive === "medium" ? 50 : 60,
-      borderBottomWidth: 1,
-      borderColor: colors.background,
-    },
-    cardRow: {
-      padding: spacing.md,
-      marginVertical: spacing.sm,
-      borderRadius: 5,
-      borderWidth: 1,
-    },
-    titleStyled: {
-      color: colors.palette.danger,
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-    },
-    titleStylew: {
-      color: colors.palette.primaryLight,
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-    },
-    text: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-      color: colors.text,
-      alignSelf: responsive === "small" ? "flex-start" : "center",
-    },
-    textHead: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-      fontWeight: "bold",
-      color: colors.text,
-      alignSelf: responsive === "small" ? "flex-start" : "center",
-    },
-    button: {
-      paddingVertical:
-        responsive === "small"
-          ? spacing.sm
-          : responsive === "medium"
-          ? spacing.md
-          : spacing.lg,
-      paddingHorizontal:
-        responsive === "small"
-          ? spacing.md
-          : responsive === "medium"
-          ? spacing.lg
-          : spacing.xl,
-      alignItems: "center",
-      justifyContent: "center",
-      userSelect: "none",
-    },
-    booleanText: {
-      fontSize: fonts.sm,
-      color: colors.text,
-    },
-    booleanIcon: {
-      fontSize: 20,
-      textAlign: "center",
-    },
-  });
-
   const renderActionButton = (data, action) => {
     const handlePress = () => {
       handleAction(action, data);
     };
 
     switch (action) {
+      // case "activeIndex":
+      //   console.log(data, action);
+
+      //   if (typeof data === "boolean") {
+      //     return (
+      //       <Animated.View
+      //         style={[
+      //           styles.button,
+      //           { backgroundColor },
+      //           styles.iconStatus,
+      //           {
+      //             transform: [{ scale: scaleAnim }],
+      //           },
+      //         ]}
+      //       >
+      //         <Pressable
+      //           onPressIn={handlePressIn}
+      //           onPressOut={handlePressOut}
+      //           onPress={() => {
+      //             handlePress(), handlePressAction();
+      //           }}
+      //           style={({ pressed }) => [
+      //             {
+      //               opacity: pressed ? 0.5 : 1,
+      //             },
+      //           ]}
+      //         >
+      //           <View style={styles.row}>
+      //             <Text
+      //               style={[styles.titleStyled, { marginRight: 5, top: -2 }]}
+      //             >
+      //               {isActive ? "Active" : "Inactive"}
+      //             </Text>
+      //             <MaterialCommunityIcons
+      //               name={
+      //                 isActive ? "toggle-switch" : "toggle-switch-off-outline"
+      //               }
+      //               size={35}
+      //               color={iconColor}
+      //             />
+      //           </View>
+      //         </Pressable>
+      //       </Animated.View>
+      //     );
+      //   } else return data;
       case "editIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
@@ -193,7 +189,7 @@ export const CustomTable = ({
             {Tablehead.map((header, i) => (
               <View key={i} style={{ marginBottom: spacing.xs }}>
                 <Text style={styles.titleStyled}>{header}:</Text>
-                {renderCellContent(rowData[i])}
+                {rowData[i]}
               </View>
             ))}
             <View style={{ flexDirection: "row", marginTop: spacing.md }}>
@@ -221,7 +217,7 @@ export const CustomTable = ({
               <React.Fragment
                 key={`${headerIndex}-${actionIndex}-${cellIndex}`}
               >
-                {renderCellContent(cellData)}
+                {cellData}
               </React.Fragment>
             );
           })

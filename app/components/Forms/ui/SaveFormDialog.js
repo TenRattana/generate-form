@@ -11,6 +11,8 @@ const SaveFormDialog = ({
   colors,
   responsive,
 }) => {
+  console.log("SaveFormDialog");
+
   return (
     <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
       <Dialog.Title title="Save Form" />

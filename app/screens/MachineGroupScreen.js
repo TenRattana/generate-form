@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
-import { Button, Card, Input } from "@rneui/themed";
+import { Card, Input } from "@rneui/themed";
 import { CustomTable } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
@@ -148,8 +148,8 @@ const MachineGroupScreen = () => {
           displayOrder: String(machineGroupData.DisplayOrder) ?? "",
         });
         setIsEditing(true);
-      } else if (action === "delIndex") {
-        await axios.post("DeleteMachineGroup", {
+      } else if (action === "activeIndex") {
+        await axios.post("ChangeMachineGroup", {
           MGroupID: item,
         });
 
@@ -171,7 +171,7 @@ const MachineGroupScreen = () => {
     item.MGroupName,
     item.Description,
     item.DisplayOrder,
-    item.MGroupID,
+    item.IsActive,
     item.MGroupID,
   ]);
 
@@ -179,8 +179,8 @@ const MachineGroupScreen = () => {
     "Machine Group Name",
     "Description",
     "Priority",
+    "Status",
     "Edit",
-    "Delete",
   ];
 
   return (
@@ -228,23 +228,18 @@ const MachineGroupScreen = () => {
           <Text style={styles.errorText}>{error.displayOrder}</Text>
         ) : null}
 
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Create"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            disabled={!isFormValid()}
+        <View style={styles.containerFlexStyle}>
+          <Pressable
             onPress={saveData}
-            loading={isLoading}
-          />
-          <Button
-            title="Reset"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={resetForm}
-          />
+            style={styles.buttonStyle}
+            disabled={!isFormValid()}
+          >
+            <Text style={styles.text}>Create</Text>
+          </Pressable>
+
+          <Pressable onPress={resetForm} style={styles.buttonStyle}>
+            <Text style={styles.text}>Reset</Text>
+          </Pressable>
         </View>
       </Card>
 
@@ -255,7 +250,7 @@ const MachineGroupScreen = () => {
           Tabledata={tableData}
           Tablehead={tableHead}
           flexArr={[3, 4, 1, 1, 1]}
-          actionIndex={[{ editIndex: 3, delIndex: 4 }]}
+          actionIndex={[{ activeIndex: 3, editIndex: 4 }]}
           handleAction={handleAction}
         />
       </Card>

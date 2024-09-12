@@ -182,7 +182,6 @@ const ViewFormScreen = ({ route }) => {
       [fieldName]: value,
     }));
   };
-  console.log(state);
 
   const handleSubmit = async () => {
     const payload = {
@@ -205,7 +204,7 @@ const ViewFormScreen = ({ route }) => {
       <View style={[styles.layout2, { width: "100%" }]}>
         <Layout2
           form={vform}
-          style={{ styles, colors, responsive }}
+          style={{ styles, colors, spacing, fonts, responsive }}
           state={state}
           checkListType={checkListType}
           checkList={checkList}

@@ -20,7 +20,7 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       alignItems: "center",
     },
     containerButton: {
-      width: responsive === "large" ? 300 : "90%",
+      width: "100%",
       marginVertical: "1%",
       marginHorizontal: "2%",
     },
@@ -38,6 +38,32 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       marginLeft: spacing.xs,
       top: -spacing.xxs,
       color: colors.danger,
+    },
+    containerFlexStyle: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      padding: 5,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonStyle: {
+      flexBasis: `${
+        responsive === "small" ? 98 : responsive === "medium" ? 80 / 2 : 75 / 4
+      }%`,
+      backgroundColor: "#DDDDDD",
+      borderRadius: 5,
+      height: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      marginVertical: "1%",
+      marginHorizontal: "3%",
+      textAlign: "center",
+    },
+    flexRes: {},
+    flexResScreen: {
+      flexBasis: `${
+        responsive === "small" ? 98 : responsive === "medium" ? 80 / 2 : 75 / 4
+      }%`,
     },
   });
 };

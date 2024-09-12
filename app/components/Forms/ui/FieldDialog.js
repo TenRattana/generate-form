@@ -24,6 +24,8 @@ const FieldDialog = ({
   editMode,
   matchCheckListOption,
 }) => {
+  console.log("FieldDialog");
+
   return (
     <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
       <View style={styles.viewDialog}>

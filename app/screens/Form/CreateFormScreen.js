@@ -53,7 +53,7 @@ const FormBuilder = ({ route }) => {
       <View style={styles.layout1}>
         <View style={{ margin: 30 }}>
           <Layout1
-            style={{ styles, colors, responsive }}
+            style={{ styles, colors, spacing, fonts, responsive }}
             state={state}
             handleSubForm={handleSubForm}
             saveSubForm={saveSubForm}
@@ -87,7 +87,7 @@ const FormBuilder = ({ route }) => {
       <View style={styles.layout2}>
         <Layout2
           form={form}
-          style={{ styles, colors, responsive }}
+          style={{ styles, spacing, fonts, colors, responsive }}
           state={state}
           checkListType={checkListType}
           checkList={checkList}

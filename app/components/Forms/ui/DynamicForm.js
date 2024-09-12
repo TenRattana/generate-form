@@ -5,23 +5,22 @@ import { Selects, Radios, Checkboxs, Textareas, Inputs } from "../../";
 const DynamicForm = ({
   fields,
   checkListType,
-  styles,
-  colors,
-  responsive,
+  style,
   checkList,
   formData,
   handleChange,
   indexSubForm,
   matchCheckListOption,
 }) => {
+  const { styles, colors, spacing, fonts, responsive } = style;
+  console.log("DynamicForm");
+
   const renderField = (field, index) => {
     const option = matchCheckListOption
       .find((option) => option.MCLOptionID === field.matchCheckListOption)
       ?.CheckListOptions.map((item) => ({
         label: item.CLOptionName,
       }));
-
-    console.log(field);
 
     switch (field.CheckListTypeName) {
       case "Textinput":

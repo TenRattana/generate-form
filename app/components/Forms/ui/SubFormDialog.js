@@ -15,6 +15,8 @@ const SubFormDialog = ({
   error,
   editMode,
 }) => {
+  console.log("SubFormDialog");
+
   return (
     <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
       <Dialog.Title title="Sub Form Details" />

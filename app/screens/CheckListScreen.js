@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
-import { Button, Card, Input } from "@rneui/themed";
+import { Card, Input } from "@rneui/themed";
 import { CustomTable } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
@@ -133,7 +133,7 @@ const CheckListScreen = React.memo(() => {
         });
         setIsEditing(true);
       } else if (action === "delIndex") {
-        await axios.post("DeleteCheckList", {
+        await axios.post("ChangeCheckList", {
           CListID: item,
         });
 
@@ -152,10 +152,10 @@ const CheckListScreen = React.memo(() => {
   };
 
   const tableData = checkList.map((item) => {
-    return [item.CListName, item.CListID, item.CListID];
+    return [item.CListName, item.IsActive, item.CListID, item.CListID];
   });
 
-  const tableHead = ["Check List Name", "Edit", "Delete"];
+  const tableHead = ["Check List Name", "Status", "Edit", "Delete"];
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
@@ -175,23 +175,18 @@ const CheckListScreen = React.memo(() => {
           <Text style={styles.errorText}>{error.checkListName}</Text>
         ) : null}
 
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Create"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            disabled={!isFormValid()}
+        <View style={styles.containerFlexStyle}>
+          <Pressable
             onPress={saveData}
-            loading={isLoading}
-          />
-          <Button
-            title="Reset"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={resetForm}
-          />
+            style={styles.buttonStyle}
+            disabled={!isFormValid()}
+          >
+            <Text style={styles.text}>Create</Text>
+          </Pressable>
+
+          <Pressable onPress={resetForm} style={styles.buttonStyle}>
+            <Text style={styles.text}>Reset</Text>
+          </Pressable>
         </View>
       </Card>
 
@@ -201,8 +196,8 @@ const CheckListScreen = React.memo(() => {
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[5, 1, 1]}
-          actionIndex={[{ editIndex: 1, delIndex: 2 }]}
+          flexArr={[5, 1, 1, 1]}
+          actionIndex={[{ activeIndex: 1, editIndex: 2, delIndex: 3 }]}
           handleAction={handleAction}
         />
       </Card>

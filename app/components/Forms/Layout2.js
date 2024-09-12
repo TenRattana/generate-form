@@ -14,7 +14,8 @@ const Layout2 = ({
   matchCheckListOption,
   handleSubmit,
 }) => {
-  const { styles, colors, responsive } = style;
+  const { styles, colors, spacing, fonts, responsive } = style;
+  console.log("Layout2");
 
   const renderLayout2 = () => (
     <FlatList
@@ -39,8 +40,7 @@ const Layout2 = ({
                   style={containerStyle}
                 >
                   <DynamicForm
-                    styles={styles}
-                    colors={colors}
+                    style={{ styles, colors, spacing, fonts, responsive }}
                     responsive={responsive}
                     fields={[field]}
                     formData={formData}

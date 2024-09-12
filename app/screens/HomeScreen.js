@@ -60,8 +60,6 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate(item);
   };
 
-  console.log(machineGroup);
-
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
@@ -71,26 +69,47 @@ const HomeScreen = ({ navigation }) => {
           List Menu
         </Text>
 
-        <View>
-          <Pressable onPress={() => handleMenu("Machine Group")}>
+        <View style={styles.containerFlexStyle}>
+          <Pressable
+            onPress={() => handleMenu("Machine Group")}
+            style={styles.buttonStyle}
+          >
             <Text style={styles.text}>Create Machine Group</Text>
           </Pressable>
-          <Pressable onPress={() => handleMenu("Machine")}>
+          <Pressable
+            onPress={() => handleMenu("Machine")}
+            style={styles.buttonStyle}
+          >
             <Text style={styles.text}>Create Machine</Text>
           </Pressable>
-          <Pressable onPress={() => handleMenu("Check List")}>
+          <Pressable
+            onPress={() => handleMenu("Check List")}
+            style={styles.buttonStyle}
+          >
             <Text style={styles.text}>Create Check List</Text>
           </Pressable>
-          <Pressable onPress={() => handleMenu("Check List Option")}>
+          <Pressable
+            onPress={() => handleMenu("Check List Option")}
+            style={styles.buttonStyle}
+          >
             <Text style={styles.text}>Create Check List Option</Text>
           </Pressable>
-          <Pressable onPress={() => handleMenu("Group Check List Option")}>
+          <Pressable
+            onPress={() => handleMenu("Group Check List Option")}
+            style={styles.buttonStyle}
+          >
             <Text style={styles.text}>Create Group Check List Option</Text>
           </Pressable>
-          <Pressable onPress={() => handleMenu("Forms")}>
+          <Pressable
+            onPress={() => handleMenu("Forms")}
+            style={styles.buttonStyle}
+          >
             <Text style={styles.text}>Create Form</Text>
           </Pressable>
-          <Pressable onPress={() => handleMenu("Match Form & Machine")}>
+          <Pressable
+            onPress={() => handleMenu("Match Form & Machine")}
+            style={styles.buttonStyle}
+          >
             <Text style={styles.text}>Create Machine Form</Text>
           </Pressable>
         </View>

@@ -3,7 +3,6 @@ import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors, spacing, fonts } from "../../theme";
-import { useResponsive } from "./useResponsive";
 import Entypo from "@expo/vector-icons/Entypo";
 
 export const CustomDropdown = ({
@@ -19,7 +18,7 @@ export const CustomDropdown = ({
 }) => {
   const [value, setValue] = useState("");
   const [option, setOption] = useState([]);
-  const responsive = useResponsive();
+  const responsive = "small";
   console.log("CustomDropdown");
 
   useMemo(() => {

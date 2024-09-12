@@ -11,6 +11,7 @@ import {
   CheckListScreen,
   CheckListOptionScreen,
   GroupCheckListOptionScreen,
+  MatchCheckListOptionScreen,
   MatchFormMachineScreen,
   CreateFormScreen,
   ViewFormScreen,
@@ -45,6 +46,10 @@ export default function App() {
               <Drawer.Screen
                 name="Group Check List Option"
                 component={GroupCheckListOptionScreen}
+              />
+              <Drawer.Screen
+                name="Match Check List Option"
+                component={MatchCheckListOptionScreen}
               />
               <Drawer.Screen name="Create Form" component={CreateFormScreen} />
               <Drawer.Screen name="View Form" component={ViewFormScreen} />

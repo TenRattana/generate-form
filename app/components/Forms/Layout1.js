@@ -43,6 +43,7 @@ const Layout1 = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnimDT = useRef(new Animated.Value(0)).current;
   const { styles, colors, responsive } = style;
+  console.log("Layout1");
 
   const startAnimation = () => {
     Animated.timing(fadeAnim, {

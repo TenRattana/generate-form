@@ -27,7 +27,7 @@ const ViewFormScreen = ({ route }) => {
     formName: "",
     description: "",
   });
-  const { formId } = route.params || {};
+  const { formId, machineId } = route.params || {};
 
   const styles = formStyles({ route, colors, spacing, fonts, responsive });
   console.log("ViewForm");
@@ -84,12 +84,23 @@ const ViewFormScreen = ({ route }) => {
   }, []);
 
   useEffect(() => {
-    if (isDataLoaded && formId) {
+    if (isDataLoaded) {
       const fetchData = async () => {
+        let route = "";
+        let data = {};
+        if (formId) {
+          data = {
+            FormID: formId,
+          };
+          route = "GetForm";
+        } else if (machineId) {
+          data = {
+            MachineID: machineId,
+          };
+          route = "GetFormView";
+        }
         try {
-          const formResponse = await axios.post("GetForm", {
-            FormID: typeof formId === "object" ? formId.form : formId,
-          });
+          const formResponse = await axios.post(route, data);
           const formData = formResponse.data.data[0] ?? [];
 
           setVForm({
@@ -163,7 +174,7 @@ const ViewFormScreen = ({ route }) => {
 
       fetchData();
     }
-  }, [formId, isDataLoaded]);
+  }, [formId, machineId, isDataLoaded]);
 
   const handleChange = (fieldName, value) => {
     setFormData((prevState) => ({
@@ -191,7 +202,7 @@ const ViewFormScreen = ({ route }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.layout2}>
+      <View style={[styles.layout2, { width: "100%" }]}>
         <Layout2
           form={vform}
           style={{ styles, colors, responsive }}

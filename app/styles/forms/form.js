@@ -1,8 +1,10 @@
-import { StyleSheet, Dimensions } from "react-native";
-
-const { width } = Dimensions.get("window");
+import React from "react";
+import { StyleSheet, useWindowDimensions } from "react-native";
 
 const formStyles = ({ colors, spacing, fonts, responsive }) => {
+  const { width } = useWindowDimensions();
+  console.log("Form");
+
   return StyleSheet.create({
     container: {
       flex: 1,

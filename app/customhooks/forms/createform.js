@@ -70,7 +70,7 @@ export const useFormBuilder = (route) => {
   const [dataType, setDataType] = useState([]);
   const [shouldRender, setShouldRender] = useState("");
   const [shouldRenderDT, setShouldRenderDT] = useState("");
-  const { formIdforEdit } = route.params || {};
+  const { formId, machineId } = route.params || {};
   const [isLoading, setIsLoading] = useState(false);
   const { responsive } = useRes();
   const { Toast } = useToast();
@@ -130,15 +130,23 @@ export const useFormBuilder = (route) => {
   }, []);
 
   useEffect(() => {
-    if (isDataLoaded && formIdforEdit) {
+    if (isDataLoaded) {
       const fetchData = async () => {
+        let route = "";
+        let data = {};
+        if (formId) {
+          data = {
+            FormID: formId,
+          };
+          route = "GetForm";
+        } else if (machineId) {
+          data = {
+            MachineID: machineId,
+          };
+          route = "GetFormView";
+        }
         try {
-          const formResponse = await axios.post("GetForm", {
-            FormID:
-              typeof formIdforEdit === "object"
-                ? formIdforEdit.form
-                : formIdforEdit,
-          });
+          const formResponse = await axios.post(route, data);
           const formData = formResponse.data.data[0] ?? [];
 
           setForm({
@@ -212,7 +220,7 @@ export const useFormBuilder = (route) => {
 
       fetchData();
     }
-  }, [formIdforEdit, isDataLoaded]);
+  }, [formId, machineId, isDataLoaded]);
 
   console.log(state);
 

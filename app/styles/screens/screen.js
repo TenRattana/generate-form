@@ -11,7 +11,7 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
           ? fonts.xsm
           : responsive === "medium"
           ? fonts.sm
-          : fonts.lg,
+          : fonts.xsm,
       color: colors.text,
     },
     buttonContainer: {

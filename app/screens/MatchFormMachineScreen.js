@@ -124,8 +124,8 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     setIsLoading(true);
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetMatchForm", {
-          FormID: item.form,
+        const response = await axios.post("GetMatchFormMachine", {
+          MachineID: item,
         });
         const machineData = response.data.data[0] ?? {};
         setFormState({
@@ -141,9 +141,9 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         const response = await axios.post("GetMatchFormMachines");
         setMatchForm(response.data.data || []);
       } else if (action === "changeIndex") {
-        navigation.navigate("Create Form", { formIdforEdit: item });
+        navigation.navigate("Create Form", { machineId: item });
       } else if (action === "preIndex") {
-        navigation.navigate("View Form", { formId: item });
+        navigation.navigate("View Form", { machineId: item });
       }
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -155,11 +155,11 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     return [
       item.MachineName,
       item.FormName,
-      { machine: item.MachineID, form: item.FormID },
-      { machine: item.MachineID, form: item.FormID },
-      { machine: item.MachineID, form: item.FormID },
-      { machine: item.MachineID, form: item.FormID },
-      { machine: item.MachineID, form: item.FormID },
+      item.MachineID,
+      item.MachineID,
+      item.MachineID,
+      item.MachineID,
+      item.FormID,
     ];
   });
 

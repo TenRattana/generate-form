@@ -51,7 +51,7 @@ const FormScreen = React.memo(({ navigation }) => {
         const response = await axios.post("GetForms");
         setForm(response.data.data || []);
       } else if (action === "changeIndex") {
-        navigation.navigate("Create Form", { formIdforEdit: item });
+        navigation.navigate("Create Form", { formId: item });
       } else if (action === "preIndex") {
         navigation.navigate("View Form", { formId: item });
       }

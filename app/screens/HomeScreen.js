@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Text, View, FlatList, Pressable } from "react-native";
+import { Text, View, FlatList, Pressable, ScrollView } from "react-native";
 import { Button, Card } from "@rneui/themed";
 import { useTheme, useToast, useRes } from "../contexts";
 import axios from "../../config/axios";
@@ -56,33 +56,14 @@ const HomeScreen = ({ navigation }) => {
 
   console.log("Home");
 
-  const containerStyle = {
-    flex: 1,
-    padding: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
-  const renderItem = ({ item, index }) => {
-    <View style={styles.cardshow}>
-      <Pressable>
-        <Text style={styles.text}>Machine Group Name : {item.MGroupName}</Text>
-      </Pressable>
-      {machine.filter((field, idx) => {
-        if (field.MGroupID === item.MGroupID)
-          <Pressable key={`${field.index}-${idx}`} style={styles.button}>
-            <Text style={styles.text}>{field.MachineName}</Text>
-          </Pressable>;
-      })}
-    </View>;
-  };
-
   const handleMenu = (item) => {
     navigation.navigate(item);
   };
 
+  console.log(machineGroup);
+
   return (
-    <View>
+    <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
         <Card.Title>KFM Form</Card.Title>
         <Card.Divider />
@@ -90,71 +71,61 @@ const HomeScreen = ({ navigation }) => {
           List Menu
         </Text>
 
-        <View style={containerStyle}>
-          <Button
-            title="Create Machine Group"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleMenu("Machine Group")}
-          />
-          <Button
-            title="Create Machine"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleMenu("Machine")}
-          />
-          <Button
-            title="Create Check List"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleMenu("Check List")}
-          />
-          <Button
-            title="Create Check List Option"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleMenu("Check List Option")}
-          />
-          <Button
-            title="Create Group Check List Option"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleMenu("Group Check List Option")}
-          />
-          <Button
-            title="Create Form"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleMenu("Forms")}
-          />
-          <Button
-            title="Create Machine Form"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleMenu("Match Form & Machine")}
-          />
+        <View>
+          <Pressable onPress={() => handleMenu("Machine Group")}>
+            <Text style={styles.text}>Create Machine Group</Text>
+          </Pressable>
+          <Pressable onPress={() => handleMenu("Machine")}>
+            <Text style={styles.text}>Create Machine</Text>
+          </Pressable>
+          <Pressable onPress={() => handleMenu("Check List")}>
+            <Text style={styles.text}>Create Check List</Text>
+          </Pressable>
+          <Pressable onPress={() => handleMenu("Check List Option")}>
+            <Text style={styles.text}>Create Check List Option</Text>
+          </Pressable>
+          <Pressable onPress={() => handleMenu("Group Check List Option")}>
+            <Text style={styles.text}>Create Group Check List Option</Text>
+          </Pressable>
+          <Pressable onPress={() => handleMenu("Forms")}>
+            <Text style={styles.text}>Create Form</Text>
+          </Pressable>
+          <Pressable onPress={() => handleMenu("Match Form & Machine")}>
+            <Text style={styles.text}>Create Machine Form</Text>
+          </Pressable>
         </View>
       </Card>
 
       <Card>
-        <Card.Title>List Form</Card.Title>
+        <Card.Title>List Group</Card.Title>
         <Card.Divider />
-        <View style={containerStyle}>
+        <View>
           <FlatList
             data={machineGroup}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => `mgroup-${index}`}
+            renderItem={({ item, index }) => {
+              <View>
+                <Text style={styles.text}>Machine Group Name : {item}</Text>
+                <Pressable>
+                  <Text style={styles.text}>
+                    Machine Group Name : {item.MGroupName}
+                  </Text>
+                </Pressable>
+                {machine.filter((field, idx) => {
+                  if (field.MGroupID === item.MGroupID)
+                    <Pressable
+                      key={`${field.index}-${idx}`}
+                      style={styles.button}
+                    >
+                      <Text style={styles.text}>{field.MachineName}</Text>
+                    </Pressable>;
+                })}
+              </View>;
+            }}
+            keyExtractor={(_, MGroupID) => `mgroup-${MGroupID}`}
           />
         </View>
       </Card>
-    </View>
+    </ScrollView>
   );
 };
 

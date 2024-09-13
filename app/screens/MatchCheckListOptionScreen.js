@@ -214,6 +214,18 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
     "Delete",
   ];
 
+  const dropcheckListOption = [];
+  dropcheckListOption =
+    checkListOption.length > 0
+      ? checkListOption.filter((v) => v.IsActive)
+      : dropcheckListOption;
+
+  const dropgroupCheckListOption = [];
+  dropgroupCheckListOption =
+    groupCheckListOption.length > 0
+      ? groupCheckListOption.filter((v) => v.IsActive)
+      : dropgroupCheckListOption;
+
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
@@ -225,7 +237,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           title="Group Check List Option"
           labels="GCLOptionName"
           values="GCLOptionID"
-          data={groupCheckListOption}
+          data={dropgroupCheckListOption}
           updatedropdown={handleChange}
           reset={resetDropdown}
           selectedValue={formState.groupCheckListOptionId}
@@ -236,7 +248,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           title="Check List Option"
           labels="CLOptionName"
           values="CLOptionID"
-          data={checkListOption}
+          data={dropcheckListOption}
           updatedropdown={handleChange}
           reset={resetDropdown}
           selectedValue={formState.checkListOptionId}

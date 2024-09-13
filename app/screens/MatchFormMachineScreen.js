@@ -15,7 +15,6 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
   const [formState, setFormState] = useState({
     machineId: "",
     formId: "",
-    isActive: false,
   });
   const [error, setError] = useState({});
   const [resetDropdown, setResetDropdown] = useState(false);
@@ -173,6 +172,13 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     "Delete",
   ];
 
+  const dropmachine = [];
+  dropmachine =
+    machine.length > 0 ? dropmachine.filter((v) => v.IsActive) : dropmachine;
+
+  const dropform = [];
+  dropform = form.length > 0 ? form.filter((v) => v.IsActive) : dropform;
+
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
@@ -184,7 +190,7 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
           title="Machine"
           labels="MachineName"
           values="MachineID"
-          data={machine}
+          data={dropmachine}
           updatedropdown={handleChange}
           reset={resetDropdown}
           selectedValue={formState.machineId}
@@ -195,7 +201,7 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
           title="Form"
           labels="FormName"
           values="FormID"
-          data={form}
+          data={dropform}
           updatedropdown={handleChange}
           reset={resetDropdown}
           selectedValue={formState.formId}

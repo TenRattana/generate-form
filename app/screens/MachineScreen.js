@@ -206,6 +206,12 @@ const MachineScreen = () => {
     "Delete",
   ];
 
+  const dropmachineGroup = [];
+  dropmachineGroup =
+    machineGroup.length > 0
+      ? machineGroup.filter((v) => v.IsActive)
+      : dropmachineGroup;
+
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
@@ -217,7 +223,7 @@ const MachineScreen = () => {
           title="Machine Group"
           labels="MGroupName"
           values="MGroupID"
-          data={machineGroup.filter((v) => v.IsActive)}
+          data={dropmachineGroup}
           updatedropdown={handleChange}
           reset={resetDropdown}
           selectedValue={formState.machineGroupId}

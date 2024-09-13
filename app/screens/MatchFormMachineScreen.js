@@ -172,11 +172,11 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     "Delete",
   ];
 
-  const dropmachine = [];
+  let dropmachine = [];
   dropmachine =
     machine.length > 0 ? dropmachine.filter((v) => v.IsActive) : dropmachine;
 
-  const dropform = [];
+  let dropform = [];
   dropform = form.length > 0 ? form.filter((v) => v.IsActive) : dropform;
 
   return (

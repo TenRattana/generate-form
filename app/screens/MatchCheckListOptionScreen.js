@@ -214,13 +214,13 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
     "Delete",
   ];
 
-  const dropcheckListOption = [];
+  let dropcheckListOption = [];
   dropcheckListOption =
     checkListOption.length > 0
       ? checkListOption.filter((v) => v.IsActive)
       : dropcheckListOption;
 
-  const dropgroupCheckListOption = [];
+  let dropgroupCheckListOption = [];
   dropgroupCheckListOption =
     groupCheckListOption.length > 0
       ? groupCheckListOption.filter((v) => v.IsActive)

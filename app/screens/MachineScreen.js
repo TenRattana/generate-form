@@ -206,7 +206,7 @@ const MachineScreen = () => {
     "Delete",
   ];
 
-  const dropmachineGroup = [];
+  let dropmachineGroup = [];
   dropmachineGroup =
     machineGroup.length > 0
       ? machineGroup.filter((v) => v.IsActive)

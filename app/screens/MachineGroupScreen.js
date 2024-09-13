@@ -41,7 +41,7 @@ const MachineGroupScreen = () => {
       const fetchData = async () => {
         try {
           const [machineGroupResponse] = await Promise.all([
-            axios.post("GetMachineGroups"),
+            axios.post("MachineGroup_service.asmx/GetMachineGroups"),
           ]);
           setMachineGroup(machineGroupResponse.data.data ?? []);
         } catch (error) {
@@ -117,8 +117,10 @@ const MachineGroupScreen = () => {
     };
 
     try {
-      await axios.post("SaveMachineGroup", data);
-      const response = await axios.post("GetMachineGroups");
+      await axios.post("MachineGroup_service.asmx/SaveMachineGroup", data);
+      const response = await axios.post(
+        "MachineGroup_service.asmx/GetMachineGroups"
+      );
       setMachineGroup(response.data.data ?? []);
       resetForm();
     } catch (error) {
@@ -137,9 +139,12 @@ const MachineGroupScreen = () => {
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetMachineGroup", {
-          MGroupID: item,
-        });
+        const response = await axios.post(
+          "MachineGroup_service.asmx/GetMachineGroup",
+          {
+            MGroupID: item,
+          }
+        );
         const machineGroupData = response.data.data[0] ?? {};
         setFormState({
           machineGroupId: machineGroupData.MGroupID ?? "",
@@ -148,12 +153,19 @@ const MachineGroupScreen = () => {
           displayOrder: String(machineGroupData.DisplayOrder) ?? "",
         });
         setIsEditing(true);
-      } else if (action === "activeIndex") {
-        await axios.post("ChangeMachineGroup", {
-          MGroupID: item,
-        });
-
-        const response = await axios.post("GetMachineGroups");
+      } else {
+        if (action === "activeIndex") {
+          await axios.post("MachineGroup_service.asmx/ChangeMachineGroup", {
+            MGroupID: item,
+          });
+        } else if (action === "delIndex") {
+          await axios.post("MachineGroup_service.asmx/DeleteMachineGroup", {
+            MGroupID: item,
+          });
+        }
+        const response = await axios.post(
+          "MachineGroup_service.asmx/GetMachineGroups"
+        );
         setMachineGroup(response.data.data ?? []);
       }
     } catch (error) {
@@ -173,20 +185,24 @@ const MachineGroupScreen = () => {
     item.DisplayOrder,
     item.IsActive,
     item.MGroupID,
+    item.MGroupID,
+    item.MGroupID,
   ]);
 
   const tableHead = [
     "Machine Group Name",
     "Description",
     "Priority",
-    "Status",
+    "",
+    "Change Status",
     "Edit",
+    "Delete",
   ];
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
-        <Card.Title>Create Machine</Card.Title>
+        <Card.Title>Create Group Machine</Card.Title>
         <Card.Divider />
 
         <Input
@@ -244,13 +260,13 @@ const MachineGroupScreen = () => {
       </Card>
 
       <Card>
-        <Card.Title>List Machine</Card.Title>
+        <Card.Title>List Group Machine</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[3, 4, 1, 1, 1]}
-          actionIndex={[{ activeIndex: 3, editIndex: 4 }]}
+          flexArr={[3, 4, 1, 1, 1, 1]}
+          actionIndex={[{ activeIndex: 4, editIndex: 5, delIndex: 6 }]}
           handleAction={handleAction}
         />
       </Card>

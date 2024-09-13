@@ -2,7 +2,11 @@ import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
-import { CustomTable, CustomDropdown } from "../components";
+import {
+  CustomTable,
+  CustomDropdown,
+  CustomDropdownMulti,
+} from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
@@ -14,7 +18,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
   const [matchCheckListOption, setMatchCheckListOption] = useState([]);
   const [formState, setFormState] = useState({
     matchCheckListOptionId: "",
-    checkListOptionId: "",
+    checkListOptionId: [],
     groupCheckListOptionId: "",
   });
   const [error, setError] = useState({});
@@ -46,9 +50,13 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
             groupCheckListOptionResponse,
             matchCheckListOptionResponse,
           ] = await Promise.all([
-            axios.post("GetCheckListOptions"),
-            axios.post("GetGroupCheckListOptions"),
-            axios.post("GetMatchCheckListOptions"),
+            axios.post("CheckListOption_service.asmx/GetCheckListOptions"),
+            axios.post(
+              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+            ),
+            axios.post(
+              "MatchCheckListOption_service.asmx/GetMatchCheckListOptions"
+            ),
           ]);
           setCheckListOption(checkListOptionResponse.data.data ?? []);
           setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
@@ -94,7 +102,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
   const resetForm = () => {
     setFormState({
       matchCheckListOptionId: "",
-      checkListOptionId: "",
+      checkListOptionId: [],
       groupCheckListOptionId: "",
     });
     setError({});
@@ -109,12 +117,19 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
     const data = {
       MCLOptionID: formState.matchCheckListOptionId,
       GCLOptionID: formState.groupCheckListOptionId,
-      CLOptionID: formState.checkListOptionId,
+      CLOptionID: JSON.stringify(formState.checkListOptionId),
     };
 
+    console.log(data);
+
     try {
-      await axios.post("SaveMatchCheckListOption", data);
-      const response = await axios.post("GetMatchCheckListOptions");
+      await axios.post(
+        "MatchCheckListOption_service.asmx/SaveMatchCheckListOption",
+        data
+      );
+      const response = await axios.post(
+        "MatchCheckListOption_service.asmx/GetMatchCheckListOptions"
+      );
       setMatchCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
@@ -124,26 +139,48 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
     }
   };
 
+  console.log(formState);
+
   const handleAction = async (action, item) => {
     setIsLoading(true);
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetMatchCheckListOption", {
-          MCLOptionID: item,
-        });
+        const response = await axios.post(
+          "MatchCheckListOption_service.asmx/GetMatchCheckListOption",
+          {
+            MCLOptionID: item,
+          }
+        );
         const matchCheckListOption = response.data.data[0] ?? {};
         setFormState({
           matchCheckListOptionId: matchCheckListOption.MCLOptionID ?? "",
           groupCheckListOptionId: matchCheckListOption.GCLOptionID ?? "",
-          checkListOptionId: matchCheckListOption.CLOptionID ?? "",
+          checkListOptionId:
+            matchCheckListOption.CheckListOptions.map((v) => v.CLOptionID) ??
+            [],
         });
         setIsEditing(true);
-      } else if (action === "delIndex") {
-        const response1 = await axios.post("DeleteMatchCheckListOption", {
-          MCLOptionID: item,
-        });
-        const response = await axios.post("GetMatchCheckListOptions");
-        setMatchCheckListOption(response.data.data || []);
+      } else {
+        if (action === "activeIndex") {
+          await axios.post(
+            "MatchCheckListOption_service.asmx/ChangeMatchCheckListOption",
+            {
+              MCLOptionID: item,
+            }
+          );
+        } else if (action === "delIndex") {
+          await axios.post(
+            "MatchCheckListOption_service.asmx/DeleteMatchCheckListOption",
+            {
+              MCLOptionID: item,
+            }
+          );
+        }
+
+        const matchCheckListData = await axios.post(
+          "MatchCheckListOption_service.asmx/GetMatchCheckListOptions"
+        );
+        setMatchCheckListOption(matchCheckListData.data.data || []);
       }
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -151,21 +188,36 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
     setIsLoading(false);
   };
 
-  const tableData = matchCheckListOption.map((item) => {
-    return [
-      item.GCLOptionName,
-      item.CLOptionName,
-      item.MCLOptionID,
-      item.MCLOptionID,
-    ];
-  });
+  const tableData = matchCheckListOption.flatMap((item) =>
+    item.CheckListOptions.map((option) => {
+      const matchedOption = checkListOption.find(
+        (group) => group.CLOptionID === option.CLOptionID
+      );
 
-  const tableHead = ["Group Name", "Option Name", "Edit", "Delete"];
+      return [
+        item.GCLOptionName,
+        matchedOption?.CLOptionName,
+        item.IsActive,
+        item.MCLOptionID,
+        item.MCLOptionID,
+        item.MCLOptionID,
+      ];
+    })
+  );
+
+  const tableHead = [
+    "Group Name",
+    "Option Name",
+    "",
+    "Change Status",
+    "Edit",
+    "Delete",
+  ];
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
-        <Card.Title>List Form</Card.Title>
+        <Card.Title>Create Match Group & Option</Card.Title>
         <Card.Divider />
 
         <CustomDropdown
@@ -179,7 +231,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           selectedValue={formState.groupCheckListOptionId}
         />
 
-        <CustomDropdown
+        <CustomDropdownMulti
           fieldName="checkListOptionId"
           title="Check List Option"
           labels="CLOptionName"
@@ -206,16 +258,17 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
       </Card>
 
       <Card>
-        <Card.Title>List Machine</Card.Title>
+        <Card.Title>List Match Group & Option</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[4, 4, 1, 1]}
+          flexArr={[4, 4, 1, 1, 1, 1]}
           actionIndex={[
             {
-              editIndex: 2,
-              delIndex: 3,
+              activeIndex: 3,
+              editIndex: 4,
+              delIndex: 5,
             },
           ]}
           handleAction={handleAction}

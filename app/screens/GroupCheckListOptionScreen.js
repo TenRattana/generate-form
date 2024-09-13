@@ -2,24 +2,21 @@ import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card, Input } from "@rneui/themed";
-import { CustomTable, CustomDropdownMulti } from "../components";
+import { CustomTable } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const GroupCheckListOptionScreen = React.memo(() => {
-  const [checkListOption, setCheckListOption] = useState([]);
-  const [matchCheckListOption, setMatchCheckListOption] = useState([]);
+  const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [formState, setFormState] = useState({
-    matchCheckListOptionId: "",
-    matchCheckListOptionName: "",
-    checkListOption: [],
+    groupCheckListOptionId: "",
+    groupCheckListOptionName: "",
     description: "",
     displayOrder: "",
   });
   const [error, setError] = useState({});
-  const [resetDropdown, setResetDropdown] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
@@ -43,13 +40,12 @@ const GroupCheckListOptionScreen = React.memo(() => {
     useCallback(() => {
       const fetchData = async () => {
         try {
-          const [checkListOptionResponse, matchCheckListOptionResponse] =
-            await Promise.all([
-              axios.post("GetCheckListOptions"),
-              axios.post("GetMatchCheckListOptions"),
-            ]);
-          setCheckListOption(checkListOptionResponse.data.data ?? []);
-          setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
+          const [groupCheckListOptionResponse] = await Promise.all([
+            axios.post(
+              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+            ),
+          ]);
+          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
         } catch (error) {
           ShowMessages(
             error.message || "Error",
@@ -70,10 +66,17 @@ const GroupCheckListOptionScreen = React.memo(() => {
     let errorMessage = "";
 
     if (
-      fieldName === "matchCheckListOptionName" &&
+      fieldName === "groupCheckListOptionName" &&
       validator.isEmpty(value.trim())
     ) {
       errorMessage = "The Group Check List Option Name field is required.";
+    } else if (fieldName === "description" && validator.isEmpty(value.trim())) {
+      errorMessage = "The Description field is required.";
+    } else if (
+      fieldName === "displayOrder" &&
+      !validator.isNumeric(value.trim())
+    ) {
+      errorMessage = "The Displat Order field must be numeric.";
     }
 
     setError((prevError) => ({
@@ -91,7 +94,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
     return (
       Object.keys(formState).every((key) => {
         const value = formState[key];
-        if (!isEditing && key === "matchCheckListOptionId") {
+        if (!isEditing && key === "groupCheckListOptionId") {
           return true;
         }
         return value !== "" && value !== "" && String(value).trim() !== "";
@@ -101,33 +104,34 @@ const GroupCheckListOptionScreen = React.memo(() => {
 
   const resetForm = () => {
     setFormState({
-      matchCheckListOptionId: "",
-      matchCheckListOptionName: "",
-      checkListOption: [],
+      groupCheckListOptionId: "",
+      groupCheckListOptionName: "",
       description: "",
       displayOrder: "",
     });
     setError({});
     setIsEditing(false);
-    setResetDropdown(true);
-    setTimeout(() => setResetDropdown(false), 0);
   };
 
   const saveData = async () => {
     setIsLoading(true);
 
     const data = {
-      MCLOptionID: formState.matchCheckListOptionId,
-      MCLOptionName: formState.matchCheckListOptionName,
+      GCLOptionID: formState.groupCheckListOptionId,
+      GCLOptionName: formState.groupCheckListOptionName,
       Description: formState.description,
       DisplayOrder: formState.displayOrder,
-      CLOptionID: JSON.stringify(formState.checkListOption),
     };
 
     try {
-      await axios.post("SaveMatchCheckListOption", data);
-      const response = await axios.post("GetMatchCheckListOptions");
-      setMatchCheckListOption(response.data.data ?? []);
+      await axios.post(
+        "GroupCheckListOption_service.asmx/SaveGroupCheckListOption",
+        data
+      );
+      const response = await axios.post(
+        "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+      );
+      setGroupCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
       ShowMessages(
@@ -145,31 +149,42 @@ const GroupCheckListOptionScreen = React.memo(() => {
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetMatchCheckListOption", {
-          MCLOptionID: item,
-        });
-        const matchCheckListOptionResponse = response.data.data[0] ?? {};
-
+        const response = await axios.post(
+          "GroupCheckListOption_service.asmx/GetGroupCheckListOption",
+          {
+            GCLOptionID: item,
+          }
+        );
+        const groupCheckListOptionData = response.data.data[0] ?? {};
         setFormState({
-          matchCheckListOptionId:
-            matchCheckListOptionResponse.MCLOptionID ?? "",
-          matchCheckListOptionName:
-            matchCheckListOptionResponse.MCLOptionName ?? "",
-          checkListOption: matchCheckListOptionResponse.CheckListOptions.map(
-            (option) => option.CLOptionID
-          ),
-          description: matchCheckListOptionResponse.Description ?? "",
-          displayOrder: matchCheckListOptionResponse.DisplayOrder ?? "",
+          groupCheckListOptionId: groupCheckListOptionData.GCLOptionID ?? "",
+          groupCheckListOptionName:
+            groupCheckListOptionData.GCLOptionName ?? "",
+          description: groupCheckListOptionData.Description ?? "",
+          displayOrder: groupCheckListOptionData.DisplayOrder ?? "",
         });
 
         setIsEditing(true);
-      } else if (action === "delIndex") {
-        await axios.post("DeleteMatchCheckListOption", {
-          ID: item,
-        });
-
-        const response = await axios.post("GetMatchCheckListOptions");
-        setMatchCheckListOption(response.data.data ?? []);
+      } else {
+        if (action === "activeIndex") {
+          await axios.post(
+            "GroupCheckListOption_service.asmx/ChangeGroupCheckListOption",
+            {
+              GCLOptionID: item,
+            }
+          );
+        } else if (action === "delIndex") {
+          await axios.post(
+            "GroupCheckListOption_service.asmx/DeleteGroupCheckListOption",
+            {
+              GCLOptionID: item,
+            }
+          );
+        }
+        const response = await axios.post(
+          "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+        );
+        setGroupCheckListOption(response.data.data ?? []);
       }
     } catch (error) {
       ShowMessages(
@@ -182,30 +197,26 @@ const GroupCheckListOptionScreen = React.memo(() => {
     }
   };
 
-  const tableData = matchCheckListOption.flatMap((item) =>
-    item.CheckListOptions.map((option) => {
-      const matchedOption = checkListOption.find(
-        (group) => group.CLOptionID === option.CLOptionID
-      );
-
-      return [
-        option.MCLOptionName,
-        matchedOption?.CLOptionName,
-        option.Description,
-        option.DisplayOrder,
-        option.MCLOptionID,
-        option.ID,
-      ];
-    })
-  );
+  const tableData = groupCheckListOption.map((item) => {
+    return [
+      item.GCLOptionName,
+      item.Description,
+      item.DisplayOrder,
+      item.IsActive,
+      item.GCLOptionID,
+      item.GCLOptionID,
+      item.GCLOptionID,
+    ];
+  });
 
   console.log(tableData);
 
   const tableHead = [
     "Group Option Name",
-    "Option Name",
     "Description",
     "Display Order",
+    "",
+    "Change Status",
     "Edit",
     "Delete",
   ];
@@ -213,37 +224,22 @@ const GroupCheckListOptionScreen = React.memo(() => {
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
-        <Card.Title>Create Option</Card.Title>
+        <Card.Title>Create Group Option</Card.Title>
         <Card.Divider />
 
         <Input
-          placeholder="Enter List Detail Name"
-          label="List Detail Name"
+          placeholder="Enter Group Option Name"
+          label="Group Option Name"
           labelStyle={styles.text}
           inputStyle={styles.text}
           disabledInputStyle={styles.containerInput}
           onChangeText={(text) =>
-            handleChange("matchCheckListOptionName", text)
+            handleChange("groupCheckListOptionName", text)
           }
-          value={formState.matchCheckListOptionName}
+          value={formState.groupCheckListOptionName}
         />
-        {error.matchCheckListOptionName ? (
-          <Text style={styles.errorText}>{error.matchCheckListOptionName}</Text>
-        ) : null}
-
-        <CustomDropdownMulti
-          fieldName="checkListOption"
-          title="Machine Group"
-          labels="CLOptionName"
-          values="CLOptionID"
-          data={checkListOption}
-          updatedropdown={handleChange}
-          reset={resetDropdown}
-          selectedValue={formState.checkListOption}
-        />
-
-        {error.checkListOption ? (
-          <Text style={styles.errorText}>{error.checkListOption}</Text>
+        {error.groupCheckListOptionName ? (
+          <Text style={styles.errorText}>{error.groupCheckListOptionName}</Text>
         ) : null}
 
         <Input
@@ -288,13 +284,13 @@ const GroupCheckListOptionScreen = React.memo(() => {
       </Card>
 
       <Card>
-        <Card.Title>List Detail</Card.Title>
+        <Card.Title>List Group Option</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[3, 3, 5, 1, 1, 1]}
-          actionIndex={[{ editIndex: 4, delIndex: 5 }]}
+          flexArr={[3, 5, 1, 1, 1, 1, 1]}
+          actionIndex={[{ activeIndex: 4, editIndex: 5, delIndex: 6 }]}
           handleAction={handleAction}
         />
       </Card>

@@ -37,8 +37,8 @@ const HomeScreen = ({ navigation }) => {
     const fetchData = async () => {
       try {
         const [machineGroupResponse, machineResponse] = await Promise.all([
-          axios.post("GetMachineGroups"),
-          axios.post("GetMachines"),
+          axios.post("MachineGroup_service.asmx/GetMachineGroups"),
+          axios.post("Machine_service.asmx/GetMachines"),
         ]);
         setMachineGroup(machineGroupResponse.data.data ?? []);
         setMachine(machineResponse.data.data ?? []);

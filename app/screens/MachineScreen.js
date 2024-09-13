@@ -43,8 +43,8 @@ const MachineScreen = () => {
       const fetchData = async () => {
         try {
           const [machineResponse, machineGroupResponse] = await Promise.all([
-            axios.post("GetMachines"),
-            axios.post("GetMachineGroups"),
+            axios.post("Machine_service.asmx/GetMachines"),
+            axios.post("MachineGroup_service.asmx/GetMachineGroups"),
           ]);
           setMachine(machineResponse.data.data ?? []);
           setMachineGroup(machineGroupResponse.data.data ?? []);
@@ -125,8 +125,8 @@ const MachineScreen = () => {
     };
 
     try {
-      await axios.post("SaveMachine", data);
-      const response = await axios.post("GetMachines");
+      await axios.post("Machine_service.asmx/SaveMachine", data);
+      const response = await axios.post("Machine_service.asmx/GetMachines");
       setMachine(response.data.data ?? []);
       resetForm();
     } catch (error) {
@@ -145,7 +145,9 @@ const MachineScreen = () => {
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetMachine", { machineID: item });
+        const response = await axios.post("Machine_service.asmx/GetMachine", {
+          machineID: item,
+        });
         const machineData = response.data.data[0] ?? {};
         setFormState({
           machineId: machineData.MachineID ?? "",
@@ -155,11 +157,17 @@ const MachineScreen = () => {
           displayOrder: String(machineData.DisplayOrder) ?? "",
         });
         setIsEditing(true);
-      } else if (action === "delIndex") {
-        await axios.post("ChangeMachine", {
-          MachineID: item,
-        });
-        const response = await axios.post("GetMachines");
+      } else {
+        if (action === "activeIndex") {
+          await axios.post("Machine_service.asmx/ChangeMachine", {
+            MachineID: item,
+          });
+        } else if (action === "delIndex") {
+          await axios.post("Machine_service.asmx/DeleteMachine", {
+            MachineID: item,
+          });
+        }
+        const response = await axios.post("Machine_service.asmx/GetMachines");
         setMachine(response.data.data ?? []);
       }
     } catch (error) {
@@ -180,6 +188,8 @@ const MachineScreen = () => {
       item.MachineName,
       item.Description,
       item.DisplayOrder,
+      item.IsActive,
+      item.MachineID,
       item.MachineID,
       item.MachineID,
     ];
@@ -190,6 +200,8 @@ const MachineScreen = () => {
     "Machine Name",
     "Description",
     "Priority",
+    "",
+    "Change Status",
     "Edit",
     "Delete",
   ];
@@ -275,8 +287,8 @@ const MachineScreen = () => {
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[2, 2, 3, 1, 1, 1]}
-          actionIndex={[{ editIndex: 4, delIndex: 5 }]}
+          flexArr={[2, 2, 3, 1, 1, 1, 1, 1]}
+          actionIndex={[{ activeIndex: 5, editIndex: 6, delIndex: 7 }]}
           handleAction={handleAction}
         />
       </Card>

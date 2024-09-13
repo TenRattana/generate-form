@@ -38,7 +38,7 @@ const CheckListScreen = React.memo(() => {
       const fetchData = async () => {
         try {
           const [checkListResponse] = await Promise.all([
-            axios.post("GetCheckLists"),
+            axios.post("CheckList_service.asmx/GetCheckLists"),
           ]);
           setCheckList(checkListResponse.data.data ?? []);
         } catch (error) {
@@ -102,8 +102,8 @@ const CheckListScreen = React.memo(() => {
     };
 
     try {
-      await axios.post("SaveCheckList", data);
-      const response = await axios.post("GetCheckLists");
+      await axios.post("CheckList_service.asmx/SaveCheckList", data);
+      const response = await axios.post("CheckList_service.asmx/GetCheckLists");
       setCheckList(response.data.data ?? []);
       resetForm();
     } catch (error) {
@@ -122,22 +122,32 @@ const CheckListScreen = React.memo(() => {
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetCheckList", {
-          CListID: item,
-        });
+        const response = await axios.post(
+          "CheckList_service.asmx/GetCheckList",
+          {
+            CListID: item,
+          }
+        );
         const checkListData = response.data.data[0] ?? {};
-
         setFormState({
           checkListId: checkListData.CListID ?? "",
           checkListName: checkListData.CListName ?? "",
         });
         setIsEditing(true);
-      } else if (action === "delIndex") {
-        await axios.post("ChangeCheckList", {
-          CListID: item,
-        });
+      } else {
+        if (action === "activeIndex") {
+          await axios.post("CheckList_service.asmx/ChangeCheckList", {
+            CListID: item,
+          });
+        } else if (action === "delIndex") {
+          await axios.post("CheckList_service.asmx/DeleteCheckList", {
+            CListID: item,
+          });
+        }
 
-        const response = await axios.post("GetCheckLists");
+        const response = await axios.post(
+          "CheckList_service.asmx/GetCheckLists"
+        );
         setCheckList(response.data.data ?? []);
       }
     } catch (error) {
@@ -152,15 +162,21 @@ const CheckListScreen = React.memo(() => {
   };
 
   const tableData = checkList.map((item) => {
-    return [item.CListName, item.IsActive, item.CListID, item.CListID];
+    return [
+      item.CListName,
+      item.IsActive,
+      item.CListID,
+      item.CListID,
+      item.CListID,
+    ];
   });
 
-  const tableHead = ["Check List Name", "Status", "Edit", "Delete"];
+  const tableHead = ["Check List Name", "", "Change Status", "Edit", "Delete"];
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
       <Card>
-        <Card.Title>Create List</Card.Title>
+        <Card.Title>Create Check List</Card.Title>
         <Card.Divider />
         <Input
           placeholder="Enter Check List Name"
@@ -191,13 +207,13 @@ const CheckListScreen = React.memo(() => {
       </Card>
 
       <Card>
-        <Card.Title>List</Card.Title>
+        <Card.Title>List Check List</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[5, 1, 1, 1]}
-          actionIndex={[{ activeIndex: 1, editIndex: 2, delIndex: 3 }]}
+          flexArr={[5, 1, 1, 1, 1]}
+          actionIndex={[{ activeIndex: 2, editIndex: 3, delIndex: 4 }]}
           handleAction={handleAction}
         />
       </Card>

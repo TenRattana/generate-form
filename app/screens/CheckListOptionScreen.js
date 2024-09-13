@@ -38,7 +38,7 @@ const CheckListOptionScreen = React.memo(() => {
       const fetchData = async () => {
         try {
           const [checkListOptionResponse] = await Promise.all([
-            axios.post("GetCheckListOptions"),
+            axios.post("CheckListOption_service.asmx/GetCheckListOptions"),
           ]);
           setCheckListOption(checkListOptionResponse.data.data ?? []);
         } catch (error) {
@@ -105,8 +105,13 @@ const CheckListOptionScreen = React.memo(() => {
     };
 
     try {
-      await axios.post("SaveCheckListOption", data);
-      const response = await axios.post("GetCheckListOptions");
+      await axios.post(
+        "CheckListOption_service.asmx/SaveCheckListOption",
+        data
+      );
+      const response = await axios.post(
+        "CheckListOption_service.asmx/GetCheckListOptions"
+      );
       setCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
@@ -125,22 +130,38 @@ const CheckListOptionScreen = React.memo(() => {
 
     try {
       if (action === "editIndex") {
-        const response = await axios.post("GetCheckListOption", {
-          CLOptionID: item,
-        });
-        const checkListOptionResponse = response.data.data[0] ?? {};
-
+        const response = await axios.post(
+          "CheckListOption_service.asmx/GetCheckListOption",
+          {
+            CLOptionID: item,
+          }
+        );
+        const checkListOptionData = response.data.data[0] ?? {};
         setFormState({
-          checkListOptionId: checkListOptionResponse.CLOptionID ?? "",
-          checkListOptionName: checkListOptionResponse.CLOptionName ?? "",
+          checkListOptionId: checkListOptionData.CLOptionID ?? "",
+          checkListOptionName: checkListOptionData.CLOptionName ?? "",
         });
         setIsEditing(true);
-      } else if (action === "delIndex") {
-        await axios.post("ChangeCheckListOption", {
-          CLOptionID: item,
-        });
+      } else {
+        if (action === "activeIndex") {
+          await axios.post(
+            "CheckListOption_service.asmx/ChangeCheckListOption",
+            {
+              CLOptionID: item,
+            }
+          );
+        } else if (action === "delIndex") {
+          await axios.post(
+            "CheckListOption_service.asmx/DeleteCheckListOption",
+            {
+              CLOptionID: item,
+            }
+          );
+        }
 
-        const response = await axios.post("GetCheckListOptions");
+        const response = await axios.post(
+          "CheckListOption_service.asmx/GetCheckListOptions"
+        );
         setCheckListOption(response.data.data ?? []);
       }
     } catch (error) {
@@ -155,10 +176,22 @@ const CheckListOptionScreen = React.memo(() => {
   };
 
   const tableData = checkListOption.map((item) => {
-    return [item.CLOptionName, item.CLOptionID, item.CLOptionID];
+    return [
+      item.CLOptionName,
+      item.IsActive,
+      item.CLOptionID,
+      item.CLOptionID,
+      item.CLOptionID,
+    ];
   });
 
-  const tableHead = ["Check List Option Name", "Edit", "Delete"];
+  const tableHead = [
+    "Check List Option Name",
+    "",
+    "Change Status",
+    "Edit",
+    "Delete",
+  ];
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
@@ -195,13 +228,13 @@ const CheckListOptionScreen = React.memo(() => {
       </Card>
 
       <Card>
-        <Card.Title>List Detail</Card.Title>
+        <Card.Title>List Option</Card.Title>
         <Card.Divider />
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[5, 1, 1]}
-          actionIndex={[{ editIndex: 1, delIndex: 2 }]}
+          flexArr={[5, 1, 1, 1, 1]}
+          actionIndex={[{ activeIndex: 2, editIndex: 3, delIndex: 4 }]}
           handleAction={handleAction}
         />
       </Card>

@@ -44,7 +44,7 @@ export const CustomTable = ({
     }).start();
   };
 
-  const handlePress = () => {
+  const handlePressAction = () => {
     setIsActive((prev) => !prev);
     Animated.timing(colorAnim, {
       toValue: isActive ? 0 : 1,
@@ -75,51 +75,17 @@ export const CustomTable = ({
     };
 
     switch (action) {
-      // case "activeIndex":
-      //   console.log(data, action);
+      case "activeIndex":
+        return (
+          <Pressable style={styles.button} onPress={handlePress}>
+            <MaterialCommunityIcons
+              name="fridge-industrial"
+              size={20}
+              color={colors.palette.primary}
+            />
+          </Pressable>
+        );
 
-      //   if (typeof data === "boolean") {
-      //     return (
-      //       <Animated.View
-      //         style={[
-      //           styles.button,
-      //           { backgroundColor },
-      //           styles.iconStatus,
-      //           {
-      //             transform: [{ scale: scaleAnim }],
-      //           },
-      //         ]}
-      //       >
-      //         <Pressable
-      //           onPressIn={handlePressIn}
-      //           onPressOut={handlePressOut}
-      //           onPress={() => {
-      //             handlePress(), handlePressAction();
-      //           }}
-      //           style={({ pressed }) => [
-      //             {
-      //               opacity: pressed ? 0.5 : 1,
-      //             },
-      //           ]}
-      //         >
-      //           <View style={styles.row}>
-      //             <Text
-      //               style={[styles.titleStyled, { marginRight: 5, top: -2 }]}
-      //             >
-      //               {isActive ? "Active" : "Inactive"}
-      //             </Text>
-      //             <MaterialCommunityIcons
-      //               name={
-      //                 isActive ? "toggle-switch" : "toggle-switch-off-outline"
-      //               }
-      //               size={35}
-      //               color={iconColor}
-      //             />
-      //           </View>
-      //         </Pressable>
-      //       </Animated.View>
-      //     );
-      //   } else return data;
       case "editIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
@@ -162,21 +128,13 @@ export const CustomTable = ({
   const renderCellContent = (cell) => {
     if (typeof cell === "boolean") {
       return (
-        <Text style={styles.booleanText}>
-          {cell ? (
-            <AntDesign
-              name="checkcircle"
-              style={styles.booleanIcon}
-              color={colors.palette.green}
-            />
-          ) : (
-            <AntDesign
-              name="closecircle"
-              style={styles.booleanIcon}
-              color={colors.palette.danger}
-            />
-          )}
-        </Text>
+        <View style={styles.iconStatus}>
+          <MaterialCommunityIcons
+            name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
+            size={35}
+            color={cell ? colors.palette.green : colors.palette.primary}
+          />
+        </View>
       );
     }
     return <Text style={styles.text}>{cell}</Text>;
@@ -217,7 +175,7 @@ export const CustomTable = ({
               <React.Fragment
                 key={`${headerIndex}-${actionIndex}-${cellIndex}`}
               >
-                {cellData}
+                {renderCellContent(cellData)}
               </React.Fragment>
             );
           })

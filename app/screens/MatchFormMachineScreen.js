@@ -43,9 +43,9 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         try {
           const [machineResponse, formResponse, matchFormResponse] =
             await Promise.all([
-              axios.post("GetMachines"),
-              axios.post("GetForms"),
-              axios.post("GetMatchFormMachines"),
+              axios.post("Machine_service.asmx/GetMachines"),
+              axios.post("Form_service.asmx/GetForms"),
+              axios.post("MatchFormMachine_service.asmx/GetMatchFormMachines"),
             ]);
           setMachine(machineResponse.data.data ?? []);
           setForm(formResponse.data.data ?? []);

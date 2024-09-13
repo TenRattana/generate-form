@@ -14,7 +14,7 @@ const ViewFormScreen = ({ route }) => {
 
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [checkList, setCheckList] = useState([]);
-  const [matchCheckListOption, setMatchCheckListOption] = useState([]);
+  const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
   const [form, setForm] = useState([]);
@@ -44,6 +44,38 @@ const ViewFormScreen = ({ route }) => {
 
   useFocusEffect(
     useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const [
+            checkListResponse,
+            groupCheckListOptionResponse,
+            checkListTypeResponse,
+            dataTypeResponse,
+          ] = await Promise.all([
+            axios.post("CheckList_service.asmx/GetCheckLists"),
+            axios.post(
+              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+            ),
+            axios.post("CheckListType_service.asmx/GetCheckListTypes"),
+            axios.post("DataType_service.asmx/GetDataTypes"),
+          ]);
+
+          setCheckList(checkListResponse.data.data ?? []);
+          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
+          setCheckListType(checkListTypeResponse.data.data ?? []);
+          setDataType(dataTypeResponse.data.data ?? []);
+          setIsDataLoaded(true);
+        } catch (error) {
+          ShowMessages(
+            error.message || "Error",
+            error.response ? error.response.data.errors : ["Something wrong!"],
+            "error"
+          );
+        }
+      };
+
+      fetchData();
+
       return () => {
         dispatch(reset());
         setVForm({});
@@ -51,37 +83,6 @@ const ViewFormScreen = ({ route }) => {
       };
     }, [])
   );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [
-          checkListResponse,
-          matchCheckListOptionResponse,
-          checkListTypeResponse,
-          dataTypeResponse,
-        ] = await Promise.all([
-          axios.post("GetCheckLists"),
-          axios.post("GetMatchCheckListOptions"),
-          axios.post("GetCheckListTypes"),
-          axios.post("GetDataTypes"),
-        ]);
-        setCheckList(checkListResponse.data.data ?? []);
-        setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
-        setCheckListType(checkListTypeResponse.data.data ?? []);
-        setDataType(dataTypeResponse.data.data ?? []);
-        setIsDataLoaded(true);
-      } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response ? error.response.data.errors : ["Something wrong!"],
-          "error"
-        );
-      }
-    };
-
-    fetchData();
-  }, []);
 
   useEffect(() => {
     if (isDataLoaded) {
@@ -128,7 +129,7 @@ const ViewFormScreen = ({ route }) => {
                   const field = {
                     matchCheckListId: itemOption.MCListID || "",
                     checkListId: itemOption.CListID || "",
-                    matchCheckListOption: itemOption.MCLOptionID || "",
+                    groupCheckListOptionId: itemOption.GCLOptionID || "",
                     checkListTypeId: itemOption.CTypeID || "",
                     dataTypeId: itemOption.DTypeID || "",
                     dataTypeValue: itemOption.DTypeValue || "",
@@ -158,7 +159,7 @@ const ViewFormScreen = ({ route }) => {
             formState: fields,
             checkList,
             checkListType,
-            matchCheckListOption,
+            groupCheckListOption,
             dataType,
           };
           dispatch(setSubForm(payloadSF));
@@ -210,7 +211,7 @@ const ViewFormScreen = ({ route }) => {
           checkList={checkList}
           formData={formData}
           handleChange={handleChange}
-          matchCheckListOption={matchCheckListOption}
+          groupCheckListOption={groupCheckListOption}
           handleSubmit={handleSubmit}
         />
       </View>

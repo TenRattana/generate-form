@@ -22,7 +22,7 @@ const FieldDialog = ({
   colors,
   responsive,
   editMode,
-  matchCheckListOption,
+  groupCheckListOption,
 }) => {
   console.log("FieldDialog");
 
@@ -54,14 +54,14 @@ const FieldDialog = ({
           {shouldRender === "detail" ? (
             <>
               <CustomDropdown
-                fieldName="matchCheckListOption"
+                fieldName="groupCheckListOptionId"
                 title="Match Check List Option Group"
-                labels="MCLOptionName"
-                values="MCLOptionID"
-                data={matchCheckListOption}
+                labels="GCLOptionName"
+                values="GCLOptionID"
+                data={groupCheckListOption}
                 updatedropdown={(f, v) => onFieldChange(f, v)}
                 reset={resetDropdown}
-                selectedValue={formState.matchCheckListOption}
+                selectedValue={formState.groupCheckListOptionId}
               />
             </>
           ) : shouldRender === "text" ? (

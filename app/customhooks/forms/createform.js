@@ -47,7 +47,7 @@ export const useFormBuilder = (route) => {
   const [formState, setFormState] = useState({
     matchCheckListId: "",
     checkListId: "",
-    matchCheckListOption: "",
+    groupCheckListOptionId: "",
     checkListTypeId: "",
     dataTypeId: "",
     dataTypeValue: "",
@@ -65,7 +65,7 @@ export const useFormBuilder = (route) => {
   const [editMode, setEditMode] = useState(false);
   const [resetDropdown, setResetDropdown] = useState(false);
   const [checkList, setCheckList] = useState([]);
-  const [matchCheckListOption, setMatchCheckListOption] = useState([]);
+  const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
   const [shouldRender, setShouldRender] = useState("");
@@ -89,6 +89,38 @@ export const useFormBuilder = (route) => {
 
   useFocusEffect(
     useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const [
+            checkListResponse,
+            groupCheckListOptionResponse,
+            checkListTypeResponse,
+            dataTypeResponse,
+          ] = await Promise.all([
+            axios.post("CheckList_service.asmx/GetCheckLists"),
+            axios.post(
+              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+            ),
+            axios.post("CheckListType_service.asmx/GetCheckListTypes"),
+            axios.post("DataType_service.asmx/GetDataTypes"),
+          ]);
+
+          setCheckList(checkListResponse.data.data ?? []);
+          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
+          setCheckListType(checkListTypeResponse.data.data ?? []);
+          setDataType(dataTypeResponse.data.data ?? []);
+          setIsDataLoaded(true);
+        } catch (error) {
+          ShowMessages(
+            error.message || "Error",
+            error.response ? error.response.data.errors : ["Something wrong!"],
+            "error"
+          );
+        }
+      };
+
+      fetchData();
+
       return () => {
         dispatch(reset());
         resetForm();
@@ -98,42 +130,11 @@ export const useFormBuilder = (route) => {
   );
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [
-          checkListResponse,
-          matchCheckListOptionResponse,
-          checkListTypeResponse,
-          dataTypeResponse,
-        ] = await Promise.all([
-          axios.post("GetCheckLists"),
-          axios.post("GetMatchCheckListOptions"),
-          axios.post("GetCheckListTypes"),
-          axios.post("GetDataTypes"),
-        ]);
-
-        setCheckList(checkListResponse.data.data ?? []);
-        setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
-        setCheckListType(checkListTypeResponse.data.data ?? []);
-        setDataType(dataTypeResponse.data.data ?? []);
-        setIsDataLoaded(true);
-      } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response ? error.response.data.errors : ["Something wrong!"],
-          "error"
-        );
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (isDataLoaded) {
+    if (isDataLoaded && (formId || machineId)) {
       const fetchData = async () => {
         let route = "";
         let data = {};
+
         if (formId) {
           data = {
             FormID: formId,
@@ -173,7 +174,7 @@ export const useFormBuilder = (route) => {
                   const field = {
                     matchCheckListId: itemOption.MCListID || "",
                     checkListId: itemOption.CListID || "",
-                    matchCheckListOption: itemOption.MCLOptionID || "",
+                    groupCheckListOptionId: itemOption.GCLOptionID || "",
                     checkListTypeId: itemOption.CTypeID || "",
                     dataTypeId: itemOption.DTypeID || "",
                     dataTypeValue: itemOption.DTypeValue || "",
@@ -202,7 +203,7 @@ export const useFormBuilder = (route) => {
             formState: fields,
             checkList,
             checkListType,
-            matchCheckListOption,
+            groupCheckListOption,
             dataType,
           };
 
@@ -261,7 +262,7 @@ export const useFormBuilder = (route) => {
     };
 
     try {
-      await axios.post("SaveFormCheckList", data);
+      await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
       resetForm();
     } catch (error) {
       ShowMessages(
@@ -296,7 +297,7 @@ export const useFormBuilder = (route) => {
     setFormState({
       matchCheckListId: "",
       checkListId: "",
-      matchCheckListOption: "",
+      groupCheckListOptionId: "",
       checkListTypeId: "",
       dataTypeId: "",
       dataTypeValue: "",
@@ -316,6 +317,7 @@ export const useFormBuilder = (route) => {
       columns: "",
       displayOrder: "",
     });
+    setForm({ formId: "", formName: "", description: "" });
     setError({});
     setShowDialogs({ subForm: false, field: false, save: false });
     setSelectedIndex({ subForm: null, field: null });
@@ -393,7 +395,7 @@ export const useFormBuilder = (route) => {
     resetDropdown,
     checkList,
     formData,
-    matchCheckListOption,
+    groupCheckListOption,
     checkListType,
     dataType,
     shouldRender,
@@ -412,7 +414,6 @@ export const useFormBuilder = (route) => {
     resetForm,
     saveField,
     handleChange,
-    matchCheckListOption,
     handleSubmit,
   };
 };

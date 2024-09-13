@@ -10,14 +10,14 @@ const DynamicForm = ({
   formData,
   handleChange,
   indexSubForm,
-  matchCheckListOption,
+  groupCheckListOption,
 }) => {
   const { styles, colors, spacing, fonts, responsive } = style;
   console.log("DynamicForm");
 
   const renderField = (field, index) => {
-    const option = matchCheckListOption
-      .find((option) => option.MCLOptionID === field.matchCheckListOption)
+    const option = groupCheckListOption
+      .find((option) => option.GCLOptionID === field.groupCheckListOptionId)
       ?.CheckListOptions.map((item) => ({
         label: item.CLOptionName,
       }));

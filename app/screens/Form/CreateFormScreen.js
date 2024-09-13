@@ -18,12 +18,12 @@ const FormBuilder = ({ route }) => {
     editMode,
     resetDropdown,
     checkList,
-    matchCheckListOption,
     checkListType,
     dataType,
     shouldRender,
     shouldRenderDT,
     formData,
+    groupCheckListOption,
     setEditMode,
     setShowDialogs,
     setSelectedIndex,
@@ -80,7 +80,7 @@ const FormBuilder = ({ route }) => {
             resetDropdown={resetDropdown}
             checkListType={checkListType}
             dataType={dataType}
-            matchCheckListOption={matchCheckListOption}
+            groupCheckListOption={groupCheckListOption}
           />
         </View>
       </View>
@@ -93,7 +93,7 @@ const FormBuilder = ({ route }) => {
           checkList={checkList}
           formData={formData}
           handleChange={handleChange}
-          matchCheckListOption={matchCheckListOption}
+          groupCheckListOption={groupCheckListOption}
           handleSubmit={handleSubmit}
         />
       </View>

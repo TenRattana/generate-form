@@ -38,7 +38,7 @@ const Layout1 = ({
   resetDropdown,
   checkListType,
   dataType,
-  matchCheckListOption,
+  groupCheckListOption,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnimDT = useRef(new Animated.Value(0)).current;
@@ -233,7 +233,7 @@ const Layout1 = ({
         formState={formState}
         checkList={checkList}
         checkListType={checkListType}
-        matchCheckListOption={matchCheckListOption}
+        groupCheckListOption={groupCheckListOption}
         dataType={dataType}
         onSave={(option) => saveField(option)}
         onDelete={() => saveField("delete")}

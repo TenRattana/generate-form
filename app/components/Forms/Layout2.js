@@ -11,7 +11,7 @@ const Layout2 = ({
   checkList,
   formData,
   handleChange,
-  matchCheckListOption,
+  groupCheckListOption,
   handleSubmit,
 }) => {
   const { styles, colors, spacing, fonts, responsive } = style;
@@ -48,7 +48,7 @@ const Layout2 = ({
                     checkListType={checkListType}
                     checkList={checkList}
                     indexSubForm={index}
-                    matchCheckListOption={matchCheckListOption}
+                    groupCheckListOption={groupCheckListOption}
                   />
                 </View>
               );

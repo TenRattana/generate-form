@@ -93,7 +93,7 @@ const Layout1 = ({
   }, [shouldRenderDT, editMode]);
 
   const renderSubForm = ({ item, index }) => (
-    <View style={styles.cardshow}>
+    <View style={{marginTop:30}}>
       <Pressable
         onPress={() => {
           setSubForm(item);

@@ -49,9 +49,9 @@ const FormBuilder = ({ route }) => {
   console.log("CreateForm");
 
   return (
-    <View style={styles.scrollView}>
-      <ScrollView>
-        <View style={[styles.layout1, { margin: 30 }]}>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.layout1}>
+        <View style={{ margin: 30 }}>
           <Layout1
             style={{ styles, colors, spacing, fonts, responsive }}
             state={state}
@@ -83,21 +83,22 @@ const FormBuilder = ({ route }) => {
             groupCheckListOption={groupCheckListOption}
           />
         </View>
-        <View style={styles.layout2}>
-          <Layout2
-            form={form}
-            style={{ styles, spacing, fonts, colors, responsive }}
-            state={state}
-            checkListType={checkListType}
-            checkList={checkList}
-            formData={formData}
-            handleChange={handleChange}
-            groupCheckListOption={groupCheckListOption}
-            handleSubmit={handleSubmit}
-          />
-        </View>
-      </ScrollView>
-    </View>
+      </View>
+
+      <View style={styles.layout2}>
+        <Layout2
+          form={form}
+          style={{ styles, spacing, fonts, colors, responsive }}
+          state={state}
+          checkListType={checkListType}
+          checkList={checkList}
+          formData={formData}
+          handleChange={handleChange}
+          groupCheckListOption={groupCheckListOption}
+          handleSubmit={handleSubmit}
+        />
+      </View>
+    </ScrollView>
   );
 };
 

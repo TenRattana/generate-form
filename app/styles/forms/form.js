@@ -18,7 +18,7 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
     },
     layout2: {
       padding: 10,
-      width: responsive === "small" ? "100%" : width - 430,
+      width: responsive === "small" ? "100%" : width - 450,
     },
     cardshow: {
       marginTop: 30,

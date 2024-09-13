@@ -23,45 +23,6 @@ export const CustomTable = ({
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = customtableStyle({ colors, spacing, fonts, responsive });
-
-  const handlePressIn = () => {
-    setPressed(true);
-    Animated.spring(scaleAnim, {
-      toValue: 1.2,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    setPressed(false);
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 3,
-      tension: 100,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressAction = () => {
-    setIsActive((prev) => !prev);
-    Animated.timing(colorAnim, {
-      toValue: isActive ? 0 : 1,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
-  };
-  const backgroundColor = colorAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["lightgray", "lightblue"],
-  });
-
-  const iconColor = colorAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["gray", "green"],
-  });
-
   console.log("CustomTable");
 
   useMemo(() => {
@@ -89,13 +50,21 @@ export const CustomTable = ({
       case "editIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-            <AntDesign name="edit" size={20} color={colors.palette.primary} />
+              <AntDesign
+                name="edit"
+                size={20}
+                color={colors.palette.primary}
+              />
           </Pressable>
         );
       case "delIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-            <AntDesign name="delete" size={20} color={colors.palette.danger} />
+            <AntDesign
+              name="delete"
+              size={20}
+              color={colors.palette.danger}
+            />
           </Pressable>
         );
       case "changeIndex":
@@ -111,13 +80,21 @@ export const CustomTable = ({
       case "copyIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
+            <AntDesign
+              name="copy1"
+              size={20}
+              color={colors.palette.danger}
+            />
           </Pressable>
         );
       case "preIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
+            <AntDesign
+              name="copy1"
+              size={20}
+              color={colors.palette.danger}
+            />
           </Pressable>
         );
       default:
@@ -131,7 +108,7 @@ export const CustomTable = ({
         <View style={styles.iconStatus}>
           <MaterialCommunityIcons
             name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
-            size={35}
+            size={20}
             color={cell ? colors.palette.green : colors.palette.primary}
           />
         </View>

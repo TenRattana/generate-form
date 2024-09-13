@@ -173,75 +173,84 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
   ];
 
   let dropmachine = [];
+
   dropmachine =
-    machine.length > 0 ? dropmachine.filter((v) => v.IsActive) : dropmachine;
+    Array.isArray(machine) && machine.length > 0
+      ? machine.filter((v) => v.IsActive)
+      : dropmachine;
 
   let dropform = [];
-  dropform = form.length > 0 ? form.filter((v) => v.IsActive) : dropform;
+
+  dropform =
+    Array.isArray(form) && form.length > 0
+      ? form.filter((v) => v.IsActive)
+      : dropform;
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <Card>
-        <Card.Title>List Form</Card.Title>
-        <Card.Divider />
+    <View style={styles.scrollView}>
+      <ScrollView>
+        <Card>
+          <Card.Title>List Form</Card.Title>
+          <Card.Divider />
 
-        <CustomDropdown
-          fieldName="machineId"
-          title="Machine"
-          labels="MachineName"
-          values="MachineID"
-          data={dropmachine}
-          updatedropdown={handleChange}
-          reset={resetDropdown}
-          selectedValue={formState.machineId}
-        />
+          <CustomDropdown
+            fieldName="machineId"
+            title="Machine"
+            labels="MachineName"
+            values="MachineID"
+            data={dropmachine}
+            updatedropdown={handleChange}
+            reset={resetDropdown}
+            selectedValue={formState.machineId}
+          />
 
-        <CustomDropdown
-          fieldName="formId"
-          title="Form"
-          labels="FormName"
-          values="FormID"
-          data={dropform}
-          updatedropdown={handleChange}
-          reset={resetDropdown}
-          selectedValue={formState.formId}
-        />
+          <CustomDropdown
+            fieldName="formId"
+            title="Form"
+            labels="FormName"
+            values="FormID"
+            data={dropform}
+            updatedropdown={handleChange}
+            reset={resetDropdown}
+            selectedValue={formState.formId}
+          />
 
-        <View style={styles.containerFlexStyle}>
-          <Pressable
-            onPress={saveData}
-            style={styles.buttonStyle}
-            disabled={!isFormValid()}
-          >
-            <Text style={styles.text}>Create</Text>
-          </Pressable>
+          <View style={styles.containerFlexStyle}>
+            <Pressable
+              onPress={saveData}
+              style={styles.buttonStyle}
+              disabled={!isFormValid()}
+            >
+              <Text style={styles.text}>Create</Text>
+            </Pressable>
 
-          <Pressable onPress={resetForm} style={styles.buttonStyle}>
-            <Text style={styles.text}>Reset</Text>
-          </Pressable>
-        </View>
-      </Card>
+            <Pressable onPress={resetForm} style={styles.buttonStyle}>
+              <Text style={styles.text}>Reset</Text>
+            </Pressable>
+          </View>
+        </Card>
 
-      <Card>
-        <Card.Title>List Machine</Card.Title>
-        <Card.Divider />
-        <CustomTable
-          Tabledata={tableData}
-          Tablehead={tableHead}
-          flexArr={[2, 2, 1, 1, 1, 1, 1]}
-          actionIndex={[
-            {
-              changeIndex: 2,
-              copyIndex: 3,
-              preIndex: 4,
-              editIndex: 5,
-              delIndex: 6,
-            },
-          ]}
-          handleAction={handleAction}
-        />
-      </Card>
-    </ScrollView>
+        <Card>
+          <Card.Title>List Machine</Card.Title>
+          <Card.Divider />
+          <CustomTable
+            Tabledata={tableData}
+            Tablehead={tableHead}
+            flexArr={[2, 2, 1, 1, 1, 1, 1]}
+            actionIndex={[
+              {
+                changeIndex: 2,
+                copyIndex: 3,
+                preIndex: 4,
+                editIndex: 5,
+                delIndex: 6,
+              },
+            ]}
+            handleAction={handleAction}
+          />
+        </Card>
+      </ScrollView>
+    </View>
   );
 });
 

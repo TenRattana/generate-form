@@ -22,6 +22,29 @@ export default {
   expo: {
     name: "generate-form",
     slug: "generate-form",
+    version: "1.0.0",
+    orientation: "landscape",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "light",
+    splash: {
+      image: "./assets/splash.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff",
+    },
+    ios: {
+      supportsTablet: true,
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+    },
+    web: {
+      bundler: "metro",
+    },
+    plugins: ["expo-router"],
     extra: getEnvVars(environment),
+    scheme: "generate-form", 
   },
 };

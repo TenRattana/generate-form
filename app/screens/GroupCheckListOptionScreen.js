@@ -222,79 +222,83 @@ const GroupCheckListOptionScreen = React.memo(() => {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <Card>
-        <Card.Title>Create Group Option</Card.Title>
-        <Card.Divider />
+    <View style={styles.scrollView}>
+      <ScrollView>
+        <Card>
+          <Card.Title>Create Group Option</Card.Title>
+          <Card.Divider />
 
-        <Input
-          placeholder="Enter Group Option Name"
-          label="Group Option Name"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) =>
-            handleChange("groupCheckListOptionName", text)
-          }
-          value={formState.groupCheckListOptionName}
-        />
-        {error.groupCheckListOptionName ? (
-          <Text style={styles.errorText}>{error.groupCheckListOptionName}</Text>
-        ) : null}
+          <Input
+            placeholder="Enter Group Option Name"
+            label="Group Option Name"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) =>
+              handleChange("groupCheckListOptionName", text)
+            }
+            value={formState.groupCheckListOptionName}
+          />
+          {error.groupCheckListOptionName ? (
+            <Text style={styles.errorText}>
+              {error.groupCheckListOptionName}
+            </Text>
+          ) : null}
 
-        <Input
-          placeholder="Enter Description"
-          label="Description"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("description", text)}
-          value={formState.description}
-        />
-        {error.description ? (
-          <Text style={styles.errorText}>{error.description}</Text>
-        ) : null}
+          <Input
+            placeholder="Enter Description"
+            label="Description"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) => handleChange("description", text)}
+            value={formState.description}
+          />
+          {error.description ? (
+            <Text style={styles.errorText}>{error.description}</Text>
+          ) : null}
 
-        <Input
-          placeholder="Enter DisplayOrder"
-          label="DisplayOrder"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("displayOrder", text)}
-          value={formState.displayOrder}
-        />
-        {error.displayOrder ? (
-          <Text style={styles.errorText}>{error.displayOrder}</Text>
-        ) : null}
+          <Input
+            placeholder="Enter DisplayOrder"
+            label="DisplayOrder"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) => handleChange("displayOrder", text)}
+            value={formState.displayOrder}
+          />
+          {error.displayOrder ? (
+            <Text style={styles.errorText}>{error.displayOrder}</Text>
+          ) : null}
 
-        <View style={styles.containerFlexStyle}>
-          <Pressable
-            onPress={saveData}
-            style={styles.buttonStyle}
-            disabled={!isFormValid()}
-          >
-            <Text style={styles.text}>Create</Text>
-          </Pressable>
+          <View style={styles.containerFlexStyle}>
+            <Pressable
+              onPress={saveData}
+              style={styles.buttonStyle}
+              disabled={!isFormValid()}
+            >
+              <Text style={styles.text}>Create</Text>
+            </Pressable>
 
-          <Pressable onPress={resetForm} style={styles.buttonStyle}>
-            <Text style={styles.text}>Reset</Text>
-          </Pressable>
-        </View>
-      </Card>
+            <Pressable onPress={resetForm} style={styles.buttonStyle}>
+              <Text style={styles.text}>Reset</Text>
+            </Pressable>
+          </View>
+        </Card>
 
-      <Card>
-        <Card.Title>List Group Option</Card.Title>
-        <Card.Divider />
-        <CustomTable
-          Tabledata={tableData}
-          Tablehead={tableHead}
-          flexArr={[3, 5, 1, 1, 1, 1, 1]}
-          actionIndex={[{ activeIndex: 4, editIndex: 5, delIndex: 6 }]}
-          handleAction={handleAction}
-        />
-      </Card>
-    </ScrollView>
+        <Card>
+          <Card.Title>List Group Option</Card.Title>
+          <Card.Divider />
+          <CustomTable
+            Tabledata={tableData}
+            Tablehead={tableHead}
+            flexArr={[3, 5, 1, 1, 1, 1, 1]}
+            actionIndex={[{ activeIndex: 4, editIndex: 5, delIndex: 6 }]}
+            handleAction={handleAction}
+          />
+        </Card>
+      </ScrollView>
+    </View>
   );
 });
 

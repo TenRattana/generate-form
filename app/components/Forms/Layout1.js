@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Input, Button } from "@rneui/themed";
 import { Entypo, AntDesign } from "@expo/vector-icons";
-import { SaveFormDialog, FieldDialog, SubFormDialog } from "./index";
+import { SaveFormDialog, FieldDialog, SubFormDialog } from "./ui";
 
 const Layout1 = ({
   style,

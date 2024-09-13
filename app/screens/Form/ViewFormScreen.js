@@ -154,21 +154,23 @@ const ViewFormScreen = ({ route }) => {
   console.log(vform);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={[styles.layout2, { width: "100%" }]}>
-        <Layout2
-          form={vform}
-          style={{ styles, colors, spacing, fonts, responsive }}
-          state={state}
-          checkListType={checkListType}
-          checkList={checkList}
-          formData={formData}
-          handleChange={handleChange}
-          groupCheckListOption={groupCheckListOption}
-          handleSubmit={handleSubmit}
-        />
-      </View>
-    </ScrollView>
+    <View style={styles.scrollView}>
+      <ScrollView>
+        <View style={[styles.layout2, { width: "100%" }]}>
+          <Layout2
+            form={vform}
+            style={{ styles, colors, spacing, fonts, responsive }}
+            state={state}
+            checkListType={checkListType}
+            checkList={checkList}
+            formData={formData}
+            handleChange={handleChange}
+            groupCheckListOption={groupCheckListOption}
+            handleSubmit={handleSubmit}
+          />
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 

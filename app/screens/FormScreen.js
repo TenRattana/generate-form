@@ -98,39 +98,41 @@ const FormScreen = React.memo(({ navigation }) => {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <Card>
-        <Card.Title>Forms</Card.Title>
-        <Card.Divider />
-        <Button
-          title="New Form"
-          type="outline"
-          titleStyle={styles.text}
-          containerStyle={{
-            width: 300,
-            marginHorizontal: "1%",
-            marginTop: "1%",
-          }}
-          onPress={handleNewForm}
-        />
+    <View style={styles.scrollView}>
+      <ScrollView>
+        <Card>
+          <Card.Title>Forms</Card.Title>
+          <Card.Divider />
+          <Button
+            title="New Form"
+            type="outline"
+            titleStyle={styles.text}
+            containerStyle={{
+              width: 300,
+              marginHorizontal: "1%",
+              marginTop: "1%",
+            }}
+            onPress={handleNewForm}
+          />
 
-        <CustomTable
-          Tabledata={tableData}
-          Tablehead={tableHead}
-          flexArr={[2, 4, 1, 1, 1, 1, 1, 1]}
-          actionIndex={[
-            {
-              activeIndex: 3,
-              changeIndex: 4,
-              copyIndex: 5,
-              preIndex: 6,
-              delIndex: 7,
-            },
-          ]}
-          handleAction={handleAction}
-        />
-      </Card>
-    </ScrollView>
+          <CustomTable
+            Tabledata={tableData}
+            Tablehead={tableHead}
+            flexArr={[2, 4, 1, 1, 1, 1, 1, 1]}
+            actionIndex={[
+              {
+                activeIndex: 3,
+                changeIndex: 4,
+                copyIndex: 5,
+                preIndex: 6,
+                delIndex: 7,
+              },
+            ]}
+            handleAction={handleAction}
+          />
+        </Card>
+      </ScrollView>
+    </View>
   );
 });
 

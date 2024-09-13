@@ -227,66 +227,68 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
       : dropgroupCheckListOption;
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <Card>
-        <Card.Title>Create Match Group & Option</Card.Title>
-        <Card.Divider />
+    <View style={styles.scrollView}>
+      <ScrollView>
+        <Card>
+          <Card.Title>Create Match Group & Option</Card.Title>
+          <Card.Divider />
 
-        <CustomDropdown
-          fieldName="groupCheckListOptionId"
-          title="Group Check List Option"
-          labels="GCLOptionName"
-          values="GCLOptionID"
-          data={dropgroupCheckListOption}
-          updatedropdown={handleChange}
-          reset={resetDropdown}
-          selectedValue={formState.groupCheckListOptionId}
-        />
+          <CustomDropdown
+            fieldName="groupCheckListOptionId"
+            title="Group Check List Option"
+            labels="GCLOptionName"
+            values="GCLOptionID"
+            data={dropgroupCheckListOption}
+            updatedropdown={handleChange}
+            reset={resetDropdown}
+            selectedValue={formState.groupCheckListOptionId}
+          />
 
-        <CustomDropdownMulti
-          fieldName="checkListOptionId"
-          title="Check List Option"
-          labels="CLOptionName"
-          values="CLOptionID"
-          data={dropcheckListOption}
-          updatedropdown={handleChange}
-          reset={resetDropdown}
-          selectedValue={formState.checkListOptionId}
-        />
+          <CustomDropdownMulti
+            fieldName="checkListOptionId"
+            title="Check List Option"
+            labels="CLOptionName"
+            values="CLOptionID"
+            data={dropcheckListOption}
+            updatedropdown={handleChange}
+            reset={resetDropdown}
+            selectedValue={formState.checkListOptionId}
+          />
 
-        <View style={styles.containerFlexStyle}>
-          <Pressable
-            onPress={saveData}
-            style={styles.buttonStyle}
-            disabled={!isFormValid()}
-          >
-            <Text style={styles.text}>Create</Text>
-          </Pressable>
+          <View style={styles.containerFlexStyle}>
+            <Pressable
+              onPress={saveData}
+              style={styles.buttonStyle}
+              disabled={!isFormValid()}
+            >
+              <Text style={styles.text}>Create</Text>
+            </Pressable>
 
-          <Pressable onPress={resetForm} style={styles.buttonStyle}>
-            <Text style={styles.text}>Reset</Text>
-          </Pressable>
-        </View>
-      </Card>
+            <Pressable onPress={resetForm} style={styles.buttonStyle}>
+              <Text style={styles.text}>Reset</Text>
+            </Pressable>
+          </View>
+        </Card>
 
-      <Card>
-        <Card.Title>List Match Group & Option</Card.Title>
-        <Card.Divider />
-        <CustomTable
-          Tabledata={tableData}
-          Tablehead={tableHead}
-          flexArr={[4, 4, 1, 1, 1, 1]}
-          actionIndex={[
-            {
-              activeIndex: 3,
-              editIndex: 4,
-              delIndex: 5,
-            },
-          ]}
-          handleAction={handleAction}
-        />
-      </Card>
-    </ScrollView>
+        <Card>
+          <Card.Title>List Match Group & Option</Card.Title>
+          <Card.Divider />
+          <CustomTable
+            Tabledata={tableData}
+            Tablehead={tableHead}
+            flexArr={[4, 4, 1, 1, 1, 1]}
+            actionIndex={[
+              {
+                activeIndex: 3,
+                editIndex: 4,
+                delIndex: 5,
+              },
+            ]}
+            handleAction={handleAction}
+          />
+        </Card>
+      </ScrollView>
+    </View>
   );
 });
 

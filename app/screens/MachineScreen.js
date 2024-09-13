@@ -207,98 +207,101 @@ const MachineScreen = () => {
   ];
 
   let dropmachineGroup = [];
+
   dropmachineGroup =
-    machineGroup.length > 0
+    Array.isArray(machineGroup) && machineGroup.length > 0
       ? machineGroup.filter((v) => v.IsActive)
       : dropmachineGroup;
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <Card>
-        <Card.Title>Create Machine</Card.Title>
-        <Card.Divider />
+    <View style={styles.scrollView}>
+      <ScrollView>
+        <Card>
+          <Card.Title>Create Machine</Card.Title>
+          <Card.Divider />
 
-        <CustomDropdown
-          fieldName="machineGroupId"
-          title="Machine Group"
-          labels="MGroupName"
-          values="MGroupID"
-          data={dropmachineGroup}
-          updatedropdown={handleChange}
-          reset={resetDropdown}
-          selectedValue={formState.machineGroupId}
-        />
+          <CustomDropdown
+            fieldName="machineGroupId"
+            title="Machine Group"
+            labels="MGroupName"
+            values="MGroupID"
+            data={dropmachineGroup}
+            updatedropdown={handleChange}
+            reset={resetDropdown}
+            selectedValue={formState.machineGroupId}
+          />
 
-        {error.machineGroupId ? (
-          <Text style={styles.errorText}>{error.machineGroupId}</Text>
-        ) : null}
+          {error.machineGroupId ? (
+            <Text style={styles.errorText}>{error.machineGroupId}</Text>
+          ) : null}
 
-        <Input
-          placeholder="Enter Machine Name"
-          label="Machine Name"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("machineName", text)}
-          value={formState.machineName}
-        />
-        {error.machineName ? (
-          <Text style={styles.errorText}>{error.machineName}</Text>
-        ) : null}
+          <Input
+            placeholder="Enter Machine Name"
+            label="Machine Name"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) => handleChange("machineName", text)}
+            value={formState.machineName}
+          />
+          {error.machineName ? (
+            <Text style={styles.errorText}>{error.machineName}</Text>
+          ) : null}
 
-        <Input
-          placeholder="Enter Description"
-          label="Description"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("description", text)}
-          value={formState.description}
-        />
-        {error.description ? (
-          <Text style={styles.errorText}>{error.description}</Text>
-        ) : null}
+          <Input
+            placeholder="Enter Description"
+            label="Description"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) => handleChange("description", text)}
+            value={formState.description}
+          />
+          {error.description ? (
+            <Text style={styles.errorText}>{error.description}</Text>
+          ) : null}
 
-        <Input
-          placeholder="Enter Display Order"
-          label="Display Order"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("displayOrder", text)}
-          value={formState.displayOrder}
-        />
-        {error.displayOrder ? (
-          <Text style={styles.errorText}>{error.displayOrder}</Text>
-        ) : null}
+          <Input
+            placeholder="Enter Display Order"
+            label="Display Order"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) => handleChange("displayOrder", text)}
+            value={formState.displayOrder}
+          />
+          {error.displayOrder ? (
+            <Text style={styles.errorText}>{error.displayOrder}</Text>
+          ) : null}
 
-        <View style={styles.containerFlexStyle}>
-          <Pressable
-            onPress={saveData}
-            style={styles.buttonStyle}
-            disabled={!isFormValid()}
-          >
-            <Text style={styles.text}>Create</Text>
-          </Pressable>
+          <View style={styles.containerFlexStyle}>
+            <Pressable
+              onPress={saveData}
+              style={styles.buttonStyle}
+              disabled={!isFormValid()}
+            >
+              <Text style={styles.text}>Create</Text>
+            </Pressable>
 
-          <Pressable onPress={resetForm} style={styles.buttonStyle}>
-            <Text style={styles.text}>Reset</Text>
-          </Pressable>
-        </View>
-      </Card>
+            <Pressable onPress={resetForm} style={styles.buttonStyle}>
+              <Text style={styles.text}>Reset</Text>
+            </Pressable>
+          </View>
+        </Card>
 
-      <Card>
-        <Card.Title>List Machine</Card.Title>
-        <Card.Divider />
-        <CustomTable
-          Tabledata={tableData}
-          Tablehead={tableHead}
-          flexArr={[2, 2, 3, 1, 1, 1, 1, 1]}
-          actionIndex={[{ activeIndex: 5, editIndex: 6, delIndex: 7 }]}
-          handleAction={handleAction}
-        />
-      </Card>
-    </ScrollView>
+        <Card>
+          <Card.Title>List Machine</Card.Title>
+          <Card.Divider />
+          <CustomTable
+            Tabledata={tableData}
+            Tablehead={tableHead}
+            flexArr={[2, 2, 3, 1, 1, 1, 1, 1]}
+            actionIndex={[{ activeIndex: 5, editIndex: 6, delIndex: 7 }]}
+            handleAction={handleAction}
+          />
+        </Card>
+      </ScrollView>
+    </View>
   );
 };
 

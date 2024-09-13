@@ -194,51 +194,53 @@ const CheckListOptionScreen = React.memo(() => {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <Card>
-        <Card.Title>Create Option</Card.Title>
-        <Card.Divider />
+    <View style={styles.scrollView}>
+      <ScrollView>
+        <Card>
+          <Card.Title>Create Option</Card.Title>
+          <Card.Divider />
 
-        <Input
-          placeholder="Enter List Detail Name"
-          label="List Detail Name"
-          labelStyle={styles.text}
-          inputStyle={styles.text}
-          disabledInputStyle={styles.containerInput}
-          onChangeText={(text) => handleChange("checkListOptionName", text)}
-          value={formState.checkListOptionName}
-        />
-        {error.checkListOptionName ? (
-          <Text style={styles.errorText}>{error.checkListOptionName}</Text>
-        ) : null}
+          <Input
+            placeholder="Enter List Detail Name"
+            label="List Detail Name"
+            labelStyle={styles.text}
+            inputStyle={styles.text}
+            disabledInputStyle={styles.containerInput}
+            onChangeText={(text) => handleChange("checkListOptionName", text)}
+            value={formState.checkListOptionName}
+          />
+          {error.checkListOptionName ? (
+            <Text style={styles.errorText}>{error.checkListOptionName}</Text>
+          ) : null}
 
-        <View style={styles.containerFlexStyle}>
-          <Pressable
-            onPress={saveData}
-            style={styles.buttonStyle}
-            disabled={!isFormValid()}
-          >
-            <Text style={styles.text}>Create</Text>
-          </Pressable>
+          <View style={styles.containerFlexStyle}>
+            <Pressable
+              onPress={saveData}
+              style={styles.buttonStyle}
+              disabled={!isFormValid()}
+            >
+              <Text style={styles.text}>Create</Text>
+            </Pressable>
 
-          <Pressable onPress={resetForm} style={styles.buttonStyle}>
-            <Text style={styles.text}>Reset</Text>
-          </Pressable>
-        </View>
-      </Card>
+            <Pressable onPress={resetForm} style={styles.buttonStyle}>
+              <Text style={styles.text}>Reset</Text>
+            </Pressable>
+          </View>
+        </Card>
 
-      <Card>
-        <Card.Title>List Option</Card.Title>
-        <Card.Divider />
-        <CustomTable
-          Tabledata={tableData}
-          Tablehead={tableHead}
-          flexArr={[5, 1, 1, 1, 1]}
-          actionIndex={[{ activeIndex: 2, editIndex: 3, delIndex: 4 }]}
-          handleAction={handleAction}
-        />
-      </Card>
-    </ScrollView>
+        <Card>
+          <Card.Title>List Option</Card.Title>
+          <Card.Divider />
+          <CustomTable
+            Tabledata={tableData}
+            Tablehead={tableHead}
+            flexArr={[5, 1, 1, 1, 1]}
+            actionIndex={[{ activeIndex: 2, editIndex: 3, delIndex: 4 }]}
+            handleAction={handleAction}
+          />
+        </Card>
+      </ScrollView>
+    </View>
   );
 });
 

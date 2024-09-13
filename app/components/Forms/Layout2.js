@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
 import { Divider, Button } from "@rneui/themed";
-import { DynamicForm } from "./index";
+import { DynamicForm } from "./ui";
 
 const Layout2 = ({
   style,

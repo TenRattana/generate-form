@@ -124,6 +124,7 @@ export const useFormBuilder = (route) => {
       return () => {
         dispatch(reset());
         resetForm();
+        setForm({ formId: "", formName: "", description: "" });
         setFormData({});
       };
     }, [])
@@ -139,12 +140,12 @@ export const useFormBuilder = (route) => {
           data = {
             FormID: formId,
           };
-          route = "GetForm";
+          route = "Form_service.asmx/GetForm";
         } else if (machineId) {
           data = {
             MachineID: machineId,
           };
-          route = "GetFormView";
+          route = "Form_service.asmx/GetFormView";
         }
         try {
           const formResponse = await axios.post(route, data);
@@ -207,7 +208,6 @@ export const useFormBuilder = (route) => {
             dataType,
           };
 
-          dispatch(reset());
           dispatch(setSubForm(payloadSF));
           dispatch(setField(payloadF));
         } catch (error) {
@@ -317,7 +317,6 @@ export const useFormBuilder = (route) => {
       columns: "",
       displayOrder: "",
     });
-    setForm({ formId: "", formName: "", description: "" });
     setError({});
     setShowDialogs({ subForm: false, field: false, save: false });
     setSelectedIndex({ subForm: null, field: null });
@@ -400,6 +399,7 @@ export const useFormBuilder = (route) => {
     dataType,
     shouldRender,
     shouldRenderDT,
+    isDataLoaded,
     ShowMessages,
     setEditMode,
     setShowDialogs,

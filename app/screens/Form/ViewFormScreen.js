@@ -6,19 +6,22 @@ import axios from "../../../config/axios";
 import formStyles from "../../styles/forms/form";
 import { setSubForm, setField, setExpected, reset } from "../../slices";
 import { useTheme, useToast, useRes } from "../../contexts";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFormBuilder } from "../../customhooks";
 
 const ViewFormScreen = ({ route }) => {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.form);
 
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [checkList, setCheckList] = useState([]);
-  const [groupCheckListOption, setGroupCheckListOption] = useState([]);
-  const [checkListType, setCheckListType] = useState([]);
-  const [dataType, setDataType] = useState([]);
-  const [form, setForm] = useState([]);
-  const [formData, setFormData] = useState({});
+  const {
+    checkList,
+    checkListType,
+    dataType,
+    groupCheckListOption,
+    ShowMessages,
+    isDataLoaded,
+  } = useFormBuilder(route);
+
+  const [formData, setFormData] = useState([]);
   const { colors, spacing, fonts } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
@@ -32,60 +35,8 @@ const ViewFormScreen = ({ route }) => {
   const styles = formStyles({ route, colors, spacing, fonts, responsive });
   console.log("ViewForm");
 
-  const ShowMessages = (textH, textT, color) => {
-    Toast.show({
-      type: "customToast",
-      text1: textH,
-      text2: textT,
-      text1Style: [styles.text, { color: colors.palette.dark }],
-      text2Style: [styles.text, { color: colors.palette.dark }],
-    });
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-          const [
-            checkListResponse,
-            groupCheckListOptionResponse,
-            checkListTypeResponse,
-            dataTypeResponse,
-          ] = await Promise.all([
-            axios.post("CheckList_service.asmx/GetCheckLists"),
-            axios.post(
-              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
-            ),
-            axios.post("CheckListType_service.asmx/GetCheckListTypes"),
-            axios.post("DataType_service.asmx/GetDataTypes"),
-          ]);
-
-          setCheckList(checkListResponse.data.data ?? []);
-          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
-          setCheckListType(checkListTypeResponse.data.data ?? []);
-          setDataType(dataTypeResponse.data.data ?? []);
-          setIsDataLoaded(true);
-        } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response ? error.response.data.errors : ["Something wrong!"],
-            "error"
-          );
-        }
-      };
-
-      fetchData();
-
-      return () => {
-        dispatch(reset());
-        setVForm({});
-        setFormData({});
-      };
-    }, [])
-  );
-
   useEffect(() => {
-    if (isDataLoaded) {
+    if (isDataLoaded && (formId || machineId)) {
       const fetchData = async () => {
         let route = "";
         let data = {};
@@ -93,12 +44,12 @@ const ViewFormScreen = ({ route }) => {
           data = {
             FormID: formId,
           };
-          route = "GetForm";
+          route = "Form_service.asmx/GetForm";
         } else if (machineId) {
           data = {
             MachineID: machineId,
           };
-          route = "GetFormView";
+          route = "Form_service.asmx/GetFormView";
         }
         try {
           const formResponse = await axios.post(route, data);
@@ -199,6 +150,8 @@ const ViewFormScreen = ({ route }) => {
       console.log(error);
     }
   };
+
+  console.log(vform);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
-import { Button, Card, Input } from "@rneui/themed";
-import { CustomTable, CustomDropdown } from "../components";
+import { Button, Card } from "@rneui/themed";
+import { CustomTable } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
@@ -30,7 +30,9 @@ const FormScreen = React.memo(({ navigation }) => {
     useCallback(() => {
       const fetchData = async () => {
         try {
-          const [formResponse] = await Promise.all([axios.post("GetForms")]);
+          const [formResponse] = await Promise.all([
+            axios.post("Form_service.asmx/GetForms"),
+          ]);
           setForm(formResponse.data.data ?? []);
         } catch (error) {
           ShowMessages(error.message, error.response?.data?.errors, "error");
@@ -44,16 +46,23 @@ const FormScreen = React.memo(({ navigation }) => {
 
   const handleAction = async (action, item) => {
     try {
-      if (action === "delIndex") {
-        const response1 = await axios.post("DeleteForm", {
-          FormID: item,
-        });
-        const response = await axios.post("GetForms");
-        setForm(response.data.data || []);
-      } else if (action === "changeIndex") {
+      if (action === "changeIndex") {
         navigation.navigate("Create Form", { formId: item });
       } else if (action === "preIndex") {
         navigation.navigate("View Form", { formId: item });
+      } else {
+        if (action === "activeIndex") {
+          await axios.post("Form_service.asmx/ChangeForm", {
+            FormID: item,
+          });
+        } else if (action === "delIndex") {
+          await axios.post("Form_service.asmx/DeleteForm", {
+            FormID: item,
+          });
+        }
+
+        const response = await axios.post("Form_service.asmx/GetForms");
+        setForm(response.data.data || []);
       }
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -64,22 +73,24 @@ const FormScreen = React.memo(({ navigation }) => {
     navigation.navigate("Create Form");
   };
 
-  const tableData = form
-    .filter((item) => Boolean(item.IsActive) === false)
-    .map((item) => {
-      return [
-        item.FormName,
-        item.Description,
-        item.FormID,
-        item.FormID,
-        item.FormID,
-        item.FormID,
-      ];
-    });
+  const tableData = form.map((item) => {
+    return [
+      item.FormName,
+      item.Description,
+      item.IsActive,
+      item.FormID,
+      item.FormID,
+      item.FormID,
+      item.FormID,
+      item.FormID,
+    ];
+  });
 
   const tableHead = [
     "Form Name",
     "Form Description",
+    "",
+    "Change Status",
     "Change Form",
     "Copy Template",
     "Preview",
@@ -106,13 +117,14 @@ const FormScreen = React.memo(({ navigation }) => {
         <CustomTable
           Tabledata={tableData}
           Tablehead={tableHead}
-          flexArr={[2, 2, 1, 1, 1, 1, 1]}
+          flexArr={[2, 4, 1, 1, 1, 1, 1, 1]}
           actionIndex={[
             {
-              changeIndex: 2,
-              copyIndex: 3,
-              preIndex: 4,
-              delIndex: 5,
+              activeIndex: 3,
+              changeIndex: 4,
+              copyIndex: 5,
+              preIndex: 6,
+              delIndex: 7,
             },
           ]}
           handleAction={handleAction}

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Layout2 } from "../../components/Forms";
+import { LoadingSpinner } from "../../components";
 import axios from "../../../config/axios";
 import formStyles from "../../styles/forms/form";
 import { setSubForm, setField, setExpected, reset } from "../../slices";
@@ -22,6 +23,7 @@ const ViewFormScreen = ({ route }) => {
   } = useFormBuilder(route);
 
   const [formData, setFormData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { colors, spacing, fonts } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
@@ -121,6 +123,8 @@ const ViewFormScreen = ({ route }) => {
             error.response ? error.response.data.errors : ["Something wrong!"],
             "error"
           );
+        } finally {
+          setIsLoading(true);
         }
       };
 
@@ -157,17 +161,21 @@ const ViewFormScreen = ({ route }) => {
     <View style={styles.scrollView}>
       <ScrollView>
         <View style={[styles.layout2, { width: "100%" }]}>
-          <Layout2
-            form={vform}
-            style={{ styles, colors, spacing, fonts, responsive }}
-            state={state}
-            checkListType={checkListType}
-            checkList={checkList}
-            formData={formData}
-            handleChange={handleChange}
-            groupCheckListOption={groupCheckListOption}
-            handleSubmit={handleSubmit}
-          />
+          {isLoading ? (
+            <Layout2
+              form={vform}
+              style={{ styles, colors, spacing, fonts, responsive }}
+              state={state}
+              checkListType={checkListType}
+              checkList={checkList}
+              formData={formData}
+              handleChange={handleChange}
+              groupCheckListOption={groupCheckListOption}
+              handleSubmit={handleSubmit}
+            />
+          ) : (
+            <LoadingSpinner />
+          )}
         </View>
       </ScrollView>
     </View>

@@ -1,22 +1,23 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
-import { Card, Input } from "@rneui/themed";
-import { CustomTable } from "../components";
-import validator from "validator";
+import { Card } from "@rneui/themed";
+import { CustomTable, LoadingSpinner, Dialog_cl } from "../components";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
-const CheckListScreen = React.memo(() => {
+const CheckListScreen = () => {
   const [checkList, setCheckList] = useState([]);
-  const [formState, setFormState] = useState({
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const [initialValues, setInitialValues] = useState({
     checkListId: "",
     checkListName: "",
   });
-  const [error, setError] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
@@ -41,10 +42,13 @@ const CheckListScreen = React.memo(() => {
             axios.post("CheckList_service.asmx/GetCheckLists"),
           ]);
           setCheckList(checkListResponse.data.data ?? []);
+          setIsLoading(true);
         } catch (error) {
           ShowMessages(
             error.message || "Error",
-            error.response ? error.response.data.errors : ["Something wrong!"],
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
             "error"
           );
         }
@@ -52,74 +56,40 @@ const CheckListScreen = React.memo(() => {
 
       fetchData();
       return () => {
-        resetForm();
+        setInitialValues({
+          checkListId: "",
+          checkListName: "",
+        });
+        setIsEditing(false);
       };
     }, [])
   );
 
-  const handleChange = (fieldName, value) => {
-    let errorMessage = "";
-
-    if (fieldName === "listName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The List Name field is required.";
-    }
-
-    setError((prevError) => ({
-      ...prevError,
-      [fieldName]: errorMessage,
-    }));
-
-    setFormState((prevState) => ({
-      ...prevState,
-      [fieldName]: value,
-    }));
-  };
-
-  const isFormValid = () => {
-    return (
-      Object.keys(formState).every((key) => {
-        const value = formState[key];
-        if (!isEditing && key === "checkListId") {
-          return true;
-        }
-        return value !== "" && value !== "" && String(value).trim() !== "";
-      }) && Object.values(error).every((err) => err === "")
-    );
-  };
-
-  const resetForm = () => {
-    setFormState({ checkListId: "", checkListName: "" });
-    setError({});
-    setIsEditing(false);
-  };
-
-  const saveData = async () => {
-    setIsLoading(true);
+  const saveData = async (values) => {
+    setIsLoadingButton(true);
 
     const data = {
-      CListId: formState.checkListId,
-      CListName: formState.checkListName,
+      CListId: values.checkListId,
+      CListName: values.checkListName,
     };
 
     try {
       await axios.post("CheckList_service.asmx/SaveCheckList", data);
       const response = await axios.post("CheckList_service.asmx/GetCheckLists");
       setCheckList(response.data.data ?? []);
-      resetForm();
+      setIsVisible(!response.data.status);
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response ? error.response.data.errors : ["Something wrong!"],
+        error.response ? error.response.data.errors : ["Something went wrong!"],
         "error"
       );
     } finally {
-      setIsLoading(false);
+      setIsLoadingButton(false);
     }
   };
 
   const handleAction = async (action, item) => {
-    setIsLoading(true);
-
     try {
       if (action === "editIndex") {
         const response = await axios.post(
@@ -129,10 +99,11 @@ const CheckListScreen = React.memo(() => {
           }
         );
         const checkListData = response.data.data[0] ?? {};
-        setFormState({
+        setInitialValues({
           checkListId: checkListData.CListID ?? "",
           checkListName: checkListData.CListName ?? "",
         });
+        setIsVisible(true);
         setIsEditing(true);
       } else {
         if (action === "activeIndex") {
@@ -153,13 +124,22 @@ const CheckListScreen = React.memo(() => {
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response ? error.response.data.errors : ["Something wrong!"],
+        error.response ? error.response.data.errors : ["Something went wrong!"],
         "error"
       );
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  useMemo(() => {
+    if (!isVisible) {
+      setInitialValues({
+        checkListId: "",
+        checkListName: "",
+      });
+      setIsEditing(false);
+    }
+  }, [isVisible]);
+  console.log(initialValues);
 
   const tableData = checkList.map((item) => {
     return [
@@ -177,50 +157,46 @@ const CheckListScreen = React.memo(() => {
     <View style={styles.scrollView}>
       <ScrollView>
         <Card>
-          <Card.Title>Create Check List</Card.Title>
-          <Card.Divider />
-          <Input
-            placeholder="Enter Check List Name"
-            label="Check List Name"
-            labelStyle={styles.text}
-            inputStyle={styles.text}
-            disabledInputStyle={styles.containerInput}
-            value={formState.checkListName}
-            onChangeText={(text) => handleChange("checkListName", text)}
-          />
-          {error.checkListName ? (
-            <Text style={styles.errorText}>{error.checkListName}</Text>
-          ) : null}
-
-          <View style={styles.containerFlexStyle}>
-            <Pressable
-              onPress={saveData}
-              style={styles.buttonStyle}
-              disabled={!isFormValid()}
-            >
-              <Text style={styles.text}>Create</Text>
-            </Pressable>
-
-            <Pressable onPress={resetForm} style={styles.buttonStyle}>
-              <Text style={styles.text}>Reset</Text>
-            </Pressable>
-          </View>
-        </Card>
-
-        <Card>
           <Card.Title>List Check List</Card.Title>
           <Card.Divider />
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            flexArr={[5, 1, 1, 1, 1]}
-            actionIndex={[{ activeIndex: 2, editIndex: 3, delIndex: 4 }]}
-            handleAction={handleAction}
-          />
+
+          <Pressable
+            onPress={() => setIsVisible(true)}
+            style={[
+              styles.button,
+              styles.backMain,
+              { flex: "none", width: 200 },
+            ]}
+          >
+            <Text style={[styles.text, styles.textLight]}>
+              Create Check List
+            </Text>
+          </Pressable>
+
+          {isLoading ? (
+            <CustomTable
+              Tabledata={tableData}
+              Tablehead={tableHead}
+              flexArr={[5, 1, 1, 1, 1]}
+              actionIndex={[{ activeIndex: 2, editIndex: 3, delIndex: 4 }]}
+              handleAction={handleAction}
+            />
+          ) : (
+            <LoadingSpinner />
+          )}
         </Card>
       </ScrollView>
+
+      <Dialog_cl
+        style={{ styles, colors, spacing, responsive, fonts }}
+        isVisible={isVisible}
+        isEditing={isEditing}
+        initialValues={initialValues}
+        saveData={saveData}
+        setIsVisible={setIsVisible}
+      />
     </View>
   );
-});
+};
 
 export default CheckListScreen;

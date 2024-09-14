@@ -46,12 +46,12 @@ export const CustomDropdown = ({
 
   const handleDropdownChange = (newValue) => {
     setValue(newValue);
-    updatedropdown(fieldName, newValue.value);
+    updatedropdown(newValue.value);
   };
 
   const handleClear = () => {
     setValue("");
-    updatedropdown(fieldName, "");
+    updatedropdown("");
   };
 
   return (

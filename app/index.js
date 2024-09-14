@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { ThemeProvider, ToastProvider, ResponsiveProvider } from "./contexts";
 import { Provider } from "react-redux";

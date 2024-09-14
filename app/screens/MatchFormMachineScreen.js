@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
-import { CustomTable, CustomDropdown } from "../components";
+import { CustomTable, CustomDropdown, LoadingSpinner } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
@@ -49,8 +49,15 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
           setMachine(machineResponse.data.data ?? []);
           setForm(formResponse.data.data ?? []);
           setMatchForm(matchFormResponse.data.data ?? []);
+          setIsLoading(true);
         } catch (error) {
-          ShowMessages(error.message, error.response.data.errors, "error");
+          ShowMessages(
+            error.message || "Error",
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
+            "error"
+          );
         }
       };
 
@@ -100,8 +107,6 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
   };
 
   const saveData = async () => {
-    setIsLoading(true);
-
     const data = {
       MachineID: formState.machineId,
       FormID: formState.formId,
@@ -113,14 +118,16 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
       setMatchForm(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something went wrong!"],
+        "error"
+      );
     } finally {
-      setIsLoading(false);
     }
   };
 
   const handleAction = async (action, item) => {
-    setIsLoading(true);
     try {
       if (action === "editIndex") {
         const response = await axios.post("GetMatchFormMachine", {
@@ -145,9 +152,12 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         navigation.navigate("View Form", { machineId: item });
       }
     } catch (error) {
-      console.error("Error fetching question data:", error);
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something went wrong!"],
+        "error"
+      );
     }
-    setIsLoading(false);
   };
 
   const tableData = matchForm.map((item) => {
@@ -233,21 +243,25 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         <Card>
           <Card.Title>List Machine</Card.Title>
           <Card.Divider />
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            flexArr={[2, 2, 1, 1, 1, 1, 1]}
-            actionIndex={[
-              {
-                changeIndex: 2,
-                copyIndex: 3,
-                preIndex: 4,
-                editIndex: 5,
-                delIndex: 6,
-              },
-            ]}
-            handleAction={handleAction}
-          />
+          {isLoading ? (
+            <CustomTable
+              Tabledata={tableData}
+              Tablehead={tableHead}
+              flexArr={[2, 2, 1, 1, 1, 1, 1]}
+              actionIndex={[
+                {
+                  changeIndex: 2,
+                  copyIndex: 3,
+                  preIndex: 4,
+                  editIndex: 5,
+                  delIndex: 6,
+                },
+              ]}
+              handleAction={handleAction}
+            />
+          ) : (
+            <LoadingSpinner />
+          )}
         </Card>
       </ScrollView>
     </View>

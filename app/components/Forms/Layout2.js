@@ -56,6 +56,8 @@ const Layout2 = ({
           </View>
         </View>
       )}
+      contentContainerStyle={{ paddingBottom: 100 }}
+      scrollEnabled={true}
       keyExtractor={(item) => item.subFormName || `subForm-${item.subFormId}`}
     />
   );

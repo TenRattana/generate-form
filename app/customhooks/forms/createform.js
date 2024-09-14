@@ -110,6 +110,7 @@ export const useFormBuilder = (route) => {
           setCheckListType(checkListTypeResponse.data.data ?? []);
           setDataType(dataTypeResponse.data.data ?? []);
           setIsDataLoaded(true);
+          setIsLoading(true);
         } catch (error) {
           ShowMessages(
             error.message || "Error",
@@ -216,6 +217,8 @@ export const useFormBuilder = (route) => {
             error.response ? error.response.data.errors : ["Something wrong!"],
             "error"
           );
+        } finally {
+          setIsLoading(true);
         }
       };
 
@@ -254,7 +257,7 @@ export const useFormBuilder = (route) => {
   };
 
   const saveForm = async () => {
-    setIsLoading(true);
+    setIsLoading(false);
 
     const data = {
       SubFormData: JSON.stringify(state.subForms),
@@ -271,7 +274,7 @@ export const useFormBuilder = (route) => {
         "error"
       );
     } finally {
-      setIsLoading(false);
+      setIsLoading(true);
     }
   };
   const handleSubmit = () => {
@@ -400,6 +403,7 @@ export const useFormBuilder = (route) => {
     shouldRender,
     shouldRenderDT,
     isDataLoaded,
+    isLoading,
     ShowMessages,
     setEditMode,
     setShowDialogs,

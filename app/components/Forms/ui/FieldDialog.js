@@ -28,6 +28,10 @@ const FieldDialog = ({
 
   return (
     <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
+      <Dialog.Title
+        title={editMode ? "Edit check list" : "Create check list"}
+        titleStyle={{ alignSelf: "center" }}
+      />
       <View style={styles.viewDialog}>
         <CustomDropdown
           fieldName="checkListId"

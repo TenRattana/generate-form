@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card, Input } from "@rneui/themed";
-import { CustomTable } from "../components";
+import { CustomTable, LoadingSpinner } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
@@ -46,10 +46,13 @@ const GroupCheckListOptionScreen = React.memo(() => {
             ),
           ]);
           setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
+          setIsLoading(true);
         } catch (error) {
           ShowMessages(
             error.message || "Error",
-            error.response ? error.response.data.errors : ["Something wrong!"],
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
             "error"
           );
         }
@@ -114,8 +117,6 @@ const GroupCheckListOptionScreen = React.memo(() => {
   };
 
   const saveData = async () => {
-    setIsLoading(true);
-
     const data = {
       GCLOptionID: formState.groupCheckListOptionId,
       GCLOptionName: formState.groupCheckListOptionName,
@@ -136,17 +137,14 @@ const GroupCheckListOptionScreen = React.memo(() => {
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response ? error.response.data.errors : ["Something wrong!"],
+        error.response ? error.response.data.errors : ["Something went wrong!"],
         "error"
       );
     } finally {
-      setIsLoading(false);
     }
   };
 
   const handleAction = async (action, item) => {
-    setIsLoading(true);
-
     try {
       if (action === "editIndex") {
         const response = await axios.post(
@@ -189,11 +187,10 @@ const GroupCheckListOptionScreen = React.memo(() => {
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response ? error.response.data.errors : ["Something wrong!"],
+        error.response ? error.response.data.errors : ["Something went wrong!"],
         "error"
       );
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -289,13 +286,17 @@ const GroupCheckListOptionScreen = React.memo(() => {
         <Card>
           <Card.Title>List Group Option</Card.Title>
           <Card.Divider />
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            flexArr={[3, 5, 1, 1, 1, 1, 1]}
-            actionIndex={[{ activeIndex: 4, editIndex: 5, delIndex: 6 }]}
-            handleAction={handleAction}
-          />
+          {isLoading ? (
+            <CustomTable
+              Tabledata={tableData}
+              Tablehead={tableHead}
+              flexArr={[3, 5, 1, 1, 1, 1, 1]}
+              actionIndex={[{ activeIndex: 4, editIndex: 5, delIndex: 6 }]}
+              handleAction={handleAction}
+            />
+          ) : (
+            <LoadingSpinner />
+          )}
         </Card>
       </ScrollView>
     </View>

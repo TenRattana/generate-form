@@ -15,7 +15,7 @@ const SaveFormDialog = ({
 
   return (
     <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
-      <Dialog.Title title="Save Form" />
+      <Dialog.Title title="Save Form" titleStyle={{ alignSelf: "center" }} />
       <Text
         style={[
           styles.textHeader,

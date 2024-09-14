@@ -69,9 +69,9 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
     textHeader: {
       fontSize: responsive === "small" ? fonts.xmd : fonts.lg,
       fontWeight: "bold",
-      marginLeft: 20,
-      paddingTop: 10,
+      marginLeft: 10,
       color: colors.palette.light,
+      marginBottom: 20,
     },
     containerInput: {
       backgroundColor: "darkgray",

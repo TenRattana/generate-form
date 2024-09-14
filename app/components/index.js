@@ -7,3 +7,5 @@ export { default as Textareas } from "./Textareas";
 export { default as Checkboxs } from "./Checkboxs";
 export { default as Inputs } from "./Inputs";
 export { default as LoadingSpinner } from "./LoadingSpinner";
+export * from "./Machines";
+export * from "./Check_lists";

@@ -6,6 +6,7 @@ import {
   FlatList,
   Animated,
   Easing,
+  ScrollView,
 } from "react-native";
 import { Input, Button } from "@rneui/themed";
 import { Entypo, AntDesign } from "@expo/vector-icons";
@@ -93,7 +94,7 @@ const Layout1 = ({
   }, [shouldRenderDT, editMode]);
 
   const renderSubForm = ({ item, index }) => (
-    <View style={{marginTop:30}}>
+    <View style={{ marginTop: 30 }}>
       <Pressable
         onPress={() => {
           setSubForm(item);

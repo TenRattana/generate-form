@@ -5,6 +5,7 @@ import { useFormBuilder } from "../../customhooks";
 import { Layout1, Layout2 } from "../../components/Forms";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
+import { LoadingSpinner } from "../../components";
 
 const FormBuilder = ({ route }) => {
   const {
@@ -24,6 +25,7 @@ const FormBuilder = ({ route }) => {
     shouldRenderDT,
     formData,
     groupCheckListOption,
+    isLoading,
     setEditMode,
     setShowDialogs,
     setSelectedIndex,
@@ -49,56 +51,62 @@ const FormBuilder = ({ route }) => {
   console.log("CreateForm");
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.layout1}>
-        <View style={{ margin: 30 }}>
-          <Layout1
-            style={{ styles, colors, spacing, fonts, responsive }}
-            state={state}
-            handleSubForm={handleSubForm}
-            saveSubForm={saveSubForm}
-            subForm={subForm}
-            form={form}
-            error={error}
-            shouldRender={shouldRender}
-            shouldRenderDT={shouldRenderDT}
-            editMode={editMode}
-            resetForm={resetForm}
-            setEditMode={setEditMode}
-            setShowDialogs={setShowDialogs}
-            showDialogs={showDialogs}
-            setSelectedIndex={setSelectedIndex}
-            selectedIndex={selectedIndex}
-            setSubForm={setSubInForm}
-            handleForm={handleForm}
-            saveForm={saveForm}
-            setFormState={setFormState}
-            formState={formState}
-            saveField={saveField}
-            handleFieldChange={handleFieldChange}
-            checkList={checkList}
-            resetDropdown={resetDropdown}
-            checkListType={checkListType}
-            dataType={dataType}
-            groupCheckListOption={groupCheckListOption}
-          />
-        </View>
-      </View>
+    <View>
+      {isLoading ? (
+        <View style={styles.container}>
+          <View style={styles.layout1}>
+            <View style={{ margin: 30 }}>
+              <Layout1
+                style={{ styles, colors, spacing, fonts, responsive }}
+                state={state}
+                handleSubForm={handleSubForm}
+                saveSubForm={saveSubForm}
+                subForm={subForm}
+                form={form}
+                error={error}
+                shouldRender={shouldRender}
+                shouldRenderDT={shouldRenderDT}
+                editMode={editMode}
+                resetForm={resetForm}
+                setEditMode={setEditMode}
+                setShowDialogs={setShowDialogs}
+                showDialogs={showDialogs}
+                setSelectedIndex={setSelectedIndex}
+                selectedIndex={selectedIndex}
+                setSubForm={setSubInForm}
+                handleForm={handleForm}
+                saveForm={saveForm}
+                setFormState={setFormState}
+                formState={formState}
+                saveField={saveField}
+                handleFieldChange={handleFieldChange}
+                checkList={checkList}
+                resetDropdown={resetDropdown}
+                checkListType={checkListType}
+                dataType={dataType}
+                groupCheckListOption={groupCheckListOption}
+              />
+            </View>
+          </View>
 
-      <View style={styles.layout2}>
-        <Layout2
-          form={form}
-          style={{ styles, spacing, fonts, colors, responsive }}
-          state={state}
-          checkListType={checkListType}
-          checkList={checkList}
-          formData={formData}
-          handleChange={handleChange}
-          groupCheckListOption={groupCheckListOption}
-          handleSubmit={handleSubmit}
-        />
-      </View>
-    </ScrollView>
+          <View style={styles.layout2}>
+            <Layout2
+              form={form}
+              style={{ styles, spacing, fonts, colors, responsive }}
+              state={state}
+              checkListType={checkListType}
+              checkList={checkList}
+              formData={formData}
+              handleChange={handleChange}
+              groupCheckListOption={groupCheckListOption}
+              handleSubmit={handleSubmit}
+            />
+          </View>
+        </View>
+      ) : (
+        <LoadingSpinner />
+      )}
+    </View>
   );
 };
 

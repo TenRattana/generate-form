@@ -6,6 +6,7 @@ import {
   CustomTable,
   CustomDropdown,
   CustomDropdownMulti,
+  LoadingSpinner,
 } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
@@ -61,8 +62,15 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           setCheckListOption(checkListOptionResponse.data.data ?? []);
           setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
           setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
+          setIsLoading(true);
         } catch (error) {
-          ShowMessages(error.message, error.response.data.errors, "error");
+          ShowMessages(
+            error.message || "Error",
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
+            "error"
+          );
         }
       };
 
@@ -112,15 +120,11 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
   };
 
   const saveData = async () => {
-    setIsLoading(true);
-
     const data = {
       MCLOptionID: formState.matchCheckListOptionId,
       GCLOptionID: formState.groupCheckListOptionId,
       CLOptionID: JSON.stringify(formState.checkListOptionId),
     };
-
-    console.log(data);
 
     try {
       await axios.post(
@@ -133,16 +137,18 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
       setMatchCheckListOption(response.data.data ?? []);
       resetForm();
     } catch (error) {
-      ShowMessages(error.message, error.response.data.errors, "error");
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
     } finally {
-      setIsLoading(false);
     }
   };
 
   console.log(formState);
 
   const handleAction = async (action, item) => {
-    setIsLoading(true);
     try {
       if (action === "editIndex") {
         const response = await axios.post(
@@ -183,9 +189,12 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
         setMatchCheckListOption(matchCheckListData.data.data || []);
       }
     } catch (error) {
-      console.error("Error fetching question data:", error);
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something went wrong!"],
+        "error"
+      );
     }
-    setIsLoading(false);
   };
 
   const tableData = matchCheckListOption.flatMap((item) =>
@@ -273,19 +282,23 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
         <Card>
           <Card.Title>List Match Group & Option</Card.Title>
           <Card.Divider />
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            flexArr={[4, 4, 1, 1, 1, 1]}
-            actionIndex={[
-              {
-                activeIndex: 3,
-                editIndex: 4,
-                delIndex: 5,
-              },
-            ]}
-            handleAction={handleAction}
-          />
+          {isLoading ? (
+            <CustomTable
+              Tabledata={tableData}
+              Tablehead={tableHead}
+              flexArr={[4, 4, 1, 1, 1, 1]}
+              actionIndex={[
+                {
+                  activeIndex: 3,
+                  editIndex: 4,
+                  delIndex: 5,
+                },
+              ]}
+              handleAction={handleAction}
+            />
+          ) : (
+            <LoadingSpinner />
+          )}
         </Card>
       </ScrollView>
     </View>

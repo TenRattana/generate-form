@@ -1,4 +1,6 @@
 const palette = {
+  main: "#3b5adf",
+  disable: "#d0d0d0",
   primary: "#6200ee",
   secondary: "#03dac6",
   secondary2: "#02dac6",
@@ -24,4 +26,8 @@ export const colors = {
   error: palette.error,
   warning: palette.warning,
   danger: palette.danger,
+  main: palette.main,
+  light: palette.light,
+  dark: palette.dark,
+  disable: palette.disable,
 };

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View } from "react-native";
 import axios from "../../config/axios";
 import { Button, Card } from "@rneui/themed";
-import { CustomTable } from "../components";
+import { CustomTable, LoadingSpinner } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
@@ -10,6 +10,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 const FormScreen = React.memo(({ navigation }) => {
   const [form, setForm] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
@@ -34,8 +35,15 @@ const FormScreen = React.memo(({ navigation }) => {
             axios.post("Form_service.asmx/GetForms"),
           ]);
           setForm(formResponse.data.data ?? []);
+          setIsLoading(true);
         } catch (error) {
-          ShowMessages(error.message, error.response?.data?.errors, "error");
+          ShowMessages(
+            error.message || "Error",
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
+            "error"
+          );
         }
       };
 
@@ -65,7 +73,12 @@ const FormScreen = React.memo(({ navigation }) => {
         setForm(response.data.data || []);
       }
     } catch (error) {
-      console.error("Error fetching question data:", error);
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something went wrong!"],
+        "error"
+      );
+    } finally {
     }
   };
 
@@ -115,21 +128,25 @@ const FormScreen = React.memo(({ navigation }) => {
             onPress={handleNewForm}
           />
 
-          <CustomTable
-            Tabledata={tableData}
-            Tablehead={tableHead}
-            flexArr={[2, 4, 1, 1, 1, 1, 1, 1]}
-            actionIndex={[
-              {
-                activeIndex: 3,
-                changeIndex: 4,
-                copyIndex: 5,
-                preIndex: 6,
-                delIndex: 7,
-              },
-            ]}
-            handleAction={handleAction}
-          />
+          {isLoading ? (
+            <CustomTable
+              Tabledata={tableData}
+              Tablehead={tableHead}
+              flexArr={[2, 4, 1, 1, 1, 1, 1, 1]}
+              actionIndex={[
+                {
+                  activeIndex: 3,
+                  changeIndex: 4,
+                  copyIndex: 5,
+                  preIndex: 6,
+                  delIndex: 7,
+                },
+              ]}
+              handleAction={handleAction}
+            />
+          ) : (
+            <LoadingSpinner />
+          )}
         </Card>
       </ScrollView>
     </View>

@@ -19,7 +19,10 @@ const SubFormDialog = ({
 
   return (
     <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
-      <Dialog.Title title="Sub Form Details" />
+      <Dialog.Title
+        title={editMode ? "Edit subform detail" : "Create subform detail"}
+        titleStyle={{ alignSelf: "center" }}
+      />
       <Input
         label="Sub Form Name"
         placeholder="Enter Sub Form Name"

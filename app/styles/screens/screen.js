@@ -12,7 +12,22 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
           : responsive === "medium"
           ? fonts.sm
           : fonts.xsm,
-      color: colors.text,
+    },
+    textBold: {
+      fontSize: responsive === "small" ? fonts.xmd : fonts.lg,
+      fontWeight: "bold",
+    },
+    textMain: {
+      color: colors.main,
+    },
+    textLight: {
+      color: colors.light,
+    },
+    textDark: {
+      color: colors.dark,
+    },
+    textError: {
+      color: colors.danger,
     },
     buttonContainer: {
       flexDirection: responsive === "large" ? "row" : "column",
@@ -25,7 +40,7 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       marginHorizontal: "2%",
     },
     containerInput: {
-      backgroundColor: "darkgray",
+      backgroundColor: colors.palette.gray90,
       marginVertical: spacing.md,
     },
     errorText: {
@@ -35,9 +50,6 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
           : responsive === "medium"
           ? fonts.sm
           : fonts.md,
-      marginLeft: spacing.xs,
-      top: -spacing.xxs,
-      color: colors.danger,
     },
     containerFlexStyle: {
       flexDirection: "row",
@@ -46,24 +58,41 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       alignItems: "center",
       justifyContent: "center",
     },
-    buttonStyle: {
+    button: {
       flexBasis: `${
         responsive === "small" ? 98 : responsive === "medium" ? 80 / 2 : 75 / 4
       }%`,
-      backgroundColor: "#DDDDDD",
-      borderRadius: 5,
-      height: 50,
       alignItems: "center",
       justifyContent: "center",
       marginVertical: "1%",
       marginHorizontal: "3%",
       textAlign: "center",
+      height: 40,
+    },
+    backMain: {
+      backgroundColor: colors.main,
+    },
+    backLight: {
+      backgroundColor: colors.palette.light,
+    },
+    backDis: {
+      backgroundColor: colors.disable,
     },
     flexRes: {},
     flexResScreen: {
       flexBasis: `${
         responsive === "small" ? 98 : responsive === "medium" ? 80 / 2 : 75 / 4
       }%`,
+    },
+    dialogContainer: {
+      padding: 20,
+      width: responsive === "small" || responsive === "medium" ? "90%" : 650,
+    },
+    textHeader: {
+      fontWeight: "bold",
+      marginLeft: 10,
+      color: colors.palette.light,
+      marginBottom: 20,
     },
   });
 };

@@ -50,21 +50,13 @@ export const CustomTable = ({
       case "editIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-              <AntDesign
-                name="edit"
-                size={20}
-                color={colors.palette.primary}
-              />
+            <AntDesign name="edit" size={20} color={colors.palette.primary} />
           </Pressable>
         );
       case "delIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-            <AntDesign
-              name="delete"
-              size={20}
-              color={colors.palette.danger}
-            />
+            <AntDesign name="delete" size={20} color={colors.palette.danger} />
           </Pressable>
         );
       case "changeIndex":
@@ -80,21 +72,13 @@ export const CustomTable = ({
       case "copyIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-            <AntDesign
-              name="copy1"
-              size={20}
-              color={colors.palette.danger}
-            />
+            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
           </Pressable>
         );
       case "preIndex":
         return (
           <Pressable style={styles.button} onPress={handlePress}>
-            <AntDesign
-              name="copy1"
-              size={20}
-              color={colors.palette.danger}
-            />
+            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
           </Pressable>
         );
       default:
@@ -108,7 +92,7 @@ export const CustomTable = ({
         <View style={styles.iconStatus}>
           <MaterialCommunityIcons
             name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
-            size={20}
+            size={30}
             color={cell ? colors.palette.green : colors.palette.primary}
           />
         </View>

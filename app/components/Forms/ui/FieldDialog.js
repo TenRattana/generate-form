@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Animated } from "react-native";
 import { Button, Dialog, Input } from "@rneui/themed";
-import { CustomDropdown } from "../../index";
+import { CustomDropdown, CustomDropdownMulti } from "../../index";
 
 const FieldDialog = ({
   isVisible,
@@ -34,23 +34,19 @@ const FieldDialog = ({
       />
       <View style={styles.viewDialog}>
         <CustomDropdown
-          fieldName="checkListId"
           title="Check List"
           labels="CListName"
           values="CListID"
           data={checkList}
-          updatedropdown={(f, v) => onFieldChange(f, v)}
-          reset={resetDropdown}
+          onValueChange={(v) => onFieldChange("checkListId", v)}
           selectedValue={formState.checkListId}
         />
         <CustomDropdown
-          fieldName="checkListTypeId"
           title="Check list Type"
           labels="CTypeName"
           values="CTypeID"
           data={checkListType}
-          updatedropdown={(f, v) => onFieldChange(f, v)}
-          reset={resetDropdown}
+          onValueChange={(v) => onFieldChange("checkListTypeId", v)}
           selectedValue={formState.checkListTypeId}
         />
 
@@ -58,26 +54,24 @@ const FieldDialog = ({
           {shouldRender === "detail" ? (
             <>
               <CustomDropdown
-                fieldName="groupCheckListOptionId"
                 title="Match Check List Option Group"
                 labels="GCLOptionName"
                 values="GCLOptionID"
                 data={groupCheckListOption}
-                updatedropdown={(f, v) => onFieldChange(f, v)}
-                reset={resetDropdown}
+                onValueChange={(v) =>
+                  onFieldChange("groupCheckListOptionId", v)
+                }
                 selectedValue={formState.groupCheckListOptionId}
               />
             </>
           ) : shouldRender === "text" ? (
             <>
               <CustomDropdown
-                fieldName="dataTypeId"
                 title="Data Type"
                 labels="DTypeName"
                 values="DTypeID"
                 data={dataType}
-                updatedropdown={(f, v) => onFieldChange(f, v)}
-                reset={resetDropdown}
+                onValueChange={(v) => onFieldChange("dataTypeId", v)}
                 selectedValue={formState.dataTypeId}
               />
               {shouldRenderDT ? (

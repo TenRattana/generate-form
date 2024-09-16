@@ -6,12 +6,12 @@ import * as Yup from "yup";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 const validationSchema = Yup.object().shape({
-  checkListName: Yup.string().required(
-    "The check list name field is required."
+  checkListOptionName: Yup.string().required(
+    "The check list option name field is required."
   ),
 });
 
-const Dialog_cl = ({
+const Dialog_clo = ({
   style,
   isVisible,
   isEditing,
@@ -68,22 +68,22 @@ const Dialog_cl = ({
                 labelStyle={[styles.text, styles.textDark]}
                 inputStyle={[styles.text, styles.textDark]}
                 disabledInputStyle={styles.containerInput}
-                onChangeText={handleChange("checkListName")}
-                onBlur={handleBlur("checkListName")}
-                value={values.checkListName}
+                onChangeText={handleChange("checkListOptionName")}
+                onBlur={handleBlur("checkListOptionName")}
+                value={values.checkListOptionName}
                 rightIcon={
-                  values.checkListName ? (
+                  values.checkListOptionName ? (
                     <AntDesign
                       name="close"
                       size={20}
                       color={colors.palette.primary}
-                      onPress={() => handleChange("checkListName")("")}
+                      onPress={() => handleChange("checkListOptionName")("")}
                     />
                   ) : null
                 }
                 errorMessage={
-                  touched.checkListName && errors.checkListName
-                    ? errors.checkListName
+                  touched.checkListOptionName && errors.checkListOptionName
+                    ? errors.checkListOptionName
                     : undefined
                 }
                 errorStyle={{
@@ -126,4 +126,4 @@ const Dialog_cl = ({
   );
 };
 
-export default Dialog_cl;
+export default Dialog_clo;

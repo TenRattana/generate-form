@@ -6,6 +6,19 @@ import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
+const validationSchema = Yup.object().shape({
+  // machineGroupId: Yup.string().when("$isEditing", {
+  //   is: true,
+  //   then: Yup.string().required("The machine group field is required."),
+  //   otherwise: Yup.string(),
+  // }),
+  machineName: Yup.string().required("The machine name field is required."),
+  description: Yup.string().required("The description field is required."),
+  displayOrder: Yup.number()
+    .typeError("The display order field must be numeric.")
+    .required("The display order field is required."),
+});
+
 const Dialog_m = ({
   style,
   isVisible,
@@ -18,18 +31,6 @@ const Dialog_m = ({
 }) => {
   const { styles, colors, spacing, fonts, responsive } = style;
 
-  const validationSchema = Yup.object().shape({
-    // machineGroupId: Yup.string().when("$isEditing", {
-    //   is: true,
-    //   then: Yup.string().required("The machine group field is required."),
-    //   otherwise: Yup.string(),
-    // }),
-    machineName: Yup.string().required("The machine name field is required."),
-    description: Yup.string().required("The description field is required."),
-    displayOrder: Yup.number()
-      .typeError("The display order field must be numeric.")
-      .required("The display order field is required."),
-  });
   return (
     <View>
       <Dialog isVisible={isVisible}>
@@ -70,7 +71,7 @@ const Dialog_m = ({
             isValid,
             dirty,
           }) => (
-            <Form>
+            <View>
               <CustomDropdown
                 fieldName="machineGroupId"
                 title="Machine Group"
@@ -97,8 +98,8 @@ const Dialog_m = ({
               <Input
                 placeholder="Enter Machine Name"
                 label="Machine Name"
-                labelStyle={styles.text}
-                inputStyle={styles.text}
+                labelStyle={[styles.text, styles.textDark]}
+                inputStyle={[styles.text, styles.textDark]}
                 disabledInputStyle={styles.containerInput}
                 onChangeText={handleChange("machineName")}
                 onBlur={handleBlur("machineName")}
@@ -113,19 +114,15 @@ const Dialog_m = ({
                     />
                   ) : null
                 }
+                errorMessage={
+                  touched.machineName && errors.machineName
+                    ? errors.machineName
+                    : undefined
+                }
+                errorStyle={{
+                  left: -5,
+                }}
               />
-
-              {touched.machineName && errors.machineName && (
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textError,
-                    { marginLeft: spacing.xs, top: -spacing.xxs },
-                  ]}
-                >
-                  {errors.machineName}
-                </Text>
-              )}
 
               <Input
                 placeholder="Enter Description"
@@ -146,18 +143,15 @@ const Dialog_m = ({
                     />
                   ) : null
                 }
+                errorMessage={
+                  touched.description && errors.description
+                    ? errors.description
+                    : undefined
+                }
+                errorStyle={{
+                  left: -5,
+                }}
               />
-              {touched.description && errors.description && (
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textError,
-                    { marginLeft: spacing.xs, top: -spacing.xxs },
-                  ]}
-                >
-                  {errors.description}
-                </Text>
-              )}
 
               <Input
                 placeholder="Enter Display Order"
@@ -178,18 +172,15 @@ const Dialog_m = ({
                     />
                   ) : null
                 }
+                errorMessage={
+                  touched.displayOrder && errors.displayOrder
+                    ? errors.displayOrder
+                    : undefined
+                }
+                errorStyle={{
+                  left: -5,
+                }}
               />
-              {touched.displayOrder && errors.displayOrder && (
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textError,
-                    { marginLeft: spacing.xs, top: -spacing.xxs },
-                  ]}
-                >
-                  {errors.displayOrder}
-                </Text>
-              )}
 
               <View style={styles.containerFlexStyle}>
                 <Pressable
@@ -218,7 +209,7 @@ const Dialog_m = ({
                   </Text>
                 </Pressable>
               </View>
-            </Form>
+            </View>
           )}
         </Formik>
       </Dialog>

@@ -59,7 +59,7 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       justifyContent: "center",
     },
     button: {
-      flexBasis: `${
+      width: `${
         responsive === "small" ? 98 : responsive === "medium" ? 80 / 2 : 75 / 4
       }%`,
       alignItems: "center",

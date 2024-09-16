@@ -1,22 +1,22 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
-import { Card, Input } from "@rneui/themed";
-import { CustomTable, LoadingSpinner } from "../components";
-import validator from "validator";
+import { Card } from "@rneui/themed";
+import { CustomTable, LoadingSpinner, Dialog_clo } from "../components";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const CheckListOptionScreen = React.memo(() => {
   const [checkListOption, setCheckListOption] = useState([]);
-  const [formState, setFormState] = useState({
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const [initialValues, setInitialValues] = useState({
     checkListOptionId: "",
     checkListOptionName: "",
   });
-  const [error, setError] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
@@ -55,54 +55,21 @@ const CheckListOptionScreen = React.memo(() => {
 
       fetchData();
       return () => {
-        resetForm();
+        setInitialValues({
+          checkListOptionId: "",
+          checkListOptionName: "",
+        });
+        setIsEditing(false);
       };
     }, [])
   );
 
-  const handleChange = (fieldName, value) => {
-    let errorMessage = "";
+  const saveData = async (values) => {
+    setIsLoadingButton(true);
 
-    if (
-      fieldName === "checkListOptionName" &&
-      validator.isEmpty(value.trim())
-    ) {
-      errorMessage = "The Check List Option Name field is required.";
-    }
-
-    setError((prevError) => ({
-      ...prevError,
-      [fieldName]: errorMessage,
-    }));
-
-    setFormState((prevState) => ({
-      ...prevState,
-      [fieldName]: value,
-    }));
-  };
-
-  const isFormValid = () => {
-    return (
-      Object.keys(formState).every((key) => {
-        const value = formState[key];
-        if (!isEditing && key === "checkListOptionId") {
-          return true;
-        }
-        return value !== "" && value !== "" && String(value).trim() !== "";
-      }) && Object.values(error).every((err) => err === "")
-    );
-  };
-
-  const resetForm = () => {
-    setFormState({ checkListOptionId: "", checkListOptionName: "" });
-    setError({});
-    setIsEditing(false);
-  };
-
-  const saveData = async () => {
     const data = {
-      CLOptionID: formState.checkListOptionId,
-      CLOptionName: formState.checkListOptionName,
+      CLOptionID: values.checkListOptionId,
+      CLOptionName: values.checkListOptionName,
     };
 
     try {
@@ -114,7 +81,7 @@ const CheckListOptionScreen = React.memo(() => {
         "CheckListOption_service.asmx/GetCheckListOptions"
       );
       setCheckListOption(response.data.data ?? []);
-      resetForm();
+      setIsVisible(!response.data.status);
     } catch (error) {
       ShowMessages(
         error.message || "Error",
@@ -122,6 +89,7 @@ const CheckListOptionScreen = React.memo(() => {
         "error"
       );
     } finally {
+      setIsLoadingButton(false);
     }
   };
 
@@ -139,6 +107,7 @@ const CheckListOptionScreen = React.memo(() => {
           checkListOptionId: checkListOptionData.CLOptionID ?? "",
           checkListOptionName: checkListOptionData.CLOptionName ?? "",
         });
+        setIsVisible(true);
         setIsEditing(true);
       } else {
         if (action === "activeIndex") {
@@ -168,9 +137,18 @@ const CheckListOptionScreen = React.memo(() => {
         error.response ? error.response.data.errors : ["Something went wrong!"],
         "error"
       );
-    } finally {
     }
   };
+
+  useMemo(() => {
+    if (!isVisible) {
+      setInitialValues({
+        checkListOptionId: "",
+        checkListOptionName: "",
+      });
+      setIsEditing(false);
+    }
+  }, [isVisible]);
 
   const tableData = checkListOption.map((item) => {
     return [
@@ -197,37 +175,15 @@ const CheckListOptionScreen = React.memo(() => {
           <Card.Title>Create Option</Card.Title>
           <Card.Divider />
 
-          <Input
-            placeholder="Enter List Detail Name"
-            label="List Detail Name"
-            labelStyle={styles.text}
-            inputStyle={styles.text}
-            disabledInputStyle={styles.containerInput}
-            onChangeText={(text) => handleChange("checkListOptionName", text)}
-            value={formState.checkListOptionName}
-          />
-          {error.checkListOptionName ? (
-            <Text style={styles.errorText}>{error.checkListOptionName}</Text>
-          ) : null}
+          <Pressable
+            onPress={() => setIsVisible(true)}
+            style={[styles.button, styles.backMain]}
+          >
+            <Text style={[styles.text, styles.textLight]}>
+              Create Check List Option
+            </Text>
+          </Pressable>
 
-          <View style={styles.containerFlexStyle}>
-            <Pressable
-              onPress={saveData}
-              style={styles.buttonStyle}
-              disabled={!isFormValid()}
-            >
-              <Text style={styles.text}>Create</Text>
-            </Pressable>
-
-            <Pressable onPress={resetForm} style={styles.buttonStyle}>
-              <Text style={styles.text}>Reset</Text>
-            </Pressable>
-          </View>
-        </Card>
-
-        <Card>
-          <Card.Title>List Option</Card.Title>
-          <Card.Divider />
           {isLoading ? (
             <CustomTable
               Tabledata={tableData}
@@ -241,6 +197,15 @@ const CheckListOptionScreen = React.memo(() => {
           )}
         </Card>
       </ScrollView>
+
+      <Dialog_clo
+        style={{ styles, colors, spacing, responsive, fonts }}
+        isVisible={isVisible}
+        isEditing={isEditing}
+        initialValues={initialValues}
+        saveData={saveData}
+        setIsVisible={setIsVisible}
+      />
     </View>
   );
 });

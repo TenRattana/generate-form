@@ -5,6 +5,16 @@ import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
+const validationSchema = Yup.object().shape({
+  machineGroupName: Yup.string().required(
+    "The machine group name field is required."
+  ),
+  description: Yup.string().required("The description field is required."),
+  displayOrder: Yup.number()
+    .typeError("The display order field must be numeric.")
+    .required("The display order field is required."),
+});
+
 const Dialog_mg = ({
   style,
   isVisible,
@@ -15,15 +25,6 @@ const Dialog_mg = ({
 }) => {
   const { styles, colors, spacing, fonts, responsive } = style;
 
-  const validationSchema = Yup.object().shape({
-    machineGroupName: Yup.string().required(
-      "The machine group name field is required."
-    ),
-    description: Yup.string().required("The description field is required."),
-    displayOrder: Yup.number()
-      .typeError("The display order field must be numeric.")
-      .required("The display order field is required."),
-  });
   return (
     <View>
       <Dialog isVisible={isVisible}>
@@ -64,7 +65,7 @@ const Dialog_mg = ({
             isValid,
             dirty,
           }) => (
-            <Form>
+            <View>
               <Input
                 placeholder="Enter Machine Group Name"
                 label="Machine Group Name"
@@ -84,18 +85,15 @@ const Dialog_mg = ({
                     />
                   ) : null
                 }
+                errorMessage={
+                  touched.machineGroupName && errors.machineGroupName
+                    ? errors.machineGroupName
+                    : undefined
+                }
+                errorStyle={{
+                  left: -5,
+                }}
               />
-              {touched.machineGroupName && errors.machineGroupName && (
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textError,
-                    { marginLeft: spacing.xs, top: -spacing.xxs },
-                  ]}
-                >
-                  {errors.machineGroupName}
-                </Text>
-              )}
 
               <Input
                 placeholder="Enter Description"
@@ -116,18 +114,15 @@ const Dialog_mg = ({
                     />
                   ) : null
                 }
+                errorMessage={
+                  touched.description && errors.description
+                    ? errors.description
+                    : undefined
+                }
+                errorStyle={{
+                  left: -5,
+                }}
               />
-              {touched.description && errors.description && (
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textError,
-                    { marginLeft: spacing.xs, top: -spacing.xxs },
-                  ]}
-                >
-                  {errors.description}
-                </Text>
-              )}
 
               <Input
                 placeholder="Enter Display Order"
@@ -148,18 +143,15 @@ const Dialog_mg = ({
                     />
                   ) : null
                 }
+                errorMessage={
+                  touched.displayOrder && errors.displayOrder
+                    ? errors.displayOrder
+                    : undefined
+                }
+                errorStyle={{
+                  left: -5,
+                }}
               />
-              {touched.displayOrder && errors.displayOrder && (
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textError,
-                    { marginLeft: spacing.xs, top: -spacing.xxs },
-                  ]}
-                >
-                  {errors.displayOrder}
-                </Text>
-              )}
 
               <View style={styles.containerFlexStyle}>
                 <Pressable
@@ -188,7 +180,7 @@ const Dialog_mg = ({
                   </Text>
                 </Pressable>
               </View>
-            </Form>
+            </View>
           )}
         </Formik>
       </Dialog>

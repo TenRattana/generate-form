@@ -177,11 +177,7 @@ const MachineGroupScreen = () => {
 
           <Pressable
             onPress={() => setIsVisible(true)}
-            style={[
-              styles.button,
-              styles.backMain,
-              { flex: "none", width: 200 },
-            ]}
+            style={[styles.button, styles.backMain]}
           >
             <Text style={[styles.text, styles.textLight]}>
               Create Group Machine

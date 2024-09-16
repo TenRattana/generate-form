@@ -1,1 +1,1 @@
-export { default as Dialog_mg } from "./Dialog_m";
+export { default as Dialog_m } from "./Dialog_m";

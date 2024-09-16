@@ -1,17 +1,13 @@
 import React from "react";
 import { Text, View, Pressable } from "react-native";
-import { CustomDropdown } from "../../CustomDropdown";
+import { CustomDropdown } from "../../index";
 import { Dialog, Input } from "@rneui/themed";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 const validationSchema = Yup.object().shape({
-  // machineGroupId: Yup.string().when("$isEditing", {
-  //   is: true,
-  //   then: Yup.string().required("The machine group field is required."),
-  //   otherwise: Yup.string(),
-  // }),
+  machineGroupId: Yup.string().required("The machine group field is required."),
   machineName: Yup.string().required("The machine name field is required."),
   description: Yup.string().required("The description field is required."),
   displayOrder: Yup.number()
@@ -56,6 +52,8 @@ const Dialog_m = ({
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
+          validateOnBlur={false}
+          validateOnChange={true}
           onSubmit={(values) => {
             saveData(values);
             setIsVisible(false);
@@ -64,6 +62,7 @@ const Dialog_m = ({
           {({
             handleChange,
             handleBlur,
+            setFieldValue,
             values,
             errors,
             touched,
@@ -72,15 +71,21 @@ const Dialog_m = ({
             dirty,
           }) => (
             <View>
-              <CustomDropdown
-                fieldName="machineGroupId"
-                title="Machine Group"
-                labels="MGroupName"
-                values="MGroupID"
-                data={dropmachineGroup}
-                updatedropdown={handleChange("machineGroupId")}
-                reset={resetDropdown}
-                selectedValue={values.machineGroupId}
+              <Field
+                name="machineGroupId"
+                component={({ field, form }) => (
+                  <CustomDropdown
+                    title="Machine Group"
+                    labels="MGroupName"
+                    values="MGroupID"
+                    data={dropmachineGroup}
+                    selectedValue={values.machineGroupId}
+                    onValueChange={(value) => {
+                      setFieldValue(field.name, value);
+                      form.setTouched({ ...form.touched, [field.name]: true });
+                    }}
+                  />
+                )}
               />
 
               {touched.machineGroupId && errors.machineGroupId && (

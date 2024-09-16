@@ -6,8 +6,8 @@ import * as Yup from "yup";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 const validationSchema = Yup.object().shape({
-  machineGroupName: Yup.string().required(
-    "The machine group name field is required."
+  groupCheckListOptionName: Yup.string().required(
+    "The group check list option name field is required."
   ),
   description: Yup.string().required("The description field is required."),
   displayOrder: Yup.number()
@@ -15,7 +15,7 @@ const validationSchema = Yup.object().shape({
     .required("The display order field is required."),
 });
 
-const Dialog_mg = ({
+const Dialog_gclo = ({
   style,
   isVisible,
   isEditing,
@@ -43,8 +43,8 @@ const Dialog_mg = ({
           ]}
         >
           {isEditing
-            ? "Edit the details of the machine group."
-            : "Enter the details for the new machine group."}
+            ? "Edit the details of the check list."
+            : "Enter the details for the new check list."}
         </Text>
 
         <Formik
@@ -67,34 +67,37 @@ const Dialog_mg = ({
           }) => (
             <View>
               <Input
-                placeholder="Enter Machine Group Name"
-                label="Machine Group Name"
+                placeholder="Enter Group Check List"
+                label="Group Check List Name"
                 labelStyle={[styles.text, styles.textDark]}
                 inputStyle={[styles.text, styles.textDark]}
                 disabledInputStyle={styles.containerInput}
-                onChangeText={handleChange("machineGroupName")}
-                onBlur={handleBlur("machineGroupName")}
-                value={values.machineGroupName}
+                onChangeText={handleChange("groupCheckListOptionName")}
+                onBlur={handleBlur("groupCheckListOptionName")}
+                value={values.groupCheckListOptionName}
                 rightIcon={
-                  values.machineGroupName ? (
+                  values.groupCheckListOptionName ? (
                     <AntDesign
                       name="close"
                       size={20}
                       color={colors.palette.primary}
-                      onPress={() => handleChange("machineGroupName")("")}
+                      onPress={() =>
+                        handleChange("groupCheckListOptionName")("")
+                      }
                     />
                   ) : null
                 }
                 errorMessage={
-                  touched.machineGroupName && errors.machineGroupName
-                    ? errors.machineGroupName
+                  touched.groupCheckListOptionName &&
+                  errors.groupCheckListOptionName
+                    ? errors.groupCheckListOptionName
                     : undefined
                 }
                 errorStyle={{
                   left: -5,
                 }}
               />
-              {console.log(touched)}
+
               <Input
                 placeholder="Enter Description"
                 label="Description"
@@ -188,4 +191,4 @@ const Dialog_mg = ({
   );
 };
 
-export default Dialog_mg;
+export default Dialog_gclo;

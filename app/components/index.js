@@ -1,5 +1,5 @@
 export * from "./CustomTable";
-export * from "./CustomDropdown";
+export { default as CustomDropdown } from "./CustomDropdown";
 export * from "./CustomDropdownMulti";
 export { default as Selects } from "./Selects";
 export { default as Radios } from "./Radios";

@@ -1,13 +1,8 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
-import {
-  CustomTable,
-  CustomDropdown,
-  CustomDropdownMulti,
-  LoadingSpinner,
-} from "../components";
+import { CustomTable, LoadingSpinner, Dialog_mclo } from "../components";
 import validator from "validator";
 import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
@@ -17,20 +12,21 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
   const [checkListOption, setCheckListOption] = useState([]);
   const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [matchCheckListOption, setMatchCheckListOption] = useState([]);
-  const [formState, setFormState] = useState({
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const [resetDropdown, setResetDropdown] = useState(false);
+  const [initialValues, setInitialValues] = useState({
     matchCheckListOptionId: "",
     checkListOptionId: [],
     groupCheckListOptionId: "",
   });
-  const [error, setError] = useState({});
-  const [resetDropdown, setResetDropdown] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = screenStyles({ colors, spacing, fonts, responsive });
-  console.log("Forms");
+  console.log("MatchCheckListOptionScreen");
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({
@@ -76,54 +72,23 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
 
       fetchData();
       return () => {
-        resetForm();
+        setInitialValues({
+          matchCheckListOptionId: "",
+          checkListOptionId: [],
+          groupCheckListOptionId: "",
+        });
+        setIsEditing(false);
       };
     }, [])
   );
 
-  const handleChange = (fieldName, value) => {
-    let errorMessage = "";
+  const saveData = async (values) => {
+    setIsLoadingButton(true);
 
-    setError((prevError) => ({
-      ...prevError,
-      [fieldName]: errorMessage,
-    }));
-
-    setFormState((prevState) => ({
-      ...prevState,
-      [fieldName]: value,
-    }));
-  };
-
-  const isFormValid = () => {
-    return (
-      Object.keys(formState).every((key) => {
-        const value = formState[key];
-        if (!isEditing && key === "matchCheckListOptionId") {
-          return true;
-        }
-        return value !== "" && String(value).trim() !== "";
-      }) && Object.values(error).every((err) => err === "")
-    );
-  };
-
-  const resetForm = () => {
-    setFormState({
-      matchCheckListOptionId: "",
-      checkListOptionId: [],
-      groupCheckListOptionId: "",
-    });
-    setError({});
-    setIsEditing(false);
-    setResetDropdown(true);
-    setTimeout(() => setResetDropdown(false), 0);
-  };
-
-  const saveData = async () => {
     const data = {
-      MCLOptionID: formState.matchCheckListOptionId,
-      GCLOptionID: formState.groupCheckListOptionId,
-      CLOptionID: JSON.stringify(formState.checkListOptionId),
+      MCLOptionID: values.matchCheckListOptionId,
+      GCLOptionID: values.groupCheckListOptionId,
+      CLOptionID: JSON.stringify(values.checkListOptionId),
     };
 
     try {
@@ -135,7 +100,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
         "MatchCheckListOption_service.asmx/GetMatchCheckListOptions"
       );
       setMatchCheckListOption(response.data.data ?? []);
-      resetForm();
+      setIsVisible(!response.data.status);
     } catch (error) {
       ShowMessages(
         error.message || "Error",
@@ -143,10 +108,9 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
         "error"
       );
     } finally {
+      setIsLoadingButton(false);
     }
   };
-
-  console.log(formState);
 
   const handleAction = async (action, item) => {
     try {
@@ -158,13 +122,20 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           }
         );
         const matchCheckListOption = response.data.data[0] ?? {};
-        setFormState({
+
+        let option = [];
+        if (matchCheckListOption && matchCheckListOption.CheckListOptions) {
+          option = matchCheckListOption.CheckListOptions.map(
+            (v) => v.CLOptionID
+          );
+        }
+        setInitialValues({
           matchCheckListOptionId: matchCheckListOption.MCLOptionID ?? "",
           groupCheckListOptionId: matchCheckListOption.GCLOptionID ?? "",
-          checkListOptionId:
-            matchCheckListOption.CheckListOptions.map((v) => v.CLOptionID) ??
-            [],
+          checkListOptionId: option,
         });
+
+        setIsVisible(true);
         setIsEditing(true);
       } else {
         if (action === "activeIndex") {
@@ -196,6 +167,19 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
       );
     }
   };
+
+  useMemo(() => {
+    if (!isVisible) {
+      setInitialValues({
+        matchCheckListOptionId: "",
+        checkListOptionId: [],
+        groupCheckListOptionId: "",
+      });
+      setIsEditing(false);
+      setResetDropdown(true);
+      setTimeout(() => setResetDropdown(false), 0);
+    }
+  }, [isVisible]);
 
   const tableData = matchCheckListOption.flatMap((item) =>
     item.CheckListOptions.map((option) => {
@@ -242,46 +226,15 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           <Card.Title>Create Match Group & Option</Card.Title>
           <Card.Divider />
 
-          <CustomDropdown
-            fieldName="groupCheckListOptionId"
-            title="Group Check List Option"
-            labels="GCLOptionName"
-            values="GCLOptionID"
-            data={dropgroupCheckListOption}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.groupCheckListOptionId}
-          />
+          <Pressable
+            onPress={() => setIsVisible(true)}
+            style={[styles.button, styles.backMain]}
+          >
+            <Text style={[styles.text, styles.textLight]}>
+              Create Match Group & Option
+            </Text>
+          </Pressable>
 
-          <CustomDropdownMulti
-            fieldName="checkListOptionId"
-            title="Check List Option"
-            labels="CLOptionName"
-            values="CLOptionID"
-            data={dropcheckListOption}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.checkListOptionId}
-          />
-
-          <View style={styles.containerFlexStyle}>
-            <Pressable
-              onPress={saveData}
-              style={styles.buttonStyle}
-              disabled={!isFormValid()}
-            >
-              <Text style={styles.text}>Create</Text>
-            </Pressable>
-
-            <Pressable onPress={resetForm} style={styles.buttonStyle}>
-              <Text style={styles.text}>Reset</Text>
-            </Pressable>
-          </View>
-        </Card>
-
-        <Card>
-          <Card.Title>List Match Group & Option</Card.Title>
-          <Card.Divider />
           {isLoading ? (
             <CustomTable
               Tabledata={tableData}
@@ -301,6 +254,18 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           )}
         </Card>
       </ScrollView>
+
+      <Dialog_mclo
+        dropgroupCheckListOption={dropgroupCheckListOption}
+        dropcheckListOption={dropcheckListOption}
+        style={{ styles, colors, spacing, responsive, fonts }}
+        isVisible={isVisible}
+        isEditing={isEditing}
+        initialValues={initialValues}
+        saveData={saveData}
+        setIsVisible={setIsVisible}
+        resetDropdown={resetDropdown}
+      />
     </View>
   );
 });

@@ -103,7 +103,7 @@ const CheckListOptionScreen = React.memo(() => {
           }
         );
         const checkListOptionData = response.data.data[0] ?? {};
-        setFormState({
+        setInitialValues({
           checkListOptionId: checkListOptionData.CLOptionID ?? "",
           checkListOptionName: checkListOptionData.CLOptionName ?? "",
         });

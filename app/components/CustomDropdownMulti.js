@@ -1,105 +1,97 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Pressable, Text } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { colors, spacing, fonts } from "../../theme";
 import Entypo from "@expo/vector-icons/Entypo";
+import { colors, spacing, fonts } from "../../theme";
 
 export const CustomDropdownMulti = ({
-  fieldName,
   labels,
   values,
   title,
   data,
-  updatedropdown,
-  reset,
   selectedValue,
+  onValueChange,
+  optionStyle,
 }) => {
-  const [selected, setSelected] = useState([]);
-  const [option, setOption] = useState([]);
-  console.log("CustomDropdownMulti");
+  const [options, setOptions] = useState([]);
+  const [currentValue, setCurrentValue] = useState(selectedValue || []);
 
-  useMemo(() => {
+  useEffect(() => {
     if (data && Array.isArray(data)) {
-      setOption(
+      setOptions(
         data.map((item) => ({
           label: item[labels] || "",
           value: item[values] || "",
         }))
       );
-    } else {
-      setOption([]);
     }
   }, [data, labels, values]);
 
-  useMemo(() => {
-    if (reset) {
-      setSelected([]);
-    }
-  }, [reset]);
-
-  useMemo(() => {
-    setSelected(selectedValue || []);
+  useEffect(() => {
+    setCurrentValue(selectedValue || []);
   }, [selectedValue]);
 
-  const handleDropdownChange = (newValue) => {
-    setSelected(newValue);
-    updatedropdown(fieldName, newValue);
-  };
-
-  const handleClear = () => {
-    setSelected([]);
-    updatedropdown(fieldName, []);
-  };
-
-  const renderItem = (item) => {
-    return (
-      <View style={styles.item}>
-        <Text style={styles.selectedTextStyle}>{item.label}</Text>
-        <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
-      </View>
-    );
-  };
-
   return (
-    <View style={styles.container}>
+    <View>
       <MultiSelect
         style={styles.dropdown}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
-        data={option}
+        placeholderStyle={[styles.placeholderStyle, optionStyle]}
+        selectedTextStyle={[styles.selectedTextStyle, optionStyle]}
+        inputSearchStyle={[styles.inputSearchStyle, optionStyle]}
+        iconStyle={[styles.iconStyle, optionStyle]}
+        data={options}
+        search
+        maxHeight={300}
         labelField="label"
         valueField="value"
         placeholder={`Select ${title}`}
-        value={selected}
-        search
         searchPlaceholder={`Search ${title}...`}
-        onChange={handleDropdownChange}
+        value={currentValue}
+        onChange={(selectedItems) => {
+          setCurrentValue(selectedItems);
+          onValueChange(selectedItems);
+        }}
         renderLeftIcon={() => (
           <AntDesign
             style={styles.icon}
-            color="black"
+            color={optionStyle ? colors.palette.dark : colors.dark}
             name="addusergroup"
             size={20}
           />
         )}
         renderRightIcon={() => (
           <View style={styles.clearIcon}>
-            {selected.length < 0 ? (
+            {currentValue.length > 0 ? (
               <AntDesign
                 name="close"
                 size={20}
-                color={colors.dark}
-                onPress={handleClear}
+                color={optionStyle ? colors.palette.dark : colors.dark}
+                onPress={() => {
+                  setCurrentValue([]);
+                  onValueChange([]);
+                }}
               />
             ) : (
-              <Entypo name="chevron-down" size={20} color={colors.dark} />
+              <Entypo
+                name="chevron-down"
+                size={20}
+                color={optionStyle ? colors.palette.dark : colors.dark}
+              />
             )}
           </View>
         )}
-        renderItem={renderItem}
+        renderItem={(item) => (
+          <View style={styles.item}>
+            <Text style={styles.selectedTextStyle}>{item.label}</Text>
+            <AntDesign
+              style={styles.icon}
+              color="black"
+              name="Safety"
+              size={20}
+            />
+          </View>
+        )}
         renderSelectedItem={(item, unSelect) => (
           <Pressable onPress={() => unSelect && unSelect(item)}>
             <View style={styles.selectedStyle}>
@@ -151,7 +143,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 14,
     backgroundColor: "white",
-    boxShadow: "0px 1px 1.41px rgba(0, 0, 0, 0.2)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
     marginLeft: 12,
     marginVertical: 8,
     paddingHorizontal: 12,

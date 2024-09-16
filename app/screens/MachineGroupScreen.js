@@ -7,7 +7,7 @@ import { useTheme, useToast, useRes } from "../contexts";
 import screenStyles from "../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
-const MachineGroupScreen = () => {
+const MachineGroupScreen = React.memo(() => {
   const [machineGroup, setMachineGroup] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -208,6 +208,6 @@ const MachineGroupScreen = () => {
       />
     </View>
   );
-};
+});
 
 export default MachineGroupScreen;

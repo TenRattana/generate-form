@@ -3,11 +3,11 @@ import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
 import { CustomTable, LoadingSpinner, Dialog_cl } from "../components";
-import { useTheme, useToast, useRes } from "../contexts";
-import screenStyles from "../styles/screens/screen";
+import { useTheme, useToast, useRes } from "../../contexts";
+import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
-const CheckListScreen = () => {
+const CheckListScreen = React.memo(() => {
   const [checkList, setCheckList] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -150,7 +150,38 @@ const CheckListScreen = () => {
     ];
   });
 
-  const tableHead = ["Check List Name", "", "Change Status", "Edit", "Delete"];
+  const tableHead = [
+    "Check List Name",
+    "Status",
+    "Change Status",
+    "Edit",
+    "Delete",
+  ];
+
+  const actionIndex = [
+    {
+      activeIndex: 2,
+      editIndex: 3,
+      delIndex: 4,
+    },
+  ];
+
+  const customtableProps = {
+    Tabledata: tableData,
+    Tablehead: tableHead,
+    flexArr: [5, 1, 1, 1, 1],
+    actionIndex,
+    handleAction,
+  };
+
+  const dialog_clProps = {
+    style: { styles, colors, spacing, responsive, fonts },
+    isVisible,
+    isEditing,
+    initialValues,
+    saveData,
+    setIsVisible,
+  };
 
   return (
     <View style={styles.scrollView}>
@@ -169,29 +200,16 @@ const CheckListScreen = () => {
           </Pressable>
 
           {isLoading ? (
-            <CustomTable
-              Tabledata={tableData}
-              Tablehead={tableHead}
-              flexArr={[5, 1, 1, 1, 1]}
-              actionIndex={[{ activeIndex: 2, editIndex: 3, delIndex: 4 }]}
-              handleAction={handleAction}
-            />
+            <CustomTable {...customtableProps} />
           ) : (
             <LoadingSpinner />
           )}
         </Card>
       </ScrollView>
 
-      <Dialog_cl
-        style={{ styles, colors, spacing, responsive, fonts }}
-        isVisible={isVisible}
-        isEditing={isEditing}
-        initialValues={initialValues}
-        saveData={saveData}
-        setIsVisible={setIsVisible}
-      />
+      <Dialog_cl {...dialog_clProps} />
     </View>
   );
-};
+});
 
 export default CheckListScreen;

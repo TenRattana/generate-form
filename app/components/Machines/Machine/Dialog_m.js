@@ -1,8 +1,8 @@
 import React from "react";
 import { Text, View, Pressable } from "react-native";
-import { CustomDropdown } from "../../index";
+import CustomDropdown from "../../Common/CustomDropdown";
 import { Dialog, Input } from "@rneui/themed";
-import { Formik, Field, Form, ErrorMessage } from "formik";
+import { Formik, Field } from "formik";
 import * as Yup from "yup";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
@@ -23,9 +23,9 @@ const Dialog_m = ({
   saveData,
   setIsVisible,
   dropmachineGroup,
-  resetDropdown,
+  machineGroup,
 }) => {
-  const { styles, colors, spacing, fonts, responsive } = style;
+  const { styles, colors, spacing } = style;
 
   return (
     <View>
@@ -78,7 +78,7 @@ const Dialog_m = ({
                     title="Machine Group"
                     labels="MGroupName"
                     values="MGroupID"
-                    data={dropmachineGroup}
+                    data={isEditing ? machineGroup : dropmachineGroup}
                     selectedValue={values.machineGroupId}
                     onValueChange={(value) => {
                       setFieldValue(field.name, value);
@@ -194,7 +194,7 @@ const Dialog_m = ({
                     styles.button,
                     isValid && dirty ? styles.backMain : styles.backDis,
                   ]}
-                  disabled={!isValid && !dirty}
+                  disabled={!isValid || !dirty}
                 >
                   <Text
                     style={[styles.textBold, styles.text, styles.textLight]}

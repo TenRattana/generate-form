@@ -1,25 +1,25 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
-import { CustomTable, CustomDropdown, LoadingSpinner } from "../components";
-import validator from "validator";
-import { useTheme, useToast, useRes } from "../contexts";
-import screenStyles from "../styles/screens/screen";
+import { CustomTable, LoadingSpinner, Dialog_mfm } from "../components";
+import { useTheme, useToast, useRes } from "../../contexts";
+import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const MatchFormMachineScreen = React.memo(({ navigation }) => {
   const [form, setForm] = useState([]);
   const [machine, setMachine] = useState([]);
   const [matchForm, setMatchForm] = useState([]);
-  const [formState, setFormState] = useState({
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const [resetDropdown, setResetDropdown] = useState(false);
+  const [initialValues, setInitialValues] = useState({
     machineId: "",
     formId: "",
   });
-  const [error, setError] = useState({});
-  const [resetDropdown, setResetDropdown] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
@@ -63,60 +63,28 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
 
       fetchData();
       return () => {
-        resetForm();
+        setInitialValues({
+          machineId: "",
+          formId: "",
+        });
+        setIsEditing(false);
       };
     }, [])
   );
 
-  const handleChange = (fieldName, value) => {
-    let errorMessage = "";
+  const saveData = async (values) => {
+    setIsLoadingButton(true);
 
-    setError((prevError) => ({
-      ...prevError,
-      [fieldName]: errorMessage,
-    }));
-
-    setFormState((prevState) => ({
-      ...prevState,
-      [fieldName]: value,
-    }));
-  };
-
-  const isFormValid = () => {
-    return (
-      Object.keys(formState).every((key) => {
-        const value = formState[key];
-        if (!isEditing && key === "machineId") {
-          return true;
-        }
-        return value !== "" && String(value).trim() !== "";
-      }) && Object.values(error).every((err) => err === "")
-    );
-  };
-
-  const resetForm = () => {
-    setFormState({
-      machineId: "",
-      formId: "",
-      isActive: false,
-    });
-    setError({});
-    setIsEditing(false);
-    setResetDropdown(true);
-    setTimeout(() => setResetDropdown(false), 0);
-  };
-
-  const saveData = async () => {
     const data = {
-      MachineID: formState.machineId,
-      FormID: formState.formId,
+      MachineID: values.machineId,
+      FormID: values.formId,
     };
 
     try {
       await axios.post("SaveForm", data);
       const response = await axios.post("GetMatchFormMachines");
       setMatchForm(response.data.data ?? []);
-      resetForm();
+      setIsVisible(!response.data.status);
     } catch (error) {
       ShowMessages(
         error.message || "Error",
@@ -124,6 +92,7 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         "error"
       );
     } finally {
+      setIsLoadingButton(false);
     }
   };
 
@@ -134,22 +103,26 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
           MachineID: item,
         });
         const machineData = response.data.data[0] ?? {};
-        setFormState({
+        setInitialValues({
           machineId: machineData.MachineID ?? "",
           formId: machineData.FormID ?? "",
         });
+
+        setIsVisible(true);
         setIsEditing(true);
-      } else if (action === "delIndex") {
-        const response1 = await axios.post("DeleteMatchForm", {
-          FormID: item.form,
-          MachineID: item.machine,
-        });
-        const response = await axios.post("GetMatchFormMachines");
-        setMatchForm(response.data.data || []);
-      } else if (action === "changeIndex") {
-        navigation.navigate("Create Form", { machineId: item });
-      } else if (action === "preIndex") {
-        navigation.navigate("View Form", { machineId: item });
+      } else {
+        if (action === "delIndex") {
+          await axios.post("DeleteMatchForm", {
+            FormID: item.form,
+            MachineID: item.machine,
+          });
+          const response = await axios.post("GetMatchFormMachines");
+          setMatchForm(response.data.data || []);
+        } else if (action === "changeIndex") {
+          navigation.navigate("Create Form", { machineId: item });
+        } else if (action === "preIndex") {
+          navigation.navigate("View Form", { machineId: item });
+        }
       }
     } catch (error) {
       ShowMessages(
@@ -159,6 +132,18 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
       );
     }
   };
+
+  useMemo(() => {
+    if (!isVisible) {
+      setInitialValues({
+        machineId: "",
+        formId: "",
+      });
+      setIsEditing(false);
+      setResetDropdown(true);
+      setTimeout(() => setResetDropdown(false), 0);
+    }
+  }, [isVisible]);
 
   const tableData = matchForm.map((item) => {
     return [
@@ -200,49 +185,18 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     <View style={styles.scrollView}>
       <ScrollView>
         <Card>
-          <Card.Title>List Form</Card.Title>
+          <Card.Title>Create Match Machine & Form</Card.Title>
           <Card.Divider />
 
-          <CustomDropdown
-            fieldName="machineId"
-            title="Machine"
-            labels="MachineName"
-            values="MachineID"
-            data={dropmachine}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.machineId}
-          />
+          <Pressable
+            onPress={() => setIsVisible(true)}
+            style={[styles.button, styles.backMain]}
+          >
+            <Text style={[styles.text, styles.textLight]}>
+              Create Match Machine & Form
+            </Text>
+          </Pressable>
 
-          <CustomDropdown
-            fieldName="formId"
-            title="Form"
-            labels="FormName"
-            values="FormID"
-            data={dropform}
-            updatedropdown={handleChange}
-            reset={resetDropdown}
-            selectedValue={formState.formId}
-          />
-
-          <View style={styles.containerFlexStyle}>
-            <Pressable
-              onPress={saveData}
-              style={styles.buttonStyle}
-              disabled={!isFormValid()}
-            >
-              <Text style={styles.text}>Create</Text>
-            </Pressable>
-
-            <Pressable onPress={resetForm} style={styles.buttonStyle}>
-              <Text style={styles.text}>Reset</Text>
-            </Pressable>
-          </View>
-        </Card>
-
-        <Card>
-          <Card.Title>List Machine</Card.Title>
-          <Card.Divider />
           {isLoading ? (
             <CustomTable
               Tabledata={tableData}
@@ -264,6 +218,18 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
           )}
         </Card>
       </ScrollView>
+
+      <Dialog_mfm
+        dropmachine={dropmachine}
+        dropform={dropform}
+        style={{ styles, colors, spacing, responsive, fonts }}
+        isVisible={isVisible}
+        isEditing={isEditing}
+        initialValues={initialValues}
+        saveData={saveData}
+        setIsVisible={setIsVisible}
+        resetDropdown={resetDropdown}
+      />
     </View>
   );
 });

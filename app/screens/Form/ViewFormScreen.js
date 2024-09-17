@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Layout2 } from "../../components/Forms";
-import { LoadingSpinner } from "../../components";
+import { Layout2, LoadingSpinner } from "../../components";
 import axios from "../../../config/axios";
-import formStyles from "../../styles/forms/form";
-import { setSubForm, setField, setExpected, reset } from "../../slices";
-import { useTheme, useToast, useRes } from "../../contexts";
-import { useFormBuilder } from "../../customhooks";
+import formStyles from "../../../styles/forms/form";
+import { setSubForm, setField, setExpected, reset } from "../../../slices";
+import { useTheme, useToast, useRes } from "../../../contexts";
+import { useFormBuilder } from "../../../customhooks";
 
 const ViewFormScreen = ({ route }) => {
   const dispatch = useDispatch();
@@ -155,31 +154,30 @@ const ViewFormScreen = ({ route }) => {
     }
   };
 
-  console.log(vform);
+  const layout2Props = {
+    form: vform,
+    style: { styles, spacing, fonts, colors, responsive },
+    state,
+    checkListType,
+    checkList,
+    formData,
+    handleChange,
+    groupCheckListOption,
+    handleSubmit,
+  };
+  if (isLoading) {
+    return (
+      <View style={styles.scrollView}>
+        <ScrollView>
+          <View style={[styles.layout2, { width: "100%" }]}>
+            <Layout2 {...layout2Props} />
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
 
-  return (
-    <View style={styles.scrollView}>
-      <ScrollView>
-        <View style={[styles.layout2, { width: "100%" }]}>
-          {isLoading ? (
-            <Layout2
-              form={vform}
-              style={{ styles, colors, spacing, fonts, responsive }}
-              state={state}
-              checkListType={checkListType}
-              checkList={checkList}
-              formData={formData}
-              handleChange={handleChange}
-              groupCheckListOption={groupCheckListOption}
-              handleSubmit={handleSubmit}
-            />
-          ) : (
-            <LoadingSpinner />
-          )}
-        </View>
-      </ScrollView>
-    </View>
-  );
+  return <LoadingSpinner />;
 };
 
 export default ViewFormScreen;

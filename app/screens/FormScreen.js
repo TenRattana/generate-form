@@ -1,11 +1,10 @@
 import React, { useState, useCallback } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
-import { Button, Card } from "@rneui/themed";
+import { Card } from "@rneui/themed";
 import { CustomTable, LoadingSpinner } from "../components";
-import validator from "validator";
-import { useTheme, useToast, useRes } from "../contexts";
-import screenStyles from "../styles/screens/screen";
+import { useTheme, useToast, useRes } from "../../contexts";
+import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const FormScreen = React.memo(({ navigation }) => {
@@ -78,7 +77,6 @@ const FormScreen = React.memo(({ navigation }) => {
         error.response ? error.response.data.errors : ["Something went wrong!"],
         "error"
       );
-    } finally {
     }
   };
 
@@ -110,40 +108,40 @@ const FormScreen = React.memo(({ navigation }) => {
     "Delete",
   ];
 
+  const actionIndex = [
+    {
+      activeIndex: 3,
+      changeIndex: 4,
+      copyIndex: 5,
+      preIndex: 6,
+      delIndex: 7,
+    },
+  ];
+
+  const customtableProps = {
+    Tabledata: tableData,
+    Tablehead: tableHead,
+    flexArr: [2, 4, 1, 1, 1, 1, 1, 1],
+    actionIndex,
+    handleAction,
+  };
+
   return (
     <View style={styles.scrollView}>
       <ScrollView>
         <Card>
           <Card.Title>Forms</Card.Title>
           <Card.Divider />
-          <Button
-            title="New Form"
-            type="outline"
-            titleStyle={styles.text}
-            containerStyle={{
-              width: 300,
-              marginHorizontal: "1%",
-              marginTop: "1%",
-            }}
+
+          <Pressable
             onPress={handleNewForm}
-          />
+            style={[styles.button, styles.backMain]}
+          >
+            <Text style={[styles.text, styles.textLight]}>New Form</Text>
+          </Pressable>
 
           {isLoading ? (
-            <CustomTable
-              Tabledata={tableData}
-              Tablehead={tableHead}
-              flexArr={[2, 4, 1, 1, 1, 1, 1, 1]}
-              actionIndex={[
-                {
-                  activeIndex: 3,
-                  changeIndex: 4,
-                  copyIndex: 5,
-                  preIndex: 6,
-                  delIndex: 7,
-                },
-              ]}
-              handleAction={handleAction}
-            />
+            <CustomTable {...customtableProps} />
           ) : (
             <LoadingSpinner />
           )}

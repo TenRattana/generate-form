@@ -1,8 +1,8 @@
-import React, { lazy, Suspense } from "react";
+import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { ThemeProvider, ToastProvider, ResponsiveProvider } from "./contexts";
+import { ThemeProvider, ToastProvider, ResponsiveProvider } from "../contexts";
 import { Provider } from "react-redux";
-import { store } from "./store";
+import { store } from "../store";
 
 import {
   HomeScreen,
@@ -20,7 +20,6 @@ import {
 
 const Drawer = createDrawerNavigator();
 
-console.log("app");
 export default function App() {
   return (
     <Provider store={store}>

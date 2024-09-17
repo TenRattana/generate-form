@@ -3,9 +3,8 @@ import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
 import { CustomTable, LoadingSpinner, Dialog_mclo } from "../components";
-import validator from "validator";
-import { useTheme, useToast, useRes } from "../contexts";
-import screenStyles from "../styles/screens/screen";
+import { useTheme, useToast, useRes } from "../../contexts";
+import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
@@ -219,6 +218,33 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
       ? groupCheckListOption.filter((v) => v.IsActive)
       : dropgroupCheckListOption;
 
+  const actionIndex = {
+    activeIndex: 3,
+    editIndex: 4,
+    delIndex: 5,
+  };
+
+  const customtableProps = {
+    Tabledata: tableData,
+    Tablehead: tableHead,
+    flexArr: [4, 4, 1, 1, 1, 1],
+    actionIndex,
+    handleAction,
+  };
+
+  const dialog_mcloProps = {
+    dropgroupCheckListOption,
+    groupCheckListOption,
+    dropcheckListOption,
+    checkListOption,
+    style: { styles, colors, spacing, responsive, fonts },
+    isVisible,
+    isEditing,
+    initialValues,
+    saveData,
+    setIsVisible,
+  };
+
   return (
     <View style={styles.scrollView}>
       <ScrollView>
@@ -236,36 +262,14 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           </Pressable>
 
           {isLoading ? (
-            <CustomTable
-              Tabledata={tableData}
-              Tablehead={tableHead}
-              flexArr={[4, 4, 1, 1, 1, 1]}
-              actionIndex={[
-                {
-                  activeIndex: 3,
-                  editIndex: 4,
-                  delIndex: 5,
-                },
-              ]}
-              handleAction={handleAction}
-            />
+            <CustomTable {...customtableProps} />
           ) : (
             <LoadingSpinner />
           )}
         </Card>
       </ScrollView>
 
-      <Dialog_mclo
-        dropgroupCheckListOption={dropgroupCheckListOption}
-        dropcheckListOption={dropcheckListOption}
-        style={{ styles, colors, spacing, responsive, fonts }}
-        isVisible={isVisible}
-        isEditing={isEditing}
-        initialValues={initialValues}
-        saveData={saveData}
-        setIsVisible={setIsVisible}
-        resetDropdown={resetDropdown}
-      />
+      <Dialog_mclo {...dialog_mcloProps} />
     </View>
   );
 });

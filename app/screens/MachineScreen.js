@@ -8,11 +8,11 @@ import {
   LoadingSpinner,
   Dialog_m,
 } from "../components";
-import { useTheme, useToast, useRes } from "../contexts";
-import screenStyles from "../styles/screens/screen";
+import { useTheme, useToast, useRes } from "../../contexts";
+import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
-const MachineScreen = () => {
+const MachineScreen = React.memo(() => {
   const [machine, setMachine] = useState([]);
   const [machineGroup, setMachineGroup] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -179,10 +179,18 @@ const MachineScreen = () => {
     "Machine Name",
     "Description",
     "Priority",
-    "",
+    "Status",
     "Change Status",
     "Edit",
     "Delete",
+  ];
+
+  const actionIndex = [
+    {
+      activeIndex: 5,
+      editIndex: 6,
+      delIndex: 7,
+    },
   ];
 
   let dropmachineGroup = [];
@@ -191,6 +199,25 @@ const MachineScreen = () => {
     Array.isArray(machineGroup) && machineGroup.length > 0
       ? machineGroup.filter((v) => v.IsActive)
       : dropmachineGroup;
+
+  const customtableProps = {
+    Tabledata: tableData,
+    Tablehead: tableHead,
+    flexArr: [3, 3, 3, 1, 1, 2],
+    actionIndex,
+    handleAction,
+  };
+
+  const dialog_mProps = {
+    dropmachineGroup,
+    machineGroup,
+    style: { styles, colors, spacing, responsive, fonts },
+    isVisible,
+    isEditing,
+    initialValues,
+    saveData,
+    setIsVisible,
+  };
 
   return (
     <View style={styles.scrollView}>
@@ -207,31 +234,16 @@ const MachineScreen = () => {
           </Pressable>
 
           {isLoading ? (
-            <CustomTable
-              Tabledata={tableData}
-              Tablehead={tableHead}
-              flexArr={[2, 2, 3, 1, 1, 1, 1, 1]}
-              actionIndex={[{ activeIndex: 5, editIndex: 6, delIndex: 7 }]}
-              handleAction={handleAction}
-            />
+            <CustomTable {...customtableProps} />
           ) : (
             <LoadingSpinner />
           )}
         </Card>
       </ScrollView>
 
-      <Dialog_m
-        dropmachineGroup={dropmachineGroup}
-        style={{ styles, colors, spacing, responsive, fonts }}
-        isVisible={isVisible}
-        isEditing={isEditing}
-        initialValues={initialValues}
-        saveData={saveData}
-        setIsVisible={setIsVisible}
-        resetDropdown={resetDropdown}
-      />
+      <Dialog_m {...dialog_mProps} />
     </View>
   );
-};
+});
 
 export default MachineScreen;

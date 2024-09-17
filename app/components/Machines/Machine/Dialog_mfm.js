@@ -1,31 +1,27 @@
 import React from "react";
 import { Text, View, Pressable } from "react-native";
-import { Dialog } from "@rneui/themed";
-import { Formik, Field } from "formik";
-import * as Yup from "yup";
 import CustomDropdown from "../../Common/CustomDropdown";
-import CustomDropdownMulti from "../../Common/CustomDropdownMulti";
+import { Dialog } from "@rneui/themed";
+import { Formik, Field, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
-  groupCheckListOptionId: Yup.string().required(
-    "This group check list field is required"
-  ),
-  checkListOptionId: Yup.array()
-    .of(Yup.string())
-    .min(1, "The check list option filed least one option must be selected"),
+  machineId: Yup.string().required("This machine field is required"),
+  formId: Yup.string().required("This form field is required"),
 });
 
-const Dialog_mclo = ({
+const Dialog_mfm = ({
   style,
   isVisible,
   isEditing,
   initialValues,
   saveData,
   setIsVisible,
-  dropgroupCheckListOption,
-  dropcheckListOption,
+  dropmachine,
+  dropform,
+  resetDropdown,
 }) => {
-  const { styles } = style;
+  const { styles, colors, spacing, fonts, responsive } = style;
   console.log(initialValues);
 
   return (
@@ -42,8 +38,8 @@ const Dialog_mclo = ({
           ]}
         >
           {isEditing
-            ? "Edit the details of the match check list option."
-            : "Enter the details for the new match check list option."}
+            ? "Edit the details of the match machine and form."
+            : "Enter the details for the new match machine and form."}
         </Text>
 
         <Formik
@@ -68,14 +64,43 @@ const Dialog_mclo = ({
           }) => (
             <View>
               <Field
-                name="groupCheckListOptionId"
+                name="machineId"
+                component={({ field, form }) => (
+                  <CustomDropdown
+                    title="Machine"
+                    labels="MachineName"
+                    values="MachineID"
+                    data={dropmachine}
+                    selectedValue={values.machineId}
+                    onValueChange={(value) => {
+                      setFieldValue(field.name, value);
+                      form.setTouched({ ...form.touched, [field.name]: true });
+                    }}
+                  />
+                )}
+              />
+
+              {touched.machineId && errors.machineId && (
+                <Text
+                  style={[
+                    styles.text,
+                    styles.textError,
+                    { marginLeft: spacing.xs, top: -spacing.xxs },
+                  ]}
+                >
+                  {errors.machineId}
+                </Text>
+              )}
+
+              <Field
+                name="formId"
                 component={({ field, form }) => (
                   <CustomDropdown
                     title="Group Check List Option"
-                    labels="GCLOptionName"
-                    values="GCLOptionID"
-                    data={dropgroupCheckListOption}
-                    selectedValue={values.groupCheckListOptionId}
+                    labels="FormName"
+                    values="FormID"
+                    data={dropform}
+                    selectedValue={values.formId}
                     onValueChange={(value) => {
                       setFieldValue(field.name, value);
                       form.setTouched({ ...form.touched, [field.name]: true });
@@ -84,8 +109,7 @@ const Dialog_mclo = ({
                 )}
               />
 
-              {touched.groupCheckListOptionId &&
-              errors.groupCheckListOptionId ? (
+              {touched.formId && errors.formId ? (
                 <Text
                   style={{
                     color: "red",
@@ -94,39 +118,7 @@ const Dialog_mclo = ({
                     top: -10,
                   }}
                 >
-                  {errors.groupCheckListOptionId}
-                </Text>
-              ) : null}
-
-              <Field
-                name="checkListOptionId"
-                component={({ field, form }) => (
-                  <CustomDropdownMulti
-                    title="Check List Option"
-                    labels="CLOptionName"
-                    values="CLOptionID"
-                    data={dropcheckListOption}
-                    selectedValue={values.checkListOptionId || []}
-                    onValueChange={(value) => {
-                      setFieldValue(field.name, value);
-                      form.setTouched({ ...form.touched, [field.name]: true });
-                      console.log("Dropdown Multi selected values: ", value);
-                      console.log("Formik field: ", field);
-                    }}
-                  />
-                )}
-              />
-
-              {touched.checkListOptionId && errors.checkListOptionId ? (
-                <Text
-                  style={{
-                    color: "red",
-                    marginVertical: 10,
-                    left: 10,
-                    top: -10,
-                  }}
-                >
-                  {errors.checkListOptionId}
+                  {errors.formId}
                 </Text>
               ) : null}
 
@@ -165,4 +157,4 @@ const Dialog_mclo = ({
   );
 };
 
-export default Dialog_mclo;
+export default Dialog_mfm;

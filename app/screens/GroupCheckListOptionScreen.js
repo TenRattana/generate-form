@@ -3,8 +3,8 @@ import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
 import { CustomTable, LoadingSpinner, Dialog_gclo } from "../components";
-import { useTheme, useToast, useRes } from "../contexts";
-import screenStyles from "../styles/screens/screen";
+import { useTheme, useToast, useRes } from "../../contexts";
+import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const GroupCheckListOptionScreen = React.memo(() => {
@@ -184,6 +184,25 @@ const GroupCheckListOptionScreen = React.memo(() => {
     "Delete",
   ];
 
+  const actionIndex = [{ activeIndex: 4, editIndex: 5, delIndex: 6 }];
+
+  const customtableProps = {
+    Tabledata: tableData,
+    Tablehead: tableHead,
+    flexArr: [3, 5, 1, 1, 1, 1, 1],
+    actionIndex,
+    handleAction,
+  };
+
+  const dialog_gcloProps = {
+    style: { styles, colors, spacing, responsive, fonts },
+    isVisible,
+    isEditing,
+    initialValues,
+    saveData,
+    setIsVisible,
+  };
+
   return (
     <View style={styles.scrollView}>
       <ScrollView>
@@ -201,27 +220,14 @@ const GroupCheckListOptionScreen = React.memo(() => {
           </Pressable>
 
           {isLoading ? (
-            <CustomTable
-              Tabledata={tableData}
-              Tablehead={tableHead}
-              flexArr={[3, 5, 1, 1, 1, 1, 1]}
-              actionIndex={[{ activeIndex: 4, editIndex: 5, delIndex: 6 }]}
-              handleAction={handleAction}
-            />
+            <CustomTable {...customtableProps} />
           ) : (
             <LoadingSpinner />
           )}
         </Card>
       </ScrollView>
 
-      <Dialog_gclo
-        style={{ styles, colors, spacing, responsive, fonts }}
-        isVisible={isVisible}
-        isEditing={isEditing}
-        initialValues={initialValues}
-        saveData={saveData}
-        setIsVisible={setIsVisible}
-      />
+      <Dialog_gclo {...dialog_gcloProps} />
     </View>
   );
 });

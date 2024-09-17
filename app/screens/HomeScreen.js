@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, FlatList, Pressable, ScrollView } from "react-native";
 import { Button, Card } from "@rneui/themed";
-import { useTheme, useToast, useRes } from "../contexts";
+import { useTheme, useToast, useRes } from "../../contexts";
 import axios from "../../config/axios";
-import screenStyles from "../styles/screens/screen";
+import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = React.memo(({ navigation }) => {
   const [machineGroup, setMachineGroup] = useState({});
   const [machine, setMachine] = useState({});
   const { colors, fonts, spacing } = useTheme();
@@ -149,6 +149,6 @@ const HomeScreen = ({ navigation }) => {
       </View>
     </React.Fragment>
   );
-};
+});
 
 export default HomeScreen;

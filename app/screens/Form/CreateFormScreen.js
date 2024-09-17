@@ -1,11 +1,9 @@
 import React from "react";
-import { ScrollView, View, Text } from "react-native";
-import { useSelector } from "react-redux";
-import { useFormBuilder } from "../../customhooks";
-import { Layout1, Layout2 } from "../../components/Forms";
-import formStyles from "../../styles/forms/form";
-import { useTheme, useToast, useRes } from "../../contexts";
-import { LoadingSpinner } from "../../components";
+import { View } from "react-native";
+import { useFormBuilder } from "../../../customhooks";
+import { Layout1, Layout2, LoadingSpinner } from "../../components";
+import formStyles from "../../../styles/forms/form";
+import { useTheme, useToast, useRes } from "../../../contexts";
 
 const FormBuilder = ({ route }) => {
   const {
@@ -50,64 +48,65 @@ const FormBuilder = ({ route }) => {
   const styles = formStyles({ colors, spacing, fonts, responsive });
   console.log("CreateForm");
 
-  return (
-    <View>
-      {isLoading ? (
-        <View style={styles.container}>
-          <View style={styles.layout1}>
-            <View style={{ margin: 30 }}>
-              <Layout1
-                style={{ styles, colors, spacing, fonts, responsive }}
-                state={state}
-                handleSubForm={handleSubForm}
-                saveSubForm={saveSubForm}
-                subForm={subForm}
-                form={form}
-                error={error}
-                shouldRender={shouldRender}
-                shouldRenderDT={shouldRenderDT}
-                editMode={editMode}
-                resetForm={resetForm}
-                setEditMode={setEditMode}
-                setShowDialogs={setShowDialogs}
-                showDialogs={showDialogs}
-                setSelectedIndex={setSelectedIndex}
-                selectedIndex={selectedIndex}
-                setSubForm={setSubInForm}
-                handleForm={handleForm}
-                saveForm={saveForm}
-                setFormState={setFormState}
-                formState={formState}
-                saveField={saveField}
-                handleFieldChange={handleFieldChange}
-                checkList={checkList}
-                resetDropdown={resetDropdown}
-                checkListType={checkListType}
-                dataType={dataType}
-                groupCheckListOption={groupCheckListOption}
-              />
-            </View>
-          </View>
+  const layout1Props = {
+    style: { styles, colors, spacing, fonts, responsive },
+    state,
+    handleSubForm,
+    saveSubForm,
+    subForm,
+    form,
+    error,
+    shouldRender,
+    shouldRenderDT,
+    editMode,
+    resetForm,
+    setEditMode,
+    setShowDialogs,
+    showDialogs,
+    setSelectedIndex,
+    selectedIndex,
+    setSubForm: setSubInForm,
+    handleForm,
+    saveForm,
+    setFormState,
+    formState,
+    saveField,
+    handleFieldChange,
+    checkList,
+    resetDropdown,
+    checkListType,
+    dataType,
+    groupCheckListOption,
+  };
 
-          <View style={styles.layout2}>
-            <Layout2
-              form={form}
-              style={{ styles, spacing, fonts, colors, responsive }}
-              state={state}
-              checkListType={checkListType}
-              checkList={checkList}
-              formData={formData}
-              handleChange={handleChange}
-              groupCheckListOption={groupCheckListOption}
-              handleSubmit={handleSubmit}
-            />
+  const layout2Props = {
+    form,
+    style: { styles, spacing, fonts, colors, responsive },
+    state,
+    checkListType,
+    checkList,
+    formData,
+    handleChange,
+    groupCheckListOption,
+    handleSubmit,
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.layout1}>
+          <View style={{ margin: 30 }}>
+            <Layout1 {...layout1Props} />
           </View>
         </View>
-      ) : (
-        <LoadingSpinner />
-      )}
-    </View>
-  );
+        <View style={styles.layout2}>
+          <Layout2 {...layout2Props} />
+        </View>
+      </View>
+    );
+  }
+
+  return <LoadingSpinner />;
 };
 
 export default FormBuilder;

@@ -186,7 +186,7 @@ const MachineGroupScreen = React.memo(() => {
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [2, 2, 1, 1, 1, 1, 1],
+    flexArr: [2, 3, 1, 1, 1, 1, 1],
     actionIndex,
     handleAction,
   };

@@ -11,6 +11,7 @@ import {
 import { useTheme, useToast, useRes } from "../../contexts";
 import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
+import { Portal } from "react-native-paper";
 
 const MachineScreen = React.memo(() => {
   const [machine, setMachine] = useState([]);
@@ -121,8 +122,8 @@ const MachineScreen = React.memo(() => {
           description: machineData.Description ?? "",
           displayOrder: String(machineData.DisplayOrder) ?? "",
         });
-        setIsVisible(true);
         setIsEditing(true);
+        setIsVisible(true);
       } else {
         if (action === "activeIndex") {
           await axios.post("Machine_service.asmx/ChangeMachine", {
@@ -155,6 +156,7 @@ const MachineScreen = React.memo(() => {
         description: "",
       });
       setIsEditing(false);
+      setIsVisible(false);
       setResetDropdown(true);
       setTimeout(() => setResetDropdown(false), 0);
     }
@@ -241,7 +243,9 @@ const MachineScreen = React.memo(() => {
         </Card>
       </ScrollView>
 
-      <Dialog_m {...dialog_mProps} />
+      <Portal>
+        <Dialog_m {...dialog_mProps} />
+      </Portal>
     </View>
   );
 });

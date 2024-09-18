@@ -13,6 +13,7 @@ const validationSchema = Yup.object().shape({
   displayOrder: Yup.number()
     .typeError("The display order field must be numeric.")
     .required("The display order field is required."),
+  isActive: Yup.boolean("The active field is required."),
 });
 
 const Dialog_m = ({
@@ -28,22 +29,10 @@ const Dialog_m = ({
   const { styles, colors, spacing } = style;
 
   return (
-    <Dialog isVisible={isVisible} onDismiss={() => setIsVisible(false)}>
-      <Dialog.Title
-        title={isEditing ? "Edit" : "Create"}
-        titleStyle={{ alignSelf: "center" }}
-      />
+    <Dialog visible={isVisible} onDismiss={() => setIsVisible(false)}>
+      <Dialog.Title title={isEditing ? "Edit" : "Create"} />
       <Dialog.Content>
-        <Text
-          style={[
-            styles.textDark,
-            {
-              justifyContent: "center",
-              marginBottom: 10,
-              paddingLeft: 10,
-            },
-          ]}
-        >
+        <Text style={[styles.textDark, { marginBottom: 10, paddingLeft: 10 }]}>
           {isEditing
             ? "Edit the details of the machine."
             : "Enter the details for the new machine."}

@@ -24,7 +24,7 @@ const Dialog_mfm = ({
   console.log(initialValues);
 
   return (
-    <Dialog isVisible={isVisible} onDismiss={() => setIsVisible(false)}>
+    <Dialog visible={isVisible} onDismiss={() => setIsVisible(false)}>
       <Dialog.Title
         title={isEditing ? "Edit" : "Create"}
         titleStyle={{ alignSelf: "center" }}

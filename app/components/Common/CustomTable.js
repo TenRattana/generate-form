@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from "react";
+import React, { useRef, useMemo, useState, useEffect } from "react";
 import { View, Text, Pressable, Animated } from "react-native";
 import { DataTable } from "react-native-paper";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -15,7 +15,9 @@ const CustomTable = ({
   actionIndex,
 }) => {
   const [action, setAction] = useState([]);
-
+  const [page, setPage] = useState(0);
+  const numberOfItemsPerPageList = [2, 3, 4];
+  const [itemsPerPage, setItemsPerPage] = useState(numberOfItemsPerPageList[0]);
   const { colors, fonts, spacing } = useTheme();
   const { responsive } = useRes();
   const styles = customtableStyle({ colors, spacing, fonts, responsive });
@@ -23,91 +25,76 @@ const CustomTable = ({
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useMemo(() => {
-    if (actionIndex && Array.isArray(actionIndex)) setAction(actionIndex || []);
-    else setAction([]);
+    if (Array.isArray(actionIndex)) {
+      setAction(actionIndex);
+    } else {
+      setAction([]);
+    }
   }, [actionIndex]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [itemsPerPage]);
 
   const renderActionButton = (data, action) => {
     const handlePress = () => {
       handleAction(action, data);
     };
 
-    const iconSize = scaleAnim.interpolate({
+    const iconScale = scaleAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 1],
+      outputRange: [1, 1.2],
     });
 
     Animated.timing(scaleAnim, {
-      toValue: 1.2,
+      toValue: 1,
       duration: 300,
       useNativeDriver: true,
     }).start();
 
+    let icon;
     switch (action) {
       case "activeIndex":
-        return (
-          <Pressable style={styles.button} onPress={handlePress}>
-            <Animated.View style={{ transform: [{ scale: iconSize }] }}>
-              <MaterialCommunityIcons
-                name="fridge-industrial"
-                size={20}
-                color={colors.palette.primary}
-              />
-            </Animated.View>
-          </Pressable>
+        icon = (
+          <MaterialCommunityIcons
+            name="fridge-industrial"
+            size={20}
+            color={colors.palette.primary}
+          />
         );
-
+        break;
       case "editIndex":
-        return (
-          <Pressable style={styles.button} onPress={handlePress}>
-            <Animated.View style={{ transform: [{ scale: iconSize }] }}>
-              <AntDesign name="edit" size={20} color={colors.palette.primary} />
-            </Animated.View>
-          </Pressable>
+        icon = (
+          <AntDesign name="edit" size={20} color={colors.palette.primary} />
         );
+        break;
       case "delIndex":
-        return (
-          <Pressable style={styles.button} onPress={handlePress}>
-            <Animated.View style={{ transform: [{ scale: iconSize }] }}>
-              <AntDesign
-                name="delete"
-                size={20}
-                color={colors.palette.danger}
-              />
-            </Animated.View>
-          </Pressable>
+        icon = (
+          <AntDesign name="delete" size={20} color={colors.palette.danger} />
         );
+        break;
       case "changeIndex":
-        return (
-          <Pressable style={styles.button} onPress={handlePress}>
-            <Animated.View style={{ transform: [{ scale: iconSize }] }}>
-              <FontAwesome6
-                name="edit"
-                size={20}
-                color={colors.palette.primary}
-              />
-            </Animated.View>
-          </Pressable>
+        icon = (
+          <FontAwesome6 name="edit" size={20} color={colors.palette.primary} />
         );
+        break;
       case "copyIndex":
-        return (
-          <Pressable style={styles.button} onPress={handlePress}>
-            <Animated.View style={{ transform: [{ scale: iconSize }] }}>
-              <AntDesign name="copy1" size={20} color={colors.palette.danger} />
-            </Animated.View>
-          </Pressable>
-        );
       case "preIndex":
-        return (
-          <Pressable style={styles.button} onPress={handlePress}>
-            <Animated.View style={{ transform: [{ scale: iconSize }] }}>
-              <AntDesign name="copy1" size={20} color={colors.palette.danger} />
-            </Animated.View>
-          </Pressable>
+        icon = (
+          <AntDesign name="copy1" size={20} color={colors.palette.danger} />
         );
+        break;
       default:
         return null;
     }
+
+    return (
+      <Pressable style={styles.button} onPress={handlePress}>
+        <Animated.View style={{ transform: [{ scale: iconScale }] }}>
+          {icon}
+        </Animated.View>
+      </Pressable>
+    );
   };
 
   const renderCellContent = (cell) => {
@@ -127,98 +114,106 @@ const CustomTable = ({
 
   const rowsData = Tabledata.map((rowData, headerIndex) =>
     responsive === "small" ? (
-      <View key={headerIndex} style={styles.cardRow}>
+      <View key={`row-${headerIndex}`} style={styles.cardRow}>
         {Tablehead.map((header, i) => (
-          <View key={i} style={{ marginBottom: spacing.xs }}>
+          <View
+            key={`header-${headerIndex}-${i}`}
+            style={{ marginBottom: spacing.xs }}
+          >
             <Text style={styles.titleStyled}>{header}:</Text>
             {renderCellContent(rowData[i])}
           </View>
         ))}
         <View style={{ flexDirection: "row", marginTop: spacing.md }}>
-          {Object.entries(action[0]).map(([key, value]) => (
-            <React.Fragment key={`${headerIndex}-${key}`}>
-              {value >= 0 && renderActionButton(rowData[value], key)}
-            </React.Fragment>
-          ))}
+          {Object.entries(action[0]).map(
+            ([key, value]) =>
+              value >= 0 && renderActionButton(rowData[value], key)
+          )}
         </View>
       </View>
     ) : (
       rowData.map((cellData, cellIndex) => (
-        <React.Fragment key={`${headerIndex}-${cellIndex}`}>
+        <React.Fragment key={`cell-${headerIndex}-${cellIndex}`}>
           {action.map((actionItem, actionIndex) => {
             const filteredEntries = Object.entries(actionItem).filter(
               ([key, value]) => value === cellIndex
             );
 
-            return filteredEntries.length > 0 ? (
-              filteredEntries.map(([key]) => (
-                <React.Fragment key={`${headerIndex}-${actionIndex}-${key}`}>
-                  {renderActionButton(cellData, key)}
-                </React.Fragment>
-              ))
-            ) : (
-              <React.Fragment key={`${headerIndex}-${cellIndex}`}>
-                {renderCellContent(cellData)}
-              </React.Fragment>
-            );
+            return filteredEntries.length > 0
+              ? filteredEntries.map(([key]) =>
+                  renderActionButton(cellData, key)
+                )
+              : renderCellContent(cellData);
           })}
         </React.Fragment>
       ))
     )
   );
 
-  return responsive === "small" ? (
-    <View style={styles.container}>{rowsData}</View>
-  ) : (
-    <View style={styles.containerTable}>
-      <DataTable>
-        <DataTable.Header>
-          {Tablehead.map((header, index) => (
-            <DataTable.Title
-              key={index}
-              style={{ flex: flexArr[index] || 1, justifyContent: "center" }}
-            >
-              <Text style={[styles.textHead]}>{header}</Text>
-            </DataTable.Title>
-          ))}
-        </DataTable.Header>
+  return (
+    <View
+      style={responsive === "small" ? styles.container : styles.containerTable}
+    >
+      {responsive === "small" ? (
+        rowsData
+      ) : (
+        <DataTable>
+          <DataTable.Header>
+            {Tablehead.map((header, index) => (
+              <DataTable.Title
+                key={`header-${index}`}
+                style={{ flex: flexArr[index] || 1, justifyContent: "center" }}
+                sortDirection="descending"
+              >
+                <Text style={[styles.textHead]}>{header}</Text>
+              </DataTable.Title>
+            ))}
+          </DataTable.Header>
 
-        {Tabledata.length === 0 ? (
-          <Text style={styles.noDataText}>Not found your data...</Text>
-        ) : (
-          Tabledata.map((row, rowIndex) => (
-            <DataTable.Row key={rowIndex} style={styles.row}>
-              {row.map((cell, cellIndex) => (
-                <DataTable.Cell
-                  key={cellIndex}
-                  style={{
-                    flex: flexArr[cellIndex] || 1,
-                    justifyContent: "center",
-                  }}
-                >
-                  {action.map((actionItem, actionIndex) => {
-                    const filteredEntries = Object.entries(actionItem).filter(
-                      ([key, value]) => value === cellIndex
-                    );
+          {Tabledata.length === 0 ? (
+            <Text style={styles.noDataText}>Not found your data...</Text>
+          ) : (
+            Tabledata.map((row, rowIndex) => (
+              <DataTable.Row key={`row-${rowIndex}`} style={styles.row}>
+                {row.map((cell, cellIndex) => (
+                  <DataTable.Cell
+                    key={`cell-${rowIndex}-${cellIndex}`}
+                    style={{
+                      flex: flexArr[cellIndex] || 1,
+                      justifyContent: "center",
+                    }}
+                  >
+                    {action.map((actionItem, actionIndex) => {
+                      const filteredEntries = Object.entries(actionItem).filter(
+                        ([key, value]) => value === cellIndex
+                      );
 
-                    return filteredEntries.length > 0 ? (
-                      filteredEntries.map(([key]) => (
-                        <React.Fragment key={`${rowIndex}-${key}`}>
-                          {renderActionButton(cell, key)}
-                        </React.Fragment>
-                      ))
-                    ) : (
-                      <React.Fragment key={`${rowIndex}-${cellIndex}`}>
-                        {renderCellContent(cell)}
-                      </React.Fragment>
-                    );
-                  })}
-                </DataTable.Cell>
-              ))}
-            </DataTable.Row>
-          ))
-        )}
-      </DataTable>
+                      return filteredEntries.length > 0
+                        ? filteredEntries.map(([key]) =>
+                            renderActionButton(cell, key)
+                          )
+                        : renderCellContent(cell);
+                    })}
+                  </DataTable.Cell>
+                ))}
+              </DataTable.Row>
+            ))
+          )}
+          <DataTable.Pagination
+            page={page}
+            numberOfPages={Math.ceil(Tabledata.length / itemsPerPage)}
+            onPageChange={(newPage) => setPage(newPage)}
+            label={`Page ${page + 1} of ${Math.ceil(
+              Tabledata.length / itemsPerPage
+            )}`}
+            numberOfItemsPerPageList={numberOfItemsPerPageList}
+            numberOfItemsPerPage={itemsPerPage}
+            onItemsPerPageChange={setItemsPerPage}
+            showFastPaginationControls
+            selectPageDropdownLabel={"Rows per page"}
+          />
+        </DataTable>
+      )}
     </View>
   );
 };

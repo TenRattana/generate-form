@@ -30,4 +30,5 @@ export const colors = {
   light: palette.light,
   dark: palette.dark,
   disable: palette.disable,
+  succeass: palette.green,
 };

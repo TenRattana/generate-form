@@ -1,9 +1,9 @@
 import React from "react";
 import { Text, View, Pressable } from "react-native";
 import CustomDropdown from "../../Common/CustomDropdown";
-import { Dialog } from "@rneui/themed";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { Switch, Dialog } from "react-native-paper";
 
 const validationSchema = Yup.object().shape({
   machineId: Yup.string().required("This machine field is required"),
@@ -19,18 +19,17 @@ const Dialog_mfm = ({
   setIsVisible,
   dropmachine,
   dropform,
-  resetDropdown,
 }) => {
   const { styles, colors, spacing, fonts, responsive } = style;
   console.log(initialValues);
 
   return (
-    <View>
-      <Dialog isVisible={isVisible}>
-        <Dialog.Title
-          title={isEditing ? "Edit" : "Create"}
-          titleStyle={{ alignSelf: "center" }}
-        />
+    <Dialog isVisible={isVisible} onDismiss={() => setIsVisible(false)}>
+      <Dialog.Title
+        title={isEditing ? "Edit" : "Create"}
+        titleStyle={{ alignSelf: "center" }}
+      />
+      <Dialog.Content>
         <Text
           style={[
             styles.textDark,
@@ -122,6 +121,33 @@ const Dialog_mfm = ({
                 </Text>
               ) : null}
 
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginVertical: 10,
+                }}
+              >
+                <Text
+                  style={[
+                    styles.text,
+                    styles.textDark,
+                    { marginHorizontal: 12 },
+                  ]}
+                >
+                  Status: {values.isActive ? "Active" : "Inactive"}
+                </Text>
+
+                <Switch
+                  style={{ transform: [{ scale: 1.1 }], top: 2 }}
+                  color={values.isActive ? colors.succeass : colors.disable}
+                  value={values.isActive}
+                  onValueChange={() =>
+                    setFieldValue("isActive", !values.isActive)
+                  }
+                />
+              </View>
+
               <View style={styles.containerFlexStyle}>
                 <Pressable
                   onPress={handleSubmit}
@@ -152,8 +178,8 @@ const Dialog_mfm = ({
             </View>
           )}
         </Formik>
-      </Dialog>
-    </View>
+      </Dialog.Content>
+    </Dialog>
   );
 };
 

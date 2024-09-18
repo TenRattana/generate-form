@@ -1,10 +1,10 @@
 import React from "react";
 import { Text, View, Pressable } from "react-native";
 import CustomDropdown from "../../Common/CustomDropdown";
-import { Dialog, Input } from "@rneui/themed";
+import Inputs from "../../Common/Inputs";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import { Switch, Dialog } from "react-native-paper";
 
 const validationSchema = Yup.object().shape({
   machineGroupId: Yup.string().required("The machine group field is required."),
@@ -28,12 +28,12 @@ const Dialog_m = ({
   const { styles, colors, spacing } = style;
 
   return (
-    <View>
-      <Dialog isVisible={isVisible}>
-        <Dialog.Title
-          title={isEditing ? "Edit" : "Create"}
-          titleStyle={{ alignSelf: "center" }}
-        />
+    <Dialog isVisible={isVisible} onDismiss={() => setIsVisible(false)}>
+      <Dialog.Title
+        title={isEditing ? "Edit" : "Create"}
+        titleStyle={{ alignSelf: "center" }}
+      />
+      <Dialog.Content>
         <Text
           style={[
             styles.textDark,
@@ -100,92 +100,62 @@ const Dialog_m = ({
                 </Text>
               )}
 
-              <Input
+              <Inputs
                 placeholder="Enter Machine Name"
                 label="Machine Name"
-                labelStyle={[styles.text, styles.textDark]}
-                inputStyle={[styles.text, styles.textDark]}
-                disabledInputStyle={styles.containerInput}
-                onChangeText={handleChange("machineName")}
-                onBlur={handleBlur("machineName")}
+                handleChange={handleChange("machineName")}
+                handleBlur={handleBlur("machineName")}
                 value={values.machineName}
-                rightIcon={
-                  values.machineName ? (
-                    <AntDesign
-                      name="close"
-                      size={20}
-                      color={colors.palette.primary}
-                      onPress={() => handleChange("machineName")("")}
-                    />
-                  ) : null
-                }
-                errorMessage={
-                  touched.machineName && errors.machineName
-                    ? errors.machineName
-                    : undefined
-                }
-                errorStyle={{
-                  left: -5,
-                }}
+                error={touched.machineName && Boolean(errors.machineName)}
+                errorMessage={touched.machineName ? errors.machineName : ""}
               />
 
-              <Input
+              <Inputs
                 placeholder="Enter Description"
                 label="Description"
-                labelStyle={[styles.text, styles.textDark]}
-                inputStyle={[styles.text, styles.textDark]}
-                disabledInputStyle={styles.containerInput}
-                onChangeText={handleChange("description")}
-                onBlur={handleBlur("description")}
+                handleChange={handleChange("description")}
+                handleBlur={handleBlur("description")}
                 value={values.description}
-                rightIcon={
-                  values.description ? (
-                    <AntDesign
-                      name="close"
-                      size={20}
-                      color={colors.palette.primary}
-                      onPress={() => handleChange("description")("")}
-                    />
-                  ) : null
-                }
-                errorMessage={
-                  touched.description && errors.description
-                    ? errors.description
-                    : undefined
-                }
-                errorStyle={{
-                  left: -5,
-                }}
+                error={touched.description && Boolean(errors.description)}
+                errorMessage={touched.description ? errors.description : ""}
               />
 
-              <Input
+              <Inputs
                 placeholder="Enter Display Order"
                 label="Display Order"
-                labelStyle={[styles.text, styles.textDark]}
-                inputStyle={[styles.text, styles.textDark]}
-                disabledInputStyle={styles.containerInput}
-                onChangeText={handleChange("displayOrder")}
-                onBlur={handleBlur("displayOrder")}
+                handleChange={handleChange("displayOrder")}
+                handleBlur={handleBlur("displayOrder")}
                 value={values.displayOrder}
-                rightIcon={
-                  values.displayOrder ? (
-                    <AntDesign
-                      name="close"
-                      size={20}
-                      color={colors.palette.primary}
-                      onPress={() => handleChange("displayOrder")("")}
-                    />
-                  ) : null
-                }
-                errorMessage={
-                  touched.displayOrder && errors.displayOrder
-                    ? errors.displayOrder
-                    : undefined
-                }
-                errorStyle={{
-                  left: -5,
-                }}
+                error={touched.displayOrder && Boolean(errors.displayOrder)}
+                errorMessage={touched.displayOrder ? errors.displayOrder : ""}
               />
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginVertical: 10,
+                }}
+              >
+                <Text
+                  style={[
+                    styles.text,
+                    styles.textDark,
+                    { marginHorizontal: 12 },
+                  ]}
+                >
+                  Status: {values.isActive ? "Active" : "Inactive"}
+                </Text>
+
+                <Switch
+                  style={{ transform: [{ scale: 1.1 }], top: 2 }}
+                  color={values.isActive ? colors.succeass : colors.disable}
+                  value={values.isActive}
+                  onValueChange={() =>
+                    setFieldValue("isActive", !values.isActive)
+                  }
+                />
+              </View>
 
               <View style={styles.containerFlexStyle}>
                 <Pressable
@@ -217,8 +187,8 @@ const Dialog_m = ({
             </View>
           )}
         </Formik>
-      </Dialog>
-    </View>
+      </Dialog.Content>
+    </Dialog>
   );
 };
 

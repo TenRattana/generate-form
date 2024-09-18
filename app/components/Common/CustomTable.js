@@ -125,8 +125,6 @@ const CustomTable = ({
     return <Text style={styles.text}>{cell}</Text>;
   };
 
-  console.log(Tabledata, Tablehead);
-
   const rowsData = Tabledata.map((rowData, headerIndex) =>
     responsive === "small" ? (
       <View key={headerIndex} style={styles.cardRow}>

@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { ScrollView, Text, View, Pressable } from "react-native";
+import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
 import { CustomTable, LoadingSpinner, Dialog_mg } from "../components";
 import { useTheme, useToast, useRes } from "../../contexts";
 import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
+import { Portal } from "react-native-paper";
 
 const MachineGroupScreen = React.memo(() => {
   const [machineGroup, setMachineGroup] = useState([]);
@@ -18,6 +19,7 @@ const MachineGroupScreen = React.memo(() => {
     machineGroupName: "",
     displayOrder: "",
     description: "",
+    isActive: true,
   });
 
   const { colors, fonts, spacing } = useTheme();
@@ -62,6 +64,7 @@ const MachineGroupScreen = React.memo(() => {
           machineGroupName: "",
           displayOrder: "",
           description: "",
+          isActive: true,
         });
         setIsEditing(false);
       };
@@ -76,6 +79,7 @@ const MachineGroupScreen = React.memo(() => {
       MGroupName: values.machineGroupName,
       DisplayOrder: values.displayOrder,
       Description: values.description,
+      isActive: values.isActive,
     };
 
     try {
@@ -109,9 +113,10 @@ const MachineGroupScreen = React.memo(() => {
           machineGroupName: machineGroupData.MGroupName ?? "",
           description: machineGroupData.Description ?? "",
           displayOrder: String(machineGroupData.DisplayOrder) ?? "",
+          isActive: Boolean(machineGroupData.IsActive),
         });
-        setIsVisible(true);
         setIsEditing(true);
+        setIsVisible(true);
       } else {
         if (action === "activeIndex") {
           await axios.post("MachineGroup_service.asmx/ChangeMachineGroup", {
@@ -143,7 +148,9 @@ const MachineGroupScreen = React.memo(() => {
         machineGroupName: "",
         displayOrder: "",
         description: "",
+        isActive: true,
       });
+      setIsVisible(false);
       setIsEditing(false);
     }
   }, [isVisible]);
@@ -217,7 +224,9 @@ const MachineGroupScreen = React.memo(() => {
         </Card>
       </ScrollView>
 
-      <Dialog_mg {...dialog_mgProps} />
+      <Portal>
+        <Dialog_mg {...dialog_mgProps} />
+      </Portal>
     </View>
   );
 });

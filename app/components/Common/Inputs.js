@@ -1,42 +1,49 @@
 import React from "react";
-import { TextInput, View, StyleSheet, Text } from "react-native";
-import { colors, spacing, fonts } from "../../../theme";
+import { View, Text } from "react-native";
+import { TextInput, HelperText } from "react-native-paper";
+import commonStyle from "../../../styles/commons/common";
+import { useTheme, useRes } from "../../../contexts";
 
-const Inputs = ({ placeholder, hint, label, name, formData, handleChange }) => {
-  console.log("Inputs");
+const Inputs = ({
+  placeholder,
+  label,
+  error,
+  errorMessage,
+  value,
+  handleChange,
+  handleBlur,
+}) => {
+  const { colors, fonts, spacing } = useTheme();
+  const { responsive } = useRes();
+  const styles = commonStyle({ colors, spacing, fonts, responsive });
 
   return (
     <View style={styles.container}>
       <TextInput
-        placeholder={placeholder || ""}
-        name={label || ""}
-        onChangeText={(value) => handleChange(name, value)}
-        value={formData[name] || ""}
-        style={styles.textInput}
+        mode="outlined"
+        placeholder={placeholder}
+        label={label}
+        onChangeText={handleChange}
+        onBlur={handleBlur}
+        style={[styles.text, styles.textDark]}
+        value={value}
+        right={
+          value && (
+            <TextInput.Icon
+              icon={"window-close"}
+              onPress={() => handleChange("")}
+              color={colors.primary}
+            />
+          )
+        }
+        error={error}
       />
-      {hint ? <Text style={styles.label}>{hint}</Text> : null}
+
+      <HelperText type="error" visible={error} style={{ left: -10 }}>
+        {errorMessage}
+      </HelperText>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: spacing.sm,
-  },
-  textInput: {
-    borderColor: colors.border,
-    borderWidth: 1,
-    padding: spacing.xs,
-    fontSize: fonts.xsm,
-    borderRadius: 5,
-    backgroundColor: colors.background,
-  },
-  label: {
-    fontSize: fonts.xsm,
-    marginLeft: spacing.xxs,
-    marginTop: spacing.xs,
-    color: colors.palette.gray90,
-  },
-});
 
 export default Inputs;

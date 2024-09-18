@@ -1,8 +1,6 @@
 import { StyleSheet } from "react-native";
 
 const customtableStyle = ({ colors, spacing, fonts, responsive }) => {
-  console.log(responsive);
-
   return StyleSheet.create({
     container: {
       width: responsive === "small" ? "100%" : "95%",

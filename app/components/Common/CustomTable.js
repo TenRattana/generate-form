@@ -6,6 +6,8 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import customtableStyle from "../../../styles/components/customtable";
 import { useTheme, useRes } from "../../../contexts";
+import Inputs from "./Inputs";
+import Dialog_check from "./Dialog_check";
 
 const CustomTable = ({
   Tabledata,
@@ -16,8 +18,14 @@ const CustomTable = ({
 }) => {
   const [action, setAction] = useState([]);
   const [page, setPage] = useState(0);
-  const numberOfItemsPerPageList = [2, 3, 4];
-  const [itemsPerPage, setItemsPerPage] = useState(numberOfItemsPerPageList[0]);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState("ascending");
+  const [isVisible, setIsVisible] = useState(false);
+  const [dialogAction, setDialogAction] = useState("");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogData, setDialogData] = useState("");
   const { colors, fonts, spacing } = useTheme();
   const { responsive } = useRes();
   const styles = customtableStyle({ colors, spacing, fonts, responsive });
@@ -34,11 +42,45 @@ const CustomTable = ({
 
   useEffect(() => {
     setPage(0);
-  }, [itemsPerPage]);
+  }, [itemsPerPage, searchQuery, sortColumn, sortDirection]);
+
+  const handleSort = (columnIndex) => {
+    if (sortColumn === columnIndex) {
+      setSortDirection(
+        sortDirection === "ascending" ? "descending" : "ascending"
+      );
+    } else {
+      setSortColumn(columnIndex);
+      setSortDirection("ascending");
+    }
+  };
+
+  const sortedData = [...Tabledata].sort((a, b) => {
+    if (sortColumn !== null) {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+      if (aValue < bValue) return sortDirection === "ascending" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "ascending" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const filteredData = sortedData.filter((row) =>
+    row.some((cell) =>
+      cell.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
+  const handleDialog = (action, data) => {
+    handleAction(action, data);
+  };
 
   const renderActionButton = (data, action) => {
     const handlePress = () => {
-      handleAction(action, data);
+      setDialogAction(action);
+      setDialogData(data);
+      setDialogMessage(`You selected the ${action} action.`);
+      setIsVisible(true);
     };
 
     const iconScale = scaleAnim.interpolate({
@@ -89,7 +131,11 @@ const CustomTable = ({
     }
 
     return (
-      <Pressable style={styles.button} onPress={handlePress}>
+      <Pressable
+        style={styles.button}
+        onPress={handlePress}
+        key={`action-${action}`}
+      >
         <Animated.View style={{ transform: [{ scale: iconScale }] }}>
           {icon}
         </Animated.View>
@@ -97,10 +143,10 @@ const CustomTable = ({
     );
   };
 
-  const renderCellContent = (cell) => {
+  const renderCellContent = (cell, cellIndex) => {
     if (typeof cell === "boolean") {
       return (
-        <View style={styles.iconStatus}>
+        <View style={styles.iconStatus} key={`cell-content-${cellIndex}`}>
           <MaterialCommunityIcons
             name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
             size={30}
@@ -109,10 +155,19 @@ const CustomTable = ({
         </View>
       );
     }
-    return <Text style={styles.text}>{cell}</Text>;
+    return (
+      <Text style={styles.text} key={`cell-content-${cellIndex}`}>
+        {cell}
+      </Text>
+    );
   };
 
-  const rowsData = Tabledata.map((rowData, headerIndex) =>
+  const currentData = filteredData.slice(
+    page * itemsPerPage,
+    (page + 1) * itemsPerPage
+  );
+
+  const rowsData = currentData.map((rowData, headerIndex) =>
     responsive === "small" ? (
       <View key={`row-${headerIndex}`} style={styles.cardRow}>
         {Tablehead.map((header, i) => (
@@ -121,7 +176,7 @@ const CustomTable = ({
             style={{ marginBottom: spacing.xs }}
           >
             <Text style={styles.titleStyled}>{header}:</Text>
-            {renderCellContent(rowData[i])}
+            {renderCellContent(rowData[i], i)}
           </View>
         ))}
         <View style={{ flexDirection: "row", marginTop: spacing.md }}>
@@ -143,17 +198,25 @@ const CustomTable = ({
               ? filteredEntries.map(([key]) =>
                   renderActionButton(cellData, key)
                 )
-              : renderCellContent(cellData);
+              : renderCellContent(cellData, cellIndex);
           })}
         </React.Fragment>
       ))
     )
   );
-
+  console.log("Custom");
   return (
     <View
       style={responsive === "small" ? styles.container : styles.containerTable}
     >
+      <View style={styles.searchContainer}>
+        <Inputs
+          label="Search..."
+          value={searchQuery}
+          handleChange={setSearchQuery}
+        />
+      </View>
+
       {responsive === "small" ? (
         rowsData
       ) : (
@@ -163,17 +226,18 @@ const CustomTable = ({
               <DataTable.Title
                 key={`header-${index}`}
                 style={{ flex: flexArr[index] || 1, justifyContent: "center" }}
-                sortDirection="descending"
+                sortDirection={sortColumn === index ? sortDirection : null}
+                onPress={() => handleSort(index)}
               >
                 <Text style={[styles.textHead]}>{header}</Text>
               </DataTable.Title>
             ))}
           </DataTable.Header>
 
-          {Tabledata.length === 0 ? (
-            <Text style={styles.noDataText}>Not found your data...</Text>
+          {filteredData.length === 0 ? (
+            <Text style={styles.noDataText}>No data found...</Text>
           ) : (
-            Tabledata.map((row, rowIndex) => (
+            currentData.map((row, rowIndex) => (
               <DataTable.Row key={`row-${rowIndex}`} style={styles.row}>
                 {row.map((cell, cellIndex) => (
                   <DataTable.Cell
@@ -192,7 +256,7 @@ const CustomTable = ({
                         ? filteredEntries.map(([key]) =>
                             renderActionButton(cell, key)
                           )
-                        : renderCellContent(cell);
+                        : renderCellContent(cell, cellIndex);
                     })}
                   </DataTable.Cell>
                 ))}
@@ -201,12 +265,11 @@ const CustomTable = ({
           )}
           <DataTable.Pagination
             page={page}
-            numberOfPages={Math.ceil(Tabledata.length / itemsPerPage)}
+            numberOfPages={Math.ceil(filteredData.length / itemsPerPage)}
             onPageChange={(newPage) => setPage(newPage)}
             label={`Page ${page + 1} of ${Math.ceil(
-              Tabledata.length / itemsPerPage
+              filteredData.length / itemsPerPage
             )}`}
-            numberOfItemsPerPageList={numberOfItemsPerPageList}
             numberOfItemsPerPage={itemsPerPage}
             onItemsPerPageChange={setItemsPerPage}
             showFastPaginationControls
@@ -214,6 +277,17 @@ const CustomTable = ({
           />
         </DataTable>
       )}
+
+      <Dialog_check
+        style={{ styles, colors }}
+        isVisible={isVisible}
+        setIsVisible={setIsVisible}
+        setDialogData={setDialogData}
+        handleDialog={handleDialog}
+        actions={dialogAction}
+        messages={dialogMessage}
+        data={dialogData}
+      />
     </View>
   );
 };

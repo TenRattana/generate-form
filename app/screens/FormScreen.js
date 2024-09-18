@@ -100,7 +100,7 @@ const FormScreen = React.memo(({ navigation }) => {
   const tableHead = [
     "Form Name",
     "Form Description",
-    "",
+    "Status ",
     "Change Status",
     "Change Form",
     "Copy Template",

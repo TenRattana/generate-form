@@ -1,11 +1,29 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { ScrollView, Text, View, Pressable } from "react-native";
-import axios from "../../config/axios";
-import { Card } from "@rneui/themed";
-import { CustomTable, LoadingSpinner, Dialog_mclo } from "../components";
-import { useTheme, useToast, useRes } from "../../contexts";
-import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
+import { useTheme, useToast, useRes } from "../../contexts";
+import { ScrollView, View, Pressable, Text } from "react-native";
+import axios from "../../config/axios";
+import {
+  CustomTable,
+  CustomDropdown,
+  CustomDropdownMulti,
+  LoadingSpinner,
+  Inputs,
+} from "../components";
+import { Card } from "@rneui/themed";
+import { Portal, Switch, Dialog } from "react-native-paper";
+import { Formik, Field } from "formik";
+import * as Yup from "yup";
+import screenStyles from "../../styles/screens/screen";
+
+const validationSchema = Yup.object().shape({
+  groupCheckListOptionId: Yup.string().required(
+    "This group check list field is required"
+  ),
+  checkListOptionId: Yup.array()
+    .of(Yup.string())
+    .min(1, "The check list option filed least one option must be selected"),
+});
 
 const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
   const [checkListOption, setCheckListOption] = useState([]);
@@ -196,27 +214,29 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
       ];
     })
   );
-
+  
   const tableHead = [
     "Group Name",
     "Option Name",
-    "",
+    "Status",
     "Change Status",
     "Edit",
     "Delete",
   ];
 
   let dropcheckListOption = [];
+
   dropcheckListOption =
-    checkListOption.length > 0
+    Array.isArray(checkListOption) && checkListOption.length > 0
       ? checkListOption.filter((v) => v.IsActive)
       : dropcheckListOption;
 
   let dropgroupCheckListOption = [];
+
   dropgroupCheckListOption =
-    groupCheckListOption.length > 0
-      ? groupCheckListOption.filter((v) => v.IsActive)
-      : dropgroupCheckListOption;
+  Array.isArray(groupCheckListOption) && groupCheckListOption.length > 0
+    ? groupCheckListOption.filter((v) => v.IsActive)
+    : dropgroupCheckListOption;
 
   const actionIndex = {
     activeIndex: 3,
@@ -227,22 +247,9 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [4, 4, 1, 1, 1, 1],
+    flexArr: [3, 4, 1, 1, 1, 1],
     actionIndex,
     handleAction,
-  };
-
-  const dialog_mcloProps = {
-    dropgroupCheckListOption,
-    groupCheckListOption,
-    dropcheckListOption,
-    checkListOption,
-    style: { styles, colors, spacing, responsive, fonts },
-    isVisible,
-    isEditing,
-    initialValues,
-    saveData,
-    setIsVisible,
   };
 
   return (
@@ -269,7 +276,179 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
         </Card>
       </ScrollView>
 
-      <Dialog_mclo {...dialog_mcloProps} />
+      <Portal>
+        <Dialog
+          visible={isVisible}
+          onDismiss={() => setIsVisible(false)}
+          style={styles.containerDialog}
+          contentStyle={styles.containerDialog}
+        >
+          <Dialog.Title style={{ paddingLeft: 8 }}>
+            {isEditing ? "Edit" : "Create"}
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text
+              style={[styles.textDark, { marginBottom: 10, paddingLeft: 10 }]}
+            >
+              {isEditing
+                ? "Edit the details of the machine."
+                : "Enter the details for the new machine."}
+            </Text>
+
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              validateOnBlur={false}
+              validateOnChange={true}
+              onSubmit={(values) => {
+                saveData(values);
+                setIsVisible(false);
+              }}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                setFieldValue,
+                values,
+                errors,
+                touched,
+                handleSubmit,
+                isValid,
+                dirty,
+              }) => (
+                <View>
+                  <Field
+                    name="groupCheckListOptionId"
+                    component={({ field, form }) => (
+                      <CustomDropdown
+                        title="Group Check List Option"
+                        labels="GCLOptionName"
+                        values="GCLOptionID"
+                        data={isEditing ? groupCheckListOption : dropgroupCheckListOption}
+                        selectedValue={values.groupCheckListOptionId}
+                        onValueChange={(value) => {
+                          setFieldValue(field.name, value);
+                          form.setTouched({
+                            ...form.touched,
+                            [field.name]: true,
+                          });
+                        }}
+                      />
+                    )}
+                  />
+
+                  {touched.groupCheckListOptionId &&
+                  errors.groupCheckListOptionId ? (
+                    <Text
+                      style={{
+                        color: "red",
+                        marginVertical: 10,
+                        left: 10,
+                        top: -10,
+                      }}
+                    >
+                      {errors.groupCheckListOptionId}
+                    </Text>
+                  ) : null}
+
+                  <Field
+                    name="checkListOptionId"
+                    component={({ field, form }) => (
+                      <CustomDropdownMulti
+                        title="Check List Option"
+                        labels="CLOptionName"
+                        values="CLOptionID"
+                        data={isEditing ? checkListOption :dropcheckListOption}
+                        selectedValue={values.checkListOptionId || []}
+                        onValueChange={(value) => {
+                          setFieldValue(field.name, value);
+                          form.setTouched({
+                            ...form.touched,
+                            [field.name]: true,
+                          });
+                          console.log(
+                            "Dropdown Multi selected values: ",
+                            value
+                          );
+                          console.log("Formik field: ", field);
+                        }}
+                      />
+                    )}
+                  />
+
+                  {touched.checkListOptionId && errors.checkListOptionId ? (
+                    <Text
+                      style={{
+                        color: "red",
+                        marginVertical: 10,
+                        left: 10,
+                        top: -10,
+                      }}
+                    >
+                      {errors.checkListOptionId}
+                    </Text>
+                  ) : null}
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginVertical: 10,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.text,
+                        styles.textDark,
+                        { marginHorizontal: 12 },
+                      ]}
+                    >
+                      Status: {values.isActive ? "Active" : "Inactive"}
+                    </Text>
+
+                    <Switch
+                      style={{ transform: [{ scale: 1.1 }], top: 2 }}
+                      color={values.isActive ? colors.succeass : colors.disable}
+                      value={values.isActive}
+                      onValueChange={() =>
+                        setFieldValue("isActive", !values.isActive)
+                      }
+                    />
+                  </View>
+
+                  <View style={styles.containerFlexStyle}>
+                    <Pressable
+                      onPress={handleSubmit}
+                      style={[
+                        styles.button,
+                        isValid && dirty ? styles.backMain : styles.backDis,
+                      ]}
+                      disabled={!isValid || !dirty}
+                    >
+                      <Text
+                        style={[styles.textBold, styles.text, styles.textLight]}
+                      >
+                        Save
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => setIsVisible(false)}
+                      style={[styles.button, styles.backMain]}
+                    >
+                      <Text
+                        style={[styles.textBold, styles.text, styles.textLight]}
+                      >
+                        Cancel
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            </Formik>
+          </Dialog.Content>
+        </Dialog>
+      </Portal>
     </View>
   );
 });

@@ -1,11 +1,20 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { ScrollView, Text, View, Pressable } from "react-native";
-import axios from "../../config/axios";
-import { Card } from "@rneui/themed";
-import { CustomTable, LoadingSpinner, Dialog_clo } from "../components";
-import { useTheme, useToast, useRes } from "../../contexts";
-import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
+import { useTheme, useToast, useRes } from "../../contexts";
+import { ScrollView, View, Pressable, Text } from "react-native";
+import axios from "../../config/axios";
+import { CustomTable, LoadingSpinner, Inputs } from "../components";
+import { Card } from "@rneui/themed";
+import { Portal, Switch, Dialog } from "react-native-paper";
+import { Formik, Field } from "formik";
+import * as Yup from "yup";
+import screenStyles from "../../styles/screens/screen";
+
+const validationSchema = Yup.object().shape({
+  checkListOptionName: Yup.string().required(
+    "The check list option name field is required."
+  ),
+});
 
 const CheckListOptionScreen = React.memo(() => {
   const [checkListOption, setCheckListOption] = useState([]);
@@ -178,15 +187,6 @@ const CheckListOptionScreen = React.memo(() => {
     handleAction,
   };
 
-  const dialog_cloProps = {
-    style: { styles, colors, spacing, responsive, fonts },
-    isVisible,
-    isEditing,
-    initialValues,
-    saveData,
-    setIsVisible,
-  };
-
   return (
     <View style={styles.scrollView}>
       <ScrollView>
@@ -211,7 +211,121 @@ const CheckListOptionScreen = React.memo(() => {
         </Card>
       </ScrollView>
 
-      <Dialog_clo {...dialog_cloProps} />
+      <Portal>
+        <Dialog
+          visible={isVisible}
+          onDismiss={() => setIsVisible(false)}
+          style={styles.containerDialog}
+          contentStyle={styles.containerDialog}
+        >
+          <Dialog.Title style={{ paddingLeft: 8 }}>
+            {isEditing ? "Edit" : "Create"}
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text
+              style={[styles.textDark, { marginBottom: 10, paddingLeft: 10 }]}
+            >
+              {isEditing
+                ? "Edit the details of the group check list."
+                : "Enter the details for the new group check list."}
+            </Text>
+
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              validateOnBlur={false}
+              validateOnChange={true}
+              onSubmit={(values) => {
+                saveData(values);
+                setIsVisible(false);
+              }}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                setFieldValue,
+                values,
+                errors,
+                touched,
+                handleSubmit,
+                isValid,
+                dirty,
+              }) => (
+                <View>
+                  <Inputs
+                    placeholder="Enter Check List Option"
+                    label="Machine Check List Option"
+                    handleChange={handleChange("checkListOptionName")}
+                    handleBlur={handleBlur("checkListOptionName")}
+                    value={values.checkListOptionName}
+                    error={
+                      touched.checkListOptionName && Boolean(errors.checkListOptionName)
+                    }
+                    errorMessage={
+                      touched.checkListOptionName ? errors.checkListOptionName : ""
+                    }
+                  />
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginVertical: 10,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.text,
+                        styles.textDark,
+                        { marginHorizontal: 12 },
+                      ]}
+                    >
+                      Status: {values.isActive ? "Active" : "Inactive"}
+                    </Text>
+
+                    <Switch
+                      style={{ transform: [{ scale: 1.1 }], top: 2 }}
+                      color={values.isActive ? colors.succeass : colors.disable}
+                      value={values.isActive}
+                      onValueChange={() =>
+                        setFieldValue("isActive", !values.isActive)
+                      }
+                    />
+                  </View>
+
+                  <View style={styles.containerFlexStyle}>
+                    <Pressable
+                      onPress={handleSubmit}
+                      style={[
+                        styles.button,
+                        isValid && dirty ? styles.backMain : styles.backDis,
+                      ]}
+                      disabled={!isValid || !dirty}
+                    >
+                      <Text
+                        style={[styles.textBold, styles.text, styles.textLight]}
+                      >
+                        Save
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => setIsVisible(false)}
+                      style={[styles.button, styles.backMain]}
+                    >
+                      <Text
+                        style={[styles.textBold, styles.text, styles.textLight]}
+                      >
+                        Cancel
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            </Formik>
+          </Dialog.Content>
+        </Dialog>
+      </Portal>
     </View>
   );
 });

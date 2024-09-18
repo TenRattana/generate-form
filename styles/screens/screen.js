@@ -61,7 +61,7 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       }%`,
       alignItems: "center",
       justifyContent: "center",
-      marginVertical: "3%",
+      marginVertical: "1%",
       marginHorizontal: "3%",
       textAlign: "center",
       height: 40,
@@ -92,6 +92,15 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       color: colors.palette.light,
       marginBottom: 20,
     },
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    containerDialog:{
+      width: responsive === "small" ? "80%" : responsive === "medium" ? "70%" : "60%",
+      alignSelf: 'center',
+    }
   });
 };
 

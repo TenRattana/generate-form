@@ -64,6 +64,14 @@ const customtableStyle = ({ colors, spacing, fonts, responsive }) => {
       fontStyle: "italic",
       color: colors.text,
     },
+    searchContainer:{
+      marginHorizontal:'2%',
+      marginBottom:'2%',
+      justifyContent:'center',
+    },
+    textDark: {
+      color: colors.dark,
+    },
   });
 };
 

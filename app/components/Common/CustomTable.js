@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { View, Text, Pressable, Animated } from "react-native";
-import { DataTable, Searchbar, Card, Button } from "react-native-paper";
+import { DataTable, Searchbar } from "react-native-paper";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -29,8 +29,7 @@ const CustomTable = ({
   const { responsive } = useRes();
   const styles = customtableStyle({ colors, spacing, fonts, responsive });
 
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const iconScaleSW = useRef(new Animated.Value(1)).current;
+  const animations = useRef(Tabledata.map(() => new Animated.Value(1))).current;
 
   useMemo(() => {
     if (Array.isArray(actionIndex)) {
@@ -70,17 +69,6 @@ const CustomTable = ({
       cell.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
-
-  const iconScale = scaleAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.2],
-  });
-
-  Animated.timing(scaleAnim, {
-    toValue: 1,
-    duration: 300,
-    useNativeDriver: true,
-  }).start();
 
   const handleDialog = (action, data) => {
     handleAction(action, data);
@@ -127,32 +115,28 @@ const CustomTable = ({
         onPress={handlePress}
         key={`action-${action}`}
       >
-        <Animated.View style={{ transform: [{ scale: iconScale }] }}>
-          {icon}
-        </Animated.View>
+        {icon}
       </Pressable>
     );
   };
-
-  const renderCellContent = (cell, cellIndex, row) => {
+  const renderCellContent = (cell, cellIndex, row, rowIndex) => {
     if (typeof cell === "boolean") {
       const handlePress = () => {
-        Animated.timing(iconScaleSW, {
-          toValue: 0.5,
-          duration: 100,
-          useNativeDriver: true,
-        }).start(() => {
-          Animated.timing(iconScaleSW, {
+        Animated.sequence([
+          Animated.timing(animations[rowIndex], {
+            toValue: 0.8,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animations[rowIndex], {
             toValue: 1,
             duration: 100,
             useNativeDriver: true,
-          }).start();
-        });
+          }),
+        ]).start();
 
-        handleDialog("activeIndex", newValue);
+        handleDialog("activeIndex", row[cellIndex + 1]);
       };
-
-      const newValue = row[cellIndex + 1];
 
       return (
         <Pressable
@@ -160,7 +144,9 @@ const CustomTable = ({
           key={`cell-content-${cellIndex}`}
           onPress={handlePress}
         >
-          <Animated.View style={{ transform: [{ scale: iconScaleSW }] }}>
+          <Animated.View
+            style={{ transform: [{ scale: animations[rowIndex] }] }}
+          >
             <MaterialCommunityIcons
               name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
               size={34}
@@ -182,8 +168,8 @@ const CustomTable = ({
     (page + 1) * itemsPerPage
   );
 
-  const rowsData = currentData.map((rowData, headerIndex) =>
-    responsive === "small" ? (
+  if (responsive === "small") {
+    return currentData.map((rowData, headerIndex) => (
       <View key={`row-${headerIndex}`} style={styles.cardRow}>
         {Tablehead.map((header, i) => (
           <View
@@ -191,7 +177,7 @@ const CustomTable = ({
             style={{ marginBottom: spacing.xs }}
           >
             <Text style={styles.titleStyled}>{header}:</Text>
-            {renderCellContent(rowData[i], i, rowData)}
+            {renderCellContent(rowData[i], i, rowData, headerIndex)}
           </View>
         ))}
         <View style={{ flexDirection: "row", marginTop: spacing.md }}>
@@ -201,32 +187,10 @@ const CustomTable = ({
           )}
         </View>
       </View>
-    ) : (
-      rowData.map((cellData, cellIndex) => (
-        <React.Fragment key={`cell-${headerIndex}-${cellIndex}`}>
-          {action.map((actionItem, actionIndex) => {
-            const filteredEntries = Object.entries(actionItem).filter(
-              ([key, value]) => value === cellIndex
-            );
-
-            return filteredEntries.length > 0
-              ? filteredEntries.map(([key]) => {
-                  renderActionButton(cellData, key);
-                })
-              : renderCellContent(cellData, cellIndex, rowData);
-          })}
-        </React.Fragment>
-      ))
-    )
-  );
-  console.log("Custom");
-  return (
-    <View
-      style={responsive === "small" ? styles.container : styles.containerTable}
-    >
-      {responsive === "small" ? (
-        rowsData
-      ) : (
+    ));
+  } else {
+    return (
+      <View style={styles.containerTable}>
         <DataTable>
           <DataTable.Header>
             {Tablehead.map((header, index) => (
@@ -267,7 +231,7 @@ const CustomTable = ({
                         ? filteredEntries.map(([key]) =>
                             renderActionButton(cell, key)
                           )
-                        : renderCellContent(cell, cellIndex, row);
+                        : renderCellContent(cell, cellIndex, row, rowIndex);
                     })}
                   </DataTable.Cell>
                 ))}
@@ -287,20 +251,20 @@ const CustomTable = ({
             selectPageDropdownLabel={"Rows per page"}
           />
         </DataTable>
-      )}
 
-      <Dialog_check
-        style={{ styles, colors }}
-        isVisible={isVisible}
-        setIsVisible={setIsVisible}
-        setDialogData={setDialogData}
-        handleDialog={handleDialog}
-        actions={dialogAction}
-        messages={dialogMessage}
-        data={dialogData}
-      />
-    </View>
-  );
+        <Dialog_check
+          style={{ styles, colors }}
+          isVisible={isVisible}
+          setIsVisible={setIsVisible}
+          setDialogData={setDialogData}
+          handleDialog={handleDialog}
+          actions={dialogAction}
+          messages={dialogMessage}
+          data={dialogData}
+        />
+      </View>
+    );
+  }
 };
 
 export default CustomTable;

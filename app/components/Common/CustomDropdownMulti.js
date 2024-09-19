@@ -17,6 +17,7 @@ const CustomDropdownMulti = ({
   const [options, setOptions] = useState([]);
   const [currentValue, setCurrentValue] = useState(selectedValue || []);
   const { colors, fonts, spacing } = useTheme();
+  console.log("CustomDropMul");
 
   useEffect(() => {
     if (data && Array.isArray(data)) {

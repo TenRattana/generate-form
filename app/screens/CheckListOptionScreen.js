@@ -177,7 +177,7 @@ const CheckListOptionScreen = React.memo(() => {
     "Delete",
   ];
 
-  const actionIndex = [{ activeIndex: 2, editIndex: 3, delIndex: 4 }];
+  const actionIndex = [{ editIndex: 2, delIndex: 3 }];
 
   const customtableProps = {
     Tabledata: tableData,

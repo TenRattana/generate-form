@@ -3,6 +3,8 @@ import React from "react";
 import { Searchbar } from "react-native-paper";
 
 const Searchbars = ({ searchQuery, handleChange, viewProps }) => {
+  console.log("Searchbars");
+
   return (
     <View style={styles.containerSearch}>
       <View style={styles.row}>

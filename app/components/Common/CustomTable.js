@@ -29,6 +29,7 @@ const CustomTable = ({
   const { colors, fonts, spacing } = useTheme();
   const { responsive } = useRes();
   const styles = customtableStyle({ colors, spacing, fonts, responsive });
+  console.log("CustomTable");
 
   const animations = useRef(Tabledata.map(() => new Animated.Value(1))).current;
 
@@ -71,7 +72,7 @@ const CustomTable = ({
     )
   );
 
-  const handleDialog = (action, data, row, rowIndex) => {
+  const handleDialog = (action, data) => {
     handleAction(action, data);
   };
 
@@ -121,6 +122,7 @@ const CustomTable = ({
       </Pressable>
     );
   };
+
   const renderCellContent = (cell, cellIndex, row, rowIndex) => {
     if (typeof cell === "boolean") {
       const handlePress = () => {

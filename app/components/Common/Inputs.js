@@ -17,6 +17,7 @@ const Inputs = ({
   const { colors, fonts, spacing } = useTheme();
   const { responsive } = useRes();
   const styles = commonStyle({ colors, spacing, fonts, responsive });
+  console.log("Input");
 
   return (
     <View style={styles.container}>

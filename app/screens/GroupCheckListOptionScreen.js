@@ -184,8 +184,6 @@ const GroupCheckListOptionScreen = React.memo(() => {
     ];
   });
 
-  console.log(tableData);
-
   const tableHead = [
     "Group Option Name",
     "Description",

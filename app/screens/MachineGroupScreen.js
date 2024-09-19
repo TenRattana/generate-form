@@ -36,6 +36,7 @@ const MachineGroupScreen = React.memo(() => {
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = screenStyles({ colors, spacing, fonts, responsive });
+  console.log("MachineGroup");
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({

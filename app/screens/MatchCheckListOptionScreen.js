@@ -8,7 +8,7 @@ import {
   CustomDropdown,
   CustomDropdownMulti,
   LoadingSpinner,
-  Inputs,
+  Searchbars,
 } from "../components";
 import { Card } from "@rneui/themed";
 import { Portal, Switch, Dialog } from "react-native-paper";
@@ -25,15 +25,15 @@ const validationSchema = Yup.object().shape({
     .min(1, "The check list option filed least one option must be selected"),
 });
 
-const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
+const MatchCheckListOptionScreen = React.memo(() => {
   const [checkListOption, setCheckListOption] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [matchCheckListOption, setMatchCheckListOption] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
-  const [resetDropdown, setResetDropdown] = useState(false);
   const [initialValues, setInitialValues] = useState({
     matchCheckListOptionId: "",
     checkListOptionId: [],
@@ -193,8 +193,6 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
         groupCheckListOptionId: "",
       });
       setIsEditing(false);
-      setResetDropdown(true);
-      setTimeout(() => setResetDropdown(false), 0);
     }
   }, [isVisible]);
 
@@ -214,7 +212,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
       ];
     })
   );
-  
+
   const tableHead = [
     "Group Name",
     "Option Name",
@@ -234,9 +232,9 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
   let dropgroupCheckListOption = [];
 
   dropgroupCheckListOption =
-  Array.isArray(groupCheckListOption) && groupCheckListOption.length > 0
-    ? groupCheckListOption.filter((v) => v.IsActive)
-    : dropgroupCheckListOption;
+    Array.isArray(groupCheckListOption) && groupCheckListOption.length > 0
+      ? groupCheckListOption.filter((v) => v.IsActive)
+      : dropgroupCheckListOption;
 
   const actionIndex = {
     activeIndex: 3,
@@ -250,6 +248,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
     flexArr: [3, 4, 1, 1, 1, 1],
     actionIndex,
     handleAction,
+    searchQuery,
   };
 
   return (
@@ -259,14 +258,20 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
           <Card.Title>Create Match Group & Option</Card.Title>
           <Card.Divider />
 
-          <Pressable
-            onPress={() => setIsVisible(true)}
-            style={[styles.button, styles.backMain]}
-          >
-            <Text style={[styles.text, styles.textLight]}>
-              Create Match Group & Option
-            </Text>
-          </Pressable>
+          <Searchbars
+            viewProps={
+              <Pressable
+                onPress={() => setIsVisible(true)}
+                style={[styles.button, styles.backMain]}
+              >
+                <Text style={[styles.text, styles.textLight]}>
+                  Create Match Group & Option
+                </Text>
+              </Pressable>
+            }
+            searchQuery={searchQuery}
+            handleChange={setSearchQuery}
+          />
 
           {isLoading ? (
             <CustomTable {...customtableProps} />
@@ -324,7 +329,11 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
                         title="Group Check List Option"
                         labels="GCLOptionName"
                         values="GCLOptionID"
-                        data={isEditing ? groupCheckListOption : dropgroupCheckListOption}
+                        data={
+                          isEditing
+                            ? groupCheckListOption
+                            : dropgroupCheckListOption
+                        }
                         selectedValue={values.groupCheckListOptionId}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);
@@ -358,7 +367,7 @@ const MatchCheckListOptionScreen = React.memo(({ navigation }) => {
                         title="Check List Option"
                         labels="CLOptionName"
                         values="CLOptionID"
-                        data={isEditing ? checkListOption :dropcheckListOption}
+                        data={isEditing ? checkListOption : dropcheckListOption}
                         selectedValue={values.checkListOptionId || []}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);

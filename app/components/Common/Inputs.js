@@ -12,7 +12,7 @@ const Inputs = ({
   value,
   handleChange,
   handleBlur,
-  mode
+  mode,
 }) => {
   const { colors, fonts, spacing } = useTheme();
   const { responsive } = useRes();
@@ -21,7 +21,7 @@ const Inputs = ({
   return (
     <View style={styles.container}>
       <TextInput
-        mode={mode||"outlined"}
+        mode={mode || "outlined"}
         placeholder={placeholder}
         label={label}
         onChangeText={handleChange}

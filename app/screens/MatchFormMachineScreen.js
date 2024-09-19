@@ -7,7 +7,7 @@ import {
   CustomTable,
   CustomDropdown,
   LoadingSpinner,
-  Inputs,
+  Searchbars,
 } from "../components";
 import { Card } from "@rneui/themed";
 import { Portal, Switch, Dialog } from "react-native-paper";
@@ -24,11 +24,11 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
   const [form, setForm] = useState([]);
   const [machine, setMachine] = useState([]);
   const [matchForm, setMatchForm] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
-  const [resetDropdown, setResetDropdown] = useState(false);
   const [initialValues, setInitialValues] = useState({
     machineId: "",
     formId: "",
@@ -153,8 +153,6 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         formId: "",
       });
       setIsEditing(false);
-      setResetDropdown(true);
-      setTimeout(() => setResetDropdown(false), 0);
     }
   }, [isVisible]);
 
@@ -194,6 +192,25 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
       ? form.filter((v) => v.IsActive)
       : dropform;
 
+  const actionIndex = [
+    {
+      changeIndex: 2,
+      copyIndex: 3,
+      preIndex: 4,
+      editIndex: 5,
+      delIndex: 6,
+    },
+  ];
+
+  const customtableProps = {
+    Tabledata: tableData,
+    Tablehead: tableHead,
+    flexArr: [2, 2, 1, 1, 1, 1, 1],
+    actionIndex,
+    handleAction,
+    searchQuery,
+  };
+
   return (
     <View style={styles.scrollView}>
       <ScrollView>
@@ -201,31 +218,23 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
           <Card.Title>Create Match Machine & Form</Card.Title>
           <Card.Divider />
 
-          <Pressable
-            onPress={() => setIsVisible(true)}
-            style={[styles.button, styles.backMain]}
-          >
-            <Text style={[styles.text, styles.textLight]}>
-              Create Match Machine & Form
-            </Text>
-          </Pressable>
+          <Searchbars
+            viewProps={
+              <Pressable
+                onPress={() => setIsVisible(true)}
+                style={[styles.button, styles.backMain]}
+              >
+                <Text style={[styles.text, styles.textLight]}>
+                  Create Match Machine & Form
+                </Text>
+              </Pressable>
+            }
+            searchQuery={searchQuery}
+            handleChange={setSearchQuery}
+          />
 
           {isLoading ? (
-            <CustomTable
-              Tabledata={tableData}
-              Tablehead={tableHead}
-              flexArr={[2, 2, 1, 1, 1, 1, 1]}
-              actionIndex={[
-                {
-                  changeIndex: 2,
-                  copyIndex: 3,
-                  preIndex: 4,
-                  editIndex: 5,
-                  delIndex: 6,
-                },
-              ]}
-              handleAction={handleAction}
-            />
+            <CustomTable {...customtableProps} />
           ) : (
             <LoadingSpinner />
           )}

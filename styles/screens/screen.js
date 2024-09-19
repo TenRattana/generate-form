@@ -94,13 +94,18 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
     },
     container: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
     },
-    containerDialog:{
-      width: responsive === "small" ? "80%" : responsive === "medium" ? "70%" : "60%",
-      alignSelf: 'center',
-    }
+    containerDialog: {
+      width:
+        responsive === "small"
+          ? "80%"
+          : responsive === "medium"
+          ? "70%"
+          : "60%",
+      alignSelf: "center",
+    },
   });
 };
 

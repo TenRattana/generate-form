@@ -8,3 +8,4 @@ export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as Radios } from "./Radios";
 export { default as Selects } from "./Selects";
 export { default as Textareas } from "./Textareas";
+export { default as Searchbars } from "./Searchbar";

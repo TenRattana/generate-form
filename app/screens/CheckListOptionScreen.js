@@ -3,7 +3,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
-import { CustomTable, LoadingSpinner, Inputs } from "../components";
+import { CustomTable, LoadingSpinner, Inputs, Searchbars } from "../components";
 import { Card } from "@rneui/themed";
 import { Portal, Switch, Dialog } from "react-native-paper";
 import { Formik, Field } from "formik";
@@ -18,6 +18,7 @@ const validationSchema = Yup.object().shape({
 
 const CheckListOptionScreen = React.memo(() => {
   const [checkListOption, setCheckListOption] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -185,6 +186,7 @@ const CheckListOptionScreen = React.memo(() => {
     flexArr: [5, 1, 1, 1, 1],
     actionIndex,
     handleAction,
+    searchQuery,
   };
 
   return (
@@ -194,14 +196,20 @@ const CheckListOptionScreen = React.memo(() => {
           <Card.Title>Create Option</Card.Title>
           <Card.Divider />
 
-          <Pressable
-            onPress={() => setIsVisible(true)}
-            style={[styles.button, styles.backMain]}
-          >
-            <Text style={[styles.text, styles.textLight]}>
-              Create Check List Option
-            </Text>
-          </Pressable>
+          <Searchbars
+            viewProps={
+              <Pressable
+                onPress={() => setIsVisible(true)}
+                style={[styles.button, styles.backMain]}
+              >
+                <Text style={[styles.text, styles.textLight]}>
+                  Create Check List Option
+                </Text>
+              </Pressable>
+            }
+            searchQuery={searchQuery}
+            handleChange={setSearchQuery}
+          />
 
           {isLoading ? (
             <CustomTable {...customtableProps} />
@@ -259,10 +267,13 @@ const CheckListOptionScreen = React.memo(() => {
                     handleBlur={handleBlur("checkListOptionName")}
                     value={values.checkListOptionName}
                     error={
-                      touched.checkListOptionName && Boolean(errors.checkListOptionName)
+                      touched.checkListOptionName &&
+                      Boolean(errors.checkListOptionName)
                     }
                     errorMessage={
-                      touched.checkListOptionName ? errors.checkListOptionName : ""
+                      touched.checkListOptionName
+                        ? errors.checkListOptionName
+                        : ""
                     }
                   />
 

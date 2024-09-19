@@ -1,12 +1,11 @@
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { View, Text, Pressable, Animated } from "react-native";
-import { DataTable } from "react-native-paper";
+import { DataTable, Searchbar, Card, Button } from "react-native-paper";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import customtableStyle from "../../../styles/components/customtable";
 import { useTheme, useRes } from "../../../contexts";
-import Inputs from "./Inputs";
 import Dialog_check from "./Dialog_check";
 
 const CustomTable = ({
@@ -15,11 +14,11 @@ const CustomTable = ({
   flexArr,
   handleAction,
   actionIndex,
+  searchQuery,
 }) => {
   const [action, setAction] = useState([]);
   const [page, setPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState("");
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("ascending");
   const [isVisible, setIsVisible] = useState(false);
@@ -209,14 +208,6 @@ const CustomTable = ({
     <View
       style={responsive === "small" ? styles.container : styles.containerTable}
     >
-      <View style={styles.searchContainer}>
-        <Inputs
-          label="Search..."
-          value={searchQuery}
-          handleChange={setSearchQuery}
-        />
-      </View>
-
       {responsive === "small" ? (
         rowsData
       ) : (
@@ -229,7 +220,11 @@ const CustomTable = ({
                 sortDirection={sortColumn === index ? sortDirection : null}
                 onPress={() => handleSort(index)}
               >
-                <Text style={[styles.textHead]}>{header}</Text>
+                <Text
+                  style={sortColumn === index ? styles.textHead : styles.text}
+                >
+                  {header}
+                </Text>
               </DataTable.Title>
             ))}
           </DataTable.Header>

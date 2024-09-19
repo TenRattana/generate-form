@@ -2,13 +2,14 @@ import React, { useState, useCallback } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
-import { CustomTable, LoadingSpinner } from "../components";
+import { CustomTable, LoadingSpinner, Searchbars } from "../components";
 import { useTheme, useToast, useRes } from "../../contexts";
 import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const FormScreen = React.memo(({ navigation }) => {
   const [form, setForm] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
@@ -124,6 +125,7 @@ const FormScreen = React.memo(({ navigation }) => {
     flexArr: [2, 4, 1, 1, 1, 1, 1, 1],
     actionIndex,
     handleAction,
+    searchQuery,
   };
 
   return (
@@ -133,12 +135,18 @@ const FormScreen = React.memo(({ navigation }) => {
           <Card.Title>Forms</Card.Title>
           <Card.Divider />
 
-          <Pressable
-            onPress={handleNewForm}
-            style={[styles.button, styles.backMain]}
-          >
-            <Text style={[styles.text, styles.textLight]}>New Form</Text>
-          </Pressable>
+          <Searchbars
+            viewProps={
+              <Pressable
+                onPress={handleNewForm}
+                style={[styles.button, styles.backMain]}
+              >
+                <Text style={[styles.text, styles.textLight]}>New Form</Text>
+              </Pressable>
+            }
+            searchQuery={searchQuery}
+            handleChange={setSearchQuery}
+          />
 
           {isLoading ? (
             <CustomTable {...customtableProps} />

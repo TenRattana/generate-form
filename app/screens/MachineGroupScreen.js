@@ -3,7 +3,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
-import { CustomTable, LoadingSpinner, Inputs } from "../components";
+import { CustomTable, LoadingSpinner, Inputs, Searchbars } from "../components";
 import { Card } from "@rneui/themed";
 import { Portal, Switch, Dialog } from "react-native-paper";
 import { Formik, Field } from "formik";
@@ -23,6 +23,7 @@ const validationSchema = Yup.object().shape({
 
 const MachineGroupScreen = React.memo(() => {
   const [machineGroup, setMachineGroup] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -202,6 +203,7 @@ const MachineGroupScreen = React.memo(() => {
     flexArr: [2, 3, 1, 1, 1, 1, 1],
     actionIndex,
     handleAction,
+    searchQuery,
   };
 
   return (
@@ -211,14 +213,18 @@ const MachineGroupScreen = React.memo(() => {
           <Card.Title>List Group Machine</Card.Title>
           <Card.Divider />
 
-          <Pressable
-            onPress={() => setIsVisible(true)}
-            style={[styles.button, styles.backMain]}
-          >
-            <Text style={[styles.text, styles.textLight]}>
-              Create Group Machine
-            </Text>
-          </Pressable>
+          <Searchbars
+            viewProps={
+              <Pressable
+                onPress={() => setIsVisible(true)}
+                style={styles.createButton}
+              >
+                <Text style={styles.buttonText}>Create Group Machine</Text>
+              </Pressable>
+            }
+            searchQuery={searchQuery}
+            handleChange={setSearchQuery}
+          />
 
           {isLoading ? (
             <CustomTable {...customtableProps} />

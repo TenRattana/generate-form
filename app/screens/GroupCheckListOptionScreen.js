@@ -3,7 +3,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
-import { CustomTable, LoadingSpinner, Inputs } from "../components";
+import { CustomTable, LoadingSpinner, Inputs, Searchbars } from "../components";
 import { Card } from "@rneui/themed";
 import { Portal, Switch, Dialog } from "react-native-paper";
 import { Formik, Field } from "formik";
@@ -22,6 +22,7 @@ const validationSchema = Yup.object().shape({
 
 const GroupCheckListOptionScreen = React.memo(() => {
   const [groupCheckListOption, setGroupCheckListOption] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -188,7 +189,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
   });
 
   console.log(tableData);
-  
+
   const tableHead = [
     "Group Option Name",
     "Description",
@@ -207,6 +208,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
     flexArr: [3, 5, 1, 1, 1, 1, 1],
     actionIndex,
     handleAction,
+    searchQuery,
   };
 
   return (
@@ -216,14 +218,20 @@ const GroupCheckListOptionScreen = React.memo(() => {
           <Card.Title>Create Group Option</Card.Title>
           <Card.Divider />
 
-          <Pressable
-            onPress={() => setIsVisible(true)}
-            style={[styles.button, styles.backMain]}
-          >
-            <Text style={[styles.text, styles.textLight]}>
-              Create Group Option
-            </Text>
-          </Pressable>
+          <Searchbars
+            viewProps={
+              <Pressable
+                onPress={() => setIsVisible(true)}
+                style={[styles.button, styles.backMain]}
+              >
+                <Text style={[styles.text, styles.textLight]}>
+                  Create Group Option
+                </Text>
+              </Pressable>
+            }
+            searchQuery={searchQuery}
+            handleChange={setSearchQuery}
+          />
 
           {isLoading ? (
             <CustomTable {...customtableProps} />

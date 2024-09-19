@@ -8,6 +8,7 @@ import {
   CustomDropdown,
   LoadingSpinner,
   Inputs,
+  Searchbars,
 } from "../components";
 import { Card } from "@rneui/themed";
 import { Portal, Switch, Dialog } from "react-native-paper";
@@ -28,11 +29,11 @@ const validationSchema = Yup.object().shape({
 const MachineScreen = React.memo(() => {
   const [machine, setMachine] = useState([]);
   const [machineGroup, setMachineGroup] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
-  const [resetDropdown, setResetDropdown] = useState(false);
   const [initialValues, setInitialValues] = useState({
     machineId: "",
     machineGroupId: "",
@@ -169,8 +170,6 @@ const MachineScreen = React.memo(() => {
       });
       setIsEditing(false);
       setIsVisible(false);
-      setResetDropdown(true);
-      setTimeout(() => setResetDropdown(false), 0);
     }
   }, [isVisible]);
 
@@ -220,6 +219,7 @@ const MachineScreen = React.memo(() => {
     flexArr: [3, 3, 3, 1, 1, 2],
     actionIndex,
     handleAction,
+    searchQuery,
   };
 
   return (
@@ -229,12 +229,18 @@ const MachineScreen = React.memo(() => {
           <Card.Title>List Machine</Card.Title>
           <Card.Divider />
 
-          <Pressable
-            onPress={() => setIsVisible(true)}
-            style={[styles.button, styles.backMain]}
-          >
-            <Text style={[styles.text, styles.textLight]}>Create Machine</Text>
-          </Pressable>
+          <Searchbars
+            viewProps={
+              <Pressable
+                onPress={() => setIsVisible(true)}
+                style={styles.createButton}
+              >
+                <Text style={styles.buttonText}>Create Machine</Text>
+              </Pressable>
+            }
+            searchQuery={searchQuery}
+            handleChange={setSearchQuery}
+          />
 
           {isLoading ? (
             <CustomTable {...customtableProps} />

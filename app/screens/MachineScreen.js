@@ -228,9 +228,11 @@ const MachineScreen = React.memo(() => {
             viewProps={
               <Pressable
                 onPress={() => setIsVisible(true)}
-                style={styles.createButton}
+                style={[styles.button, styles.backMain]}
               >
-                <Text style={styles.buttonText}>Create Machine</Text>
+                <Text style={[styles.text, styles.textLight]}>
+                  Create Machine
+                </Text>
               </Pressable>
             }
             searchQuery={searchQuery}

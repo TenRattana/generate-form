@@ -202,9 +202,11 @@ const CheckListScreen = React.memo(() => {
             viewProps={
               <Pressable
                 onPress={() => setIsVisible(true)}
-                style={styles.createButton}
+                style={[styles.button, styles.backMain]}
               >
-                <Text style={styles.buttonText}>Create Check List</Text>
+                <Text style={[styles.text, styles.textLight]}>
+                  Create Check List
+                </Text>
               </Pressable>
             }
             searchQuery={searchQuery}

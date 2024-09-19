@@ -6,7 +6,7 @@ const screenStyles = ({ colors, spacing, fonts, responsive }) => {
       flex: 1,
     },
     text: {
-      fontSize: responsive === "small" ? fonts.sm : fonts.xsm,
+      fontSize: responsive === "small" ? fonts.xsm : fonts.md,
       color: colors.text,
       textAlign: "left",
     },

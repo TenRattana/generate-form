@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, FlatList, Pressable, ScrollView } from "react-native";
-import { Button, Card } from "@rneui/themed";
 import { useTheme, useToast, useRes } from "../../contexts";
 import axios from "../../config/axios";
 import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
+import { Drawer, Button } from "react-native-paper";
 
 const HomeScreen = React.memo(({ navigation }) => {
-  const [machineGroup, setMachineGroup] = useState({});
-  const [machine, setMachine] = useState({});
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = screenStyles({ colors, spacing, fonts, responsive });
+  const [isVisible, setIsVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,27 +32,6 @@ const HomeScreen = React.memo(({ navigation }) => {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [machineGroupResponse, machineResponse] = await Promise.all([
-          axios.post("MachineGroup_service.asmx/GetMachineGroups"),
-          axios.post("Machine_service.asmx/GetMachines"),
-        ]);
-        setMachineGroup(machineGroupResponse.data.data ?? []);
-        setMachine(machineResponse.data.data ?? []);
-      } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response ? error.response.data.errors : ["Something wrong!"],
-          "error"
-        );
-      }
-    };
-
-    fetchData();
-  }, []);
-
   console.log("Home");
 
   const handleMenu = (item) => {
@@ -62,91 +40,57 @@ const HomeScreen = React.memo(({ navigation }) => {
 
   return (
     <React.Fragment>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <Card>
-          <Card.Title>KFM Form</Card.Title>
-          <Card.Divider />
-          <Text style={[styles.textHeader, { color: colors.text }]}>
-            List Menu
-          </Text>
-
-          <View style={styles.containerFlexStyle}>
-            <Pressable
-              onPress={() => handleMenu("Machine Group")}
-              style={styles.buttonStyle}
-            >
-              <Text style={styles.text}>Create Machine Group</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleMenu("Machine")}
-              style={styles.buttonStyle}
-            >
-              <Text style={styles.text}>Create Machine</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleMenu("Check List")}
-              style={styles.buttonStyle}
-            >
-              <Text style={styles.text}>Create Check List</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleMenu("Check List Option")}
-              style={styles.buttonStyle}
-            >
-              <Text style={styles.text}>Create Check List Option</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleMenu("Group Check List Option")}
-              style={styles.buttonStyle}
-            >
-              <Text style={styles.text}>Create Group Check List Option</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleMenu("Forms")}
-              style={styles.buttonStyle}
-            >
-              <Text style={styles.text}>Create Form</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleMenu("Match Form & Machine")}
-              style={styles.buttonStyle}
-            >
-              <Text style={styles.text}>Create Machine Form</Text>
-            </Pressable>
-          </View>
-        </Card>
-      </ScrollView>
-      <View>
-        <Card>
-          <Card.Title>List Group</Card.Title>
-          <Card.Divider />
-          <View>
-            <FlatList
-              data={machineGroup}
-              renderItem={({ item, index }) => {
-                <View>
-                  <Text style={styles.text}>Machine Group Name : {item}</Text>
-                  <Pressable>
-                    <Text style={styles.text}>
-                      Machine Group Name : {item.MGroupName}
-                    </Text>
-                  </Pressable>
-                  {/* {machine.filter((field, idx) => {
-                    if (field.MGroupID === item.MGroupID)
-                      <Pressable
-                        key={`${field.index}-${idx}`}
-                        style={styles.button}
-                      >
-                        <Text style={styles.text}>{field.MachineName}</Text>
-                      </Pressable>;
-                  })} */}
-                </View>;
-              }}
-              keyExtractor={(_, MGroupID) => `mgroup-${MGroupID}`}
-            />
-          </View>
-        </Card>
-      </View>
+      <Drawer.Section title="Menu" showDivider={isVisible}>
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Machine Group"
+          onPress={() => handleMenu("Machine Group")}
+        />
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Machine"
+          onPress={() => handleMenu("Machine")}
+        />
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Check List"
+          onPress={() => handleMenu("Check List")}
+        />
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Check List Option"
+          onPress={() => handleMenu("Check List Option")}
+        />
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Group Check List Option"
+          onPress={() => handleMenu("Group Check List Option")}
+        />
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Match Check List Option"
+          onPress={() => handleMenu("Match Check List Option")}
+        />
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Forms"
+          onPress={() => handleMenu("Forms")}
+        />
+        <Drawer.Item
+          style={{ backgroundColor: "#64ffda" }}
+          icon="star"
+          label="Match Form & Machine"
+          onPress={() => handleMenu("Match Form & Machine")}
+        />
+      </Drawer.Section>
+      <Button onPress={() => setIsVisible(true)}>Show Menu</Button>
     </React.Fragment>
   );
 });

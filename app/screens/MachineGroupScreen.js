@@ -207,9 +207,11 @@ const MachineGroupScreen = React.memo(() => {
             viewProps={
               <Pressable
                 onPress={() => setIsVisible(true)}
-                style={styles.createButton}
+                style={[styles.button, styles.backMain]}
               >
-                <Text style={styles.buttonText}>Create Group Machine</Text>
+                <Text style={[styles.text, styles.textLight]}>
+                  Create Group Machine
+                </Text>
               </Pressable>
             }
             searchQuery={searchQuery}

@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -46,37 +45,27 @@ const CheckListScreen = React.memo(() => {
     });
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-          const [checkListResponse] = await Promise.all([
-            axios.post("CheckList_service.asmx/GetCheckLists"),
-          ]);
-          setCheckList(checkListResponse.data.data ?? []);
-          setIsLoading(true);
-        } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response
-              ? error.response.data.errors
-              : ["Something went wrong!"],
-            "error"
-          );
-        }
-      };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [checkListResponse] = await Promise.all([
+          axios.post("CheckList_service.asmx/GetCheckLists"),
+        ]);
+        setCheckList(checkListResponse.data.data ?? []);
+        setIsLoading(true);
+      } catch (error) {
+        ShowMessages(
+          error.message || "Error",
+          error.response
+            ? error.response.data.errors
+            : ["Something went wrong!"],
+          "error"
+        );
+      }
+    };
 
-      fetchData();
-      return () => {
-        setInitialValues({
-          checkListId: "",
-          checkListName: "",
-          isActive: true,
-        });
-        setIsEditing(false);
-      };
-    }, [])
-  );
+    fetchData();
+  }, []);
 
   const saveData = async (values) => {
     setIsLoadingButton(true);

@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -10,7 +9,7 @@ import {
   Searchbars,
 } from "../components";
 import { Card } from "@rneui/themed";
-import { Portal, Switch, Dialog } from "react-native-paper";
+import { Portal, Dialog } from "react-native-paper";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
 import screenStyles from "../../styles/screens/screen";
@@ -49,41 +48,32 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     });
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-          const [machineResponse, formResponse, matchFormResponse] =
-            await Promise.all([
-              axios.post("Machine_service.asmx/GetMachines"),
-              axios.post("Form_service.asmx/GetForms"),
-              axios.post("MatchFormMachine_service.asmx/GetMatchFormMachines"),
-            ]);
-          setMachine(machineResponse.data.data ?? []);
-          setForm(formResponse.data.data ?? []);
-          setMatchForm(matchFormResponse.data.data ?? []);
-          setIsLoading(true);
-        } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response
-              ? error.response.data.errors
-              : ["Something went wrong!"],
-            "error"
-          );
-        }
-      };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [machineResponse, formResponse, matchFormResponse] =
+          await Promise.all([
+            axios.post("Machine_service.asmx/GetMachines"),
+            axios.post("Form_service.asmx/GetForms"),
+            axios.post("MatchFormMachine_service.asmx/GetMatchFormMachines"),
+          ]);
+        setMachine(machineResponse.data.data ?? []);
+        setForm(formResponse.data.data ?? []);
+        setMatchForm(matchFormResponse.data.data ?? []);
+        setIsLoading(true);
+      } catch (error) {
+        ShowMessages(
+          error.message || "Error",
+          error.response
+            ? error.response.data.errors
+            : ["Something went wrong!"],
+          "error"
+        );
+      }
+    };
 
-      fetchData();
-      return () => {
-        setInitialValues({
-          machineId: "",
-          formId: "",
-        });
-        setIsEditing(false);
-      };
-    }, [])
-  );
+    fetchData();
+  }, []);
 
   const saveData = async (values) => {
     setIsLoadingButton(true);

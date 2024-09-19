@@ -39,6 +39,7 @@ const Inputs = ({
           )
         }
         error={error}
+        enterKeyHint="done"
       />
 
       <HelperText type="error" visible={error} style={{ left: -10 }}>

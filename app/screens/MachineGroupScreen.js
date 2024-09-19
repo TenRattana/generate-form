@@ -1,12 +1,11 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
 import { CustomTable, LoadingSpinner, Inputs, Searchbars } from "../components";
 import { Card } from "@rneui/themed";
 import { Portal, Switch, Dialog } from "react-native-paper";
-import { Formik, Field } from "formik";
+import { Formik } from "formik";
 import * as Yup from "yup";
 import screenStyles from "../../styles/screens/screen";
 
@@ -48,38 +47,27 @@ const MachineGroupScreen = React.memo(() => {
     });
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-          const response = await axios.post(
-            "MachineGroup_service.asmx/GetMachineGroups"
-          );
-          setMachineGroup(response.data.data ?? []);
-          setIsLoading(true);
-        } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response
-              ? error.response.data.errors
-              : ["Something went wrong!"],
-            "error"
-          );
-        }
-      };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post(
+          "MachineGroup_service.asmx/GetMachineGroups"
+        );
+        setMachineGroup(response.data.data ?? []);
+        setIsLoading(true);
+      } catch (error) {
+        ShowMessages(
+          error.message || "Error",
+          error.response
+            ? error.response.data.errors
+            : ["Something went wrong!"],
+          "error"
+        );
+      }
+    };
 
-      fetchData();
-      return () => {
-        setInitialValues({
-          machineGroupId: "",
-          machineGroupName: "",
-          description: "",
-          isActive: true,
-        });
-        setIsEditing(false);
-      };
-    }, [])
-  );
+    fetchData();
+  }, []);
 
   const saveData = async (values) => {
     setIsLoadingButton(true);

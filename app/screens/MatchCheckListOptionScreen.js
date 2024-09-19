@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -57,50 +56,39 @@ const MatchCheckListOptionScreen = React.memo(() => {
     });
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-          const [
-            checkListOptionResponse,
-            groupCheckListOptionResponse,
-            matchCheckListOptionResponse,
-          ] = await Promise.all([
-            axios.post("CheckListOption_service.asmx/GetCheckListOptions"),
-            axios.post(
-              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
-            ),
-            axios.post(
-              "MatchCheckListOption_service.asmx/GetMatchCheckListOptions"
-            ),
-          ]);
-          setCheckListOption(checkListOptionResponse.data.data ?? []);
-          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
-          setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
-          setIsLoading(true);
-        } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response
-              ? error.response.data.errors
-              : ["Something went wrong!"],
-            "error"
-          );
-        }
-      };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [
+          checkListOptionResponse,
+          groupCheckListOptionResponse,
+          matchCheckListOptionResponse,
+        ] = await Promise.all([
+          axios.post("CheckListOption_service.asmx/GetCheckListOptions"),
+          axios.post(
+            "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+          ),
+          axios.post(
+            "MatchCheckListOption_service.asmx/GetMatchCheckListOptions"
+          ),
+        ]);
+        setCheckListOption(checkListOptionResponse.data.data ?? []);
+        setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
+        setMatchCheckListOption(matchCheckListOptionResponse.data.data ?? []);
+        setIsLoading(true);
+      } catch (error) {
+        ShowMessages(
+          error.message || "Error",
+          error.response
+            ? error.response.data.errors
+            : ["Something went wrong!"],
+          "error"
+        );
+      }
+    };
 
-      fetchData();
-      return () => {
-        setInitialValues({
-          matchCheckListOptionId: "",
-          checkListOptionId: [],
-          groupCheckListOptionId: "",
-          isActive: true,
-        });
-        setIsEditing(false);
-      };
-    }, [])
-  );
+    fetchData();
+  }, []);
 
   const saveData = async (values) => {
     setIsLoadingButton(true);

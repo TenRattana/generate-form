@@ -13,7 +13,7 @@ const Dialog_check = ({
   data,
 }) => {
   const { styles, colors } = style;
-  console.log("Dialog_check");
+  console.log("Dialog_checkble");
 
   return (
     <Portal>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -150,18 +150,6 @@ const GroupCheckListOptionScreen = React.memo(() => {
     }
   };
 
-  useMemo(() => {
-    if (!isVisible) {
-      setInitialValues({
-        groupCheckListOptionId: "",
-        groupCheckListOptionName: "",
-        description: "",
-        isActive: true,
-      });
-      setIsEditing(false);
-    }
-  }, [isVisible]);
-
   const tableData = groupCheckListOption.map((item) => {
     return [
       item.GCLOptionName,
@@ -245,8 +233,9 @@ const GroupCheckListOptionScreen = React.memo(() => {
               validationSchema={validationSchema}
               validateOnBlur={false}
               validateOnChange={true}
-              onSubmit={(values) => {
+              onSubmit={(values, { resetForm }) => {
                 saveData(values);
+                resetForm();
               }}
             >
               {({

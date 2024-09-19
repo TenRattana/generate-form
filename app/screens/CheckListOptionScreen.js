@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -144,17 +144,6 @@ const CheckListOptionScreen = React.memo(() => {
     }
   };
 
-  useMemo(() => {
-    if (!isVisible) {
-      setInitialValues({
-        checkListOptionId: "",
-        checkListOptionName: "",
-        isActive: true,
-      });
-      setIsEditing(false);
-    }
-  }, [isVisible]);
-
   const tableData = checkListOption.map((item) => {
     return [item.CLOptionName, item.IsActive, item.CLOptionID, item.CLOptionID];
   });
@@ -231,8 +220,9 @@ const CheckListOptionScreen = React.memo(() => {
               validationSchema={validationSchema}
               validateOnBlur={false}
               validateOnChange={true}
-              onSubmit={(values) => {
+              onSubmit={(values, { resetForm }) => {
                 saveData(values);
+                resetForm();
               }}
             >
               {({

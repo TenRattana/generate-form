@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -136,16 +136,6 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     }
   };
 
-  useMemo(() => {
-    if (!isVisible) {
-      setInitialValues({
-        machineId: "",
-        formId: "",
-      });
-      setIsEditing(false);
-    }
-  }, [isVisible]);
-
   const tableData = matchForm.map((item) => {
     return [
       item.MachineName,
@@ -254,13 +244,12 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
               validationSchema={validationSchema}
               validateOnBlur={false}
               validateOnChange={true}
-              onSubmit={(values) => {
+              onSubmit={(values, { resetForm }) => {
                 saveData(values);
+                resetForm();
               }}
             >
               {({
-                handleChange,
-                handleBlur,
                 setFieldValue,
                 values,
                 errors,

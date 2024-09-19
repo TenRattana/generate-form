@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -137,19 +137,6 @@ const MachineGroupScreen = React.memo(() => {
     }
   };
 
-  useMemo(() => {
-    if (!isVisible) {
-      setInitialValues({
-        machineGroupId: "",
-        machineGroupName: "",
-        description: "",
-        isActive: true,
-      });
-      setIsVisible(false);
-      setIsEditing(false);
-    }
-  }, [isVisible]);
-
   const tableData = machineGroup.map((item) => [
     item.MGroupName,
     item.Description,
@@ -235,8 +222,9 @@ const MachineGroupScreen = React.memo(() => {
               validationSchema={validationSchema}
               validateOnBlur={false}
               validateOnChange={true}
-              onSubmit={(values) => {
+              onSubmit={(values, { resetForm }) => {
                 saveData(values);
+                resetForm();
               }}
             >
               {({

@@ -54,19 +54,64 @@ const customtableStyle = ({ colors, spacing, fonts, responsive }) => {
       fontSize: responsive === "small" ? 18 : 20,
       textAlign: "center",
     },
-    iconStatus: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
     noDataText: {
       alignSelf: "center",
       padding: 10,
       fontStyle: "italic",
       color: colors.text,
     },
-
+    containerDialog: {
+      width:
+        responsive === "small"
+          ? "80%"
+          : responsive === "medium"
+          ? "70%"
+          : "60%",
+      alignSelf: "center",
+    },
+    containerFlexStyle: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      padding: 5,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonD: {
+      width: `${
+        responsive === "small" ? 98 : responsive === "medium" ? 80 / 2 : 75 / 4
+      }%`,
+      alignItems: "center",
+      justifyContent: "center",
+      marginVertical: "1%",
+      marginHorizontal: "3%",
+      textAlign: "center",
+      height: 40,
+      borderRadius: 10,
+    },
+    backMain: {
+      backgroundColor: colors.main,
+    },
+    backSucceass: {
+      backgroundColor: colors.succeass,
+    },
+    backDis: {
+      backgroundColor: colors.disable,
+    },
+    textBold: {
+      fontSize: responsive === "small" ? fonts.lg : fonts.lgx,
+      fontWeight: "bold",
+    },
+    textMain: {
+      color: colors.main,
+    },
+    textLight: {
+      color: colors.light,
+    },
     textDark: {
       color: colors.dark,
+    },
+    textError: {
+      color: colors.danger,
     },
   });
 };

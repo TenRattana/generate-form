@@ -1,12 +1,13 @@
-import { StyleSheet, Text, View } from "react-native";
 import React, { useMemo, useState } from "react";
-import { Portal, Dialog, Button } from "react-native-paper";
+import { View, Pressable } from "react-native";
+import { Portal, Dialog, Button, Text } from "react-native-paper";
 
 const Dialog_check = ({
   style,
   isVisible,
   setIsVisible,
   actions,
+  title,
   messages,
   handleDialog,
   data,
@@ -21,25 +22,48 @@ const Dialog_check = ({
         style={styles.containerDialog}
         contentStyle={styles.containerDialog}
       >
-        <Dialog.Title style={{ paddingLeft: 8 }}>{actions || ""}</Dialog.Title>
+        <Dialog.Icon icon="alert" size={90} />
+
+        <Dialog.Title style={{ alignSelf: "center" }}>
+          {title || ""}
+        </Dialog.Title>
         <Dialog.Content>
           <Text
-            style={[styles.textDark, { marginBottom: 10, paddingLeft: 10 }]}
+            variant="bodyMedium"
+            style={[
+              styles.textDark,
+              { marginBottom: 10, paddingLeft: 10, alignSelf: "center" },
+            ]}
           >
-            {messages || ""}
+            You have selected{" "}
+            <Text style={[styles.text, styles.textError]}>
+              {messages || ""}
+            </Text>
+            . Please confirm your action.
           </Text>
 
-          <Dialog.Actions>
-            <Button onPress={() => setIsVisible(false)}>Cancel</Button>
-            <Button
+          <View style={styles.containerFlexStyle}>
+            <Pressable
               onPress={() => {
                 handleDialog(actions, data);
                 setIsVisible(false);
               }}
+              style={[styles.buttonD, styles.backSucceass]}
             >
-              Ok
-            </Button>
-          </Dialog.Actions>
+              <Text style={[styles.textBold, styles.text, styles.textLight]}>
+                Ok
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setIsVisible(false)}
+              style={[styles.buttonD, styles.backDis]}
+            >
+              <Text style={[styles.textBold, styles.text, styles.textLight]}>
+                Cancel
+              </Text>
+            </Pressable>
+          </View>
         </Dialog.Content>
       </Dialog>
     </Portal>

@@ -24,6 +24,7 @@ const CustomTable = ({
   const [isVisible, setIsVisible] = useState(false);
   const [dialogAction, setDialogAction] = useState("");
   const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogTitle, setDialogTitle] = useState("");
   const [dialogData, setDialogData] = useState("");
   const { colors, fonts, spacing } = useTheme();
   const { responsive } = useRes();
@@ -70,15 +71,16 @@ const CustomTable = ({
     )
   );
 
-  const handleDialog = (action, data) => {
+  const handleDialog = (action, data, row, rowIndex) => {
     handleAction(action, data);
   };
 
-  const renderActionButton = (data, action) => {
+  const renderActionButton = (data, action, row, rowIndex) => {
     const handlePress = () => {
       setDialogAction(action);
       setDialogData(data);
-      setDialogMessage(`You selected the ${action} action.`);
+      setDialogTitle(action === "editIndex" ? "Edit" : "Delete");
+      setDialogMessage(`${row[0]}`);
       setIsVisible(true);
     };
 
@@ -135,7 +137,13 @@ const CustomTable = ({
           }),
         ]).start();
 
-        handleDialog("activeIndex", row[cellIndex + 1]);
+        const status = row[cellIndex] ? "In active" : "Active";
+
+        setDialogAction("activeIndex");
+        setDialogTitle("Change Status");
+        setDialogData(row[cellIndex + 1]);
+        setDialogMessage(`${row[0]}  ${status}`);
+        setIsVisible(true);
       };
 
       return (
@@ -183,7 +191,8 @@ const CustomTable = ({
         <View style={{ flexDirection: "row", marginTop: spacing.md }}>
           {Object.entries(action[0]).map(
             ([key, value]) =>
-              value >= 0 && renderActionButton(rowData[value], key)
+              value >= 0 &&
+              renderActionButton(rowData[value], key, rowData, headerIndex)
           )}
         </View>
       </View>
@@ -229,7 +238,7 @@ const CustomTable = ({
 
                       return filteredEntries.length > 0
                         ? filteredEntries.map(([key]) =>
-                            renderActionButton(cell, key)
+                            renderActionButton(cell, key, row, rowIndex)
                           )
                         : renderCellContent(cell, cellIndex, row, rowIndex);
                     })}
@@ -255,6 +264,7 @@ const CustomTable = ({
         <Dialog_check
           style={{ styles, colors }}
           isVisible={isVisible}
+          title={dialogTitle}
           setIsVisible={setIsVisible}
           setDialogData={setDialogData}
           handleDialog={handleDialog}

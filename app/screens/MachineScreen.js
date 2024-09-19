@@ -197,7 +197,16 @@ const MachineScreen = React.memo(() => {
           <Searchbars
             viewProps={
               <Pressable
-                onPress={() => setIsVisible(true)}
+                onPress={() => {
+                  setInitialValues({
+                    machineId: "",
+                    machineGroupId: "",
+                    machineName: "",
+                    description: "",
+                    isActive: true,
+                  });
+                  setIsEditing(false);
+                  setIsVisible(true)}}
                 style={[styles.button, styles.backMain]}
               >
                 <Text style={[styles.text, styles.textLight]}>
@@ -241,9 +250,8 @@ const MachineScreen = React.memo(() => {
               validationSchema={validationSchema}
               validateOnBlur={false}
               validateOnChange={true}
-              onSubmit={(values, { resetForm }) => {
+              onSubmit={(values) => {
                 saveData(values);
-                resetForm();
               }}
             >
               {({

@@ -176,7 +176,15 @@ const CheckListOptionScreen = React.memo(() => {
           <Searchbars
             viewProps={
               <Pressable
-                onPress={() => setIsVisible(true)}
+                onPress={() => {
+                  setInitialValues({
+                    checkListOptionId: "",
+                    checkListOptionName: "",
+                    isActive: true,
+                  });
+                  setIsEditing(false);
+                  setIsVisible(true);
+                }}
                 style={[styles.button, styles.backMain]}
               >
                 <Text style={[styles.text, styles.textLight]}>
@@ -220,9 +228,8 @@ const CheckListOptionScreen = React.memo(() => {
               validationSchema={validationSchema}
               validateOnBlur={false}
               validateOnChange={true}
-              onSubmit={(values, { resetForm }) => {
+              onSubmit={(values) => {
                 saveData(values);
-                resetForm();
               }}
             >
               {({

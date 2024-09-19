@@ -201,7 +201,14 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
           <Searchbars
             viewProps={
               <Pressable
-                onPress={() => setIsVisible(true)}
+                onPress={() => {
+                  setInitialValues({
+                    machineId: "",
+                    formId: "",
+                  });
+                  setIsEditing(false);
+                  setIsVisible(true);
+                }}
                 style={[styles.button, styles.backMain]}
               >
                 <Text style={[styles.text, styles.textLight]}>
@@ -244,9 +251,8 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
               validationSchema={validationSchema}
               validateOnBlur={false}
               validateOnChange={true}
-              onSubmit={(values, { resetForm }) => {
+              onSubmit={(values) => {
                 saveData(values);
-                resetForm();
               }}
             >
               {({

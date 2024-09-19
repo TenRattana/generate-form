@@ -181,7 +181,6 @@ const GroupCheckListOptionScreen = React.memo(() => {
       item.IsActive,
       item.GCLOptionID,
       item.GCLOptionID,
-      item.GCLOptionID,
     ];
   });
 
@@ -190,18 +189,17 @@ const GroupCheckListOptionScreen = React.memo(() => {
   const tableHead = [
     "Group Option Name",
     "Description",
-    "Status",
     "Change Status",
     "Edit",
     "Delete",
   ];
 
-  const actionIndex = [{ activeIndex: 3, editIndex: 4, delIndex: 5 }];
+  const actionIndex = [{ editIndex: 3, delIndex: 4 }];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [3, 5, 1, 1, 1, 1],
+    flexArr: [3, 5, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,

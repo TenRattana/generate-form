@@ -157,35 +157,22 @@ const CheckListScreen = React.memo(() => {
   }, [isVisible]);
 
   const tableData = checkList.map((item) => {
-    return [
-      item.CListName,
-      item.IsActive,
-      item.CListID,
-      item.CListID,
-      item.CListID,
-    ];
+    return [item.CListName, item.IsActive, item.CListID, item.CListID];
   });
 
-  const tableHead = [
-    "Check List Name",
-    "Status",
-    "Change Status",
-    "Edit",
-    "Delete",
-  ];
+  const tableHead = ["Check List Name", "Change Status", "Edit", "Delete"];
 
   const actionIndex = [
     {
-      activeIndex: 2,
-      editIndex: 3,
-      delIndex: 4,
+      editIndex: 2,
+      delIndex: 3,
     },
   ];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [5, 1, 1, 1, 1],
+    flexArr: [5, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,

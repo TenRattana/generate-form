@@ -213,7 +213,6 @@ const MatchCheckListOptionScreen = React.memo(() => {
         item.IsActive,
         item.MCLOptionID,
         item.MCLOptionID,
-        item.MCLOptionID,
       ];
     })
   );
@@ -221,7 +220,6 @@ const MatchCheckListOptionScreen = React.memo(() => {
   const tableHead = [
     "Group Name",
     "Option Name",
-    "Status",
     "Change Status",
     "Edit",
     "Delete",
@@ -243,16 +241,15 @@ const MatchCheckListOptionScreen = React.memo(() => {
 
   const actionIndex = [
     {
-      activeIndex: 3,
-      editIndex: 4,
-      delIndex: 5,
+      editIndex: 3,
+      delIndex: 4,
     },
   ];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [3, 4, 1, 1, 1, 1],
+    flexArr: [3, 4, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,

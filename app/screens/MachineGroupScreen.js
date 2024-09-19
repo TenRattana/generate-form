@@ -167,13 +167,11 @@ const MachineGroupScreen = React.memo(() => {
     item.IsActive,
     item.MGroupID,
     item.MGroupID,
-    item.MGroupID,
   ]);
 
   const tableHead = [
     "Machine Group Name",
     "Description",
-    "Status",
     "Change Status",
     "Edit",
     "Delete",
@@ -181,16 +179,15 @@ const MachineGroupScreen = React.memo(() => {
 
   const actionIndex = [
     {
-      activeIndex: 3,
-      editIndex: 4,
-      delIndex: 5,
+      editIndex: 3,
+      delIndex: 4,
     },
   ];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [2, 3, 1, 1, 1, 1],
+    flexArr: [2, 3, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,

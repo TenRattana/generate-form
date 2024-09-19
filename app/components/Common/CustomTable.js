@@ -30,6 +30,7 @@ const CustomTable = ({
   const styles = customtableStyle({ colors, spacing, fonts, responsive });
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const iconScaleSW = useRef(new Animated.Value(1)).current;
 
   useMemo(() => {
     if (Array.isArray(actionIndex)) {
@@ -70,6 +71,17 @@ const CustomTable = ({
     )
   );
 
+  const iconScale = scaleAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.2],
+  });
+
+  Animated.timing(scaleAnim, {
+    toValue: 1,
+    duration: 300,
+    useNativeDriver: true,
+  }).start();
+
   const handleDialog = (action, data) => {
     handleAction(action, data);
   };
@@ -82,28 +94,8 @@ const CustomTable = ({
       setIsVisible(true);
     };
 
-    const iconScale = scaleAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [1, 1.2],
-    });
-
-    Animated.timing(scaleAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-
     let icon;
     switch (action) {
-      case "activeIndex":
-        icon = (
-          <MaterialCommunityIcons
-            name="fridge-industrial"
-            size={20}
-            color={colors.palette.primary}
-          />
-        );
-        break;
       case "editIndex":
         icon = (
           <AntDesign name="edit" size={20} color={colors.palette.primary} />
@@ -142,16 +134,40 @@ const CustomTable = ({
     );
   };
 
-  const renderCellContent = (cell, cellIndex) => {
+  const renderCellContent = (cell, cellIndex, row) => {
     if (typeof cell === "boolean") {
+      const handlePress = () => {
+        Animated.timing(iconScaleSW, {
+          toValue: 0.5,
+          duration: 100,
+          useNativeDriver: true,
+        }).start(() => {
+          Animated.timing(iconScaleSW, {
+            toValue: 1,
+            duration: 100,
+            useNativeDriver: true,
+          }).start();
+        });
+
+        handleDialog("activeIndex", newValue);
+      };
+
+      const newValue = row[cellIndex + 1];
+
       return (
-        <View style={styles.iconStatus} key={`cell-content-${cellIndex}`}>
-          <MaterialCommunityIcons
-            name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
-            size={30}
-            color={cell ? colors.palette.green : colors.palette.primary}
-          />
-        </View>
+        <Pressable
+          style={styles.button}
+          key={`cell-content-${cellIndex}`}
+          onPress={handlePress}
+        >
+          <Animated.View style={{ transform: [{ scale: iconScaleSW }] }}>
+            <MaterialCommunityIcons
+              name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
+              size={34}
+              color={cell ? colors.palette.green : colors.palette.primary}
+            />
+          </Animated.View>
+        </Pressable>
       );
     }
     return (
@@ -175,7 +191,7 @@ const CustomTable = ({
             style={{ marginBottom: spacing.xs }}
           >
             <Text style={styles.titleStyled}>{header}:</Text>
-            {renderCellContent(rowData[i], i)}
+            {renderCellContent(rowData[i], i, rowData)}
           </View>
         ))}
         <View style={{ flexDirection: "row", marginTop: spacing.md }}>
@@ -194,10 +210,10 @@ const CustomTable = ({
             );
 
             return filteredEntries.length > 0
-              ? filteredEntries.map(([key]) =>
-                  renderActionButton(cellData, key)
-                )
-              : renderCellContent(cellData, cellIndex);
+              ? filteredEntries.map(([key]) => {
+                  renderActionButton(cellData, key);
+                })
+              : renderCellContent(cellData, cellIndex, rowData);
           })}
         </React.Fragment>
       ))
@@ -251,7 +267,7 @@ const CustomTable = ({
                         ? filteredEntries.map(([key]) =>
                             renderActionButton(cell, key)
                           )
-                        : renderCellContent(cell, cellIndex);
+                        : renderCellContent(cell, cellIndex, row);
                     })}
                   </DataTable.Cell>
                 ))}

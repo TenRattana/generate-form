@@ -179,7 +179,6 @@ const MachineScreen = React.memo(() => {
       item.IsActive,
       item.MachineID,
       item.MachineID,
-      item.MachineID,
     ];
   });
 
@@ -187,7 +186,6 @@ const MachineScreen = React.memo(() => {
     "Machine Group Name",
     "Machine Name",
     "Description",
-    "Status",
     "Change Status",
     "Edit",
     "Delete",
@@ -195,9 +193,8 @@ const MachineScreen = React.memo(() => {
 
   const actionIndex = [
     {
-      activeIndex: 4,
-      editIndex: 5,
-      delIndex: 6,
+      editIndex: 4,
+      delIndex: 5,
     },
   ];
 
@@ -211,7 +208,7 @@ const MachineScreen = React.memo(() => {
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [3, 3, 3, 1, 1, 1, 1],
+    flexArr: [3, 3, 3, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,

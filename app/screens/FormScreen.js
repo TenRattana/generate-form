@@ -94,7 +94,6 @@ const FormScreen = React.memo(({ navigation }) => {
       item.FormID,
       item.FormID,
       item.FormID,
-      item.FormID,
     ];
   });
 
@@ -102,7 +101,6 @@ const FormScreen = React.memo(({ navigation }) => {
     "Form Name",
     "Form Description",
     "Status ",
-    "Change Status",
     "Change Form",
     "Copy Template",
     "Preview",
@@ -111,18 +109,17 @@ const FormScreen = React.memo(({ navigation }) => {
 
   const actionIndex = [
     {
-      activeIndex: 3,
-      changeIndex: 4,
-      copyIndex: 5,
-      preIndex: 6,
-      delIndex: 7,
+      changeIndex: 3,
+      copyIndex: 4,
+      preIndex: 5,
+      delIndex: 6,
     },
   ];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [2, 4, 1, 1, 1, 1, 1, 1],
+    flexArr: [2, 4, 1, 1, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,

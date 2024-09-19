@@ -20,9 +20,6 @@ const validationSchema = Yup.object().shape({
   machineGroupId: Yup.string().required("The machine group field is required."),
   machineName: Yup.string().required("The machine name field is required."),
   description: Yup.string().required("The description field is required."),
-  displayOrder: Yup.number()
-    .typeError("The display order field must be numeric.")
-    .required("The display order field is required."),
   isActive: Yup.boolean("The active field is required."),
 });
 
@@ -38,8 +35,8 @@ const MachineScreen = React.memo(() => {
     machineId: "",
     machineGroupId: "",
     machineName: "",
-    displayOrder: "",
     description: "",
+    isActive: true,
   });
 
   const { colors, fonts, spacing } = useTheme();
@@ -86,8 +83,8 @@ const MachineScreen = React.memo(() => {
           machineId: "",
           machineGroupId: "",
           machineName: "",
-          displayOrder: "",
           description: "",
+          isActive: true,
         });
         setIsEditing(false);
       };
@@ -101,8 +98,8 @@ const MachineScreen = React.memo(() => {
       MachineID: values.machineId,
       MGroupID: values.machineGroupId,
       MachineName: values.machineName,
-      DisplayOrder: values.displayOrder,
       Description: values.description,
+      isActive: values.isActive,
     };
 
     try {
@@ -133,7 +130,7 @@ const MachineScreen = React.memo(() => {
           machineGroupId: machineData.MGroupID ?? "",
           machineName: machineData.MachineName ?? "",
           description: machineData.Description ?? "",
-          displayOrder: String(machineData.DisplayOrder) ?? "",
+          isActive: Boolean(machineData.IsActive),
         });
         setIsEditing(true);
         setIsVisible(true);
@@ -165,8 +162,8 @@ const MachineScreen = React.memo(() => {
         machineId: "",
         machineGroupId: "",
         machineName: "",
-        displayOrder: "",
         description: "",
+        isActive: true,
       });
       setIsEditing(false);
       setIsVisible(false);
@@ -179,7 +176,6 @@ const MachineScreen = React.memo(() => {
         ?.MGroupName || "",
       item.MachineName,
       item.Description,
-      item.DisplayOrder,
       item.IsActive,
       item.MachineID,
       item.MachineID,
@@ -191,7 +187,6 @@ const MachineScreen = React.memo(() => {
     "Machine Group Name",
     "Machine Name",
     "Description",
-    "Priority",
     "Status",
     "Change Status",
     "Edit",
@@ -200,9 +195,9 @@ const MachineScreen = React.memo(() => {
 
   const actionIndex = [
     {
-      activeIndex: 5,
-      editIndex: 6,
-      delIndex: 7,
+      activeIndex: 4,
+      editIndex: 5,
+      delIndex: 6,
     },
   ];
 
@@ -216,7 +211,7 @@ const MachineScreen = React.memo(() => {
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [3, 3, 3, 1, 1, 2],
+    flexArr: [3, 3, 3, 1, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,
@@ -276,7 +271,6 @@ const MachineScreen = React.memo(() => {
               validateOnChange={true}
               onSubmit={(values) => {
                 saveData(values);
-                setIsVisible(false);
               }}
             >
               {({
@@ -341,18 +335,6 @@ const MachineScreen = React.memo(() => {
                     value={values.description}
                     error={touched.description && Boolean(errors.description)}
                     errorMessage={touched.description ? errors.description : ""}
-                  />
-
-                  <Inputs
-                    placeholder="Enter Display Order"
-                    label="Display Order"
-                    handleChange={handleChange("displayOrder")}
-                    handleBlur={handleBlur("displayOrder")}
-                    value={values.displayOrder}
-                    error={touched.displayOrder && Boolean(errors.displayOrder)}
-                    errorMessage={
-                      touched.displayOrder ? errors.displayOrder : ""
-                    }
                   />
 
                   <View

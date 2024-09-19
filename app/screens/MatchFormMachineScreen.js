@@ -266,7 +266,6 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
               validateOnChange={true}
               onSubmit={(values) => {
                 saveData(values);
-                setIsVisible(false);
               }}
             >
               {({

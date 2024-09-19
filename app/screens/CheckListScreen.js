@@ -14,6 +14,7 @@ const validationSchema = Yup.object().shape({
   checkListName: Yup.string().required(
     "The check list name field is required."
   ),
+  isActive: Yup.boolean("The active field is required."),
 });
 
 const CheckListScreen = React.memo(() => {
@@ -26,6 +27,7 @@ const CheckListScreen = React.memo(() => {
   const [initialValues, setInitialValues] = useState({
     checkListId: "",
     checkListName: "",
+    isActive: true,
   });
 
   const { colors, fonts, spacing } = useTheme();
@@ -69,6 +71,7 @@ const CheckListScreen = React.memo(() => {
         setInitialValues({
           checkListId: "",
           checkListName: "",
+          isActive: true,
         });
         setIsEditing(false);
       };
@@ -81,6 +84,7 @@ const CheckListScreen = React.memo(() => {
     const data = {
       CListId: values.checkListId,
       CListName: values.checkListName,
+      isActive: values.isActive,
     };
 
     try {
@@ -112,6 +116,7 @@ const CheckListScreen = React.memo(() => {
         setInitialValues({
           checkListId: checkListData.CListID ?? "",
           checkListName: checkListData.CListName ?? "",
+          isActive: Boolean(checkListData.IsActive),
         });
         setIsVisible(true);
         setIsEditing(true);
@@ -145,6 +150,7 @@ const CheckListScreen = React.memo(() => {
       setInitialValues({
         checkListId: "",
         checkListName: "",
+        isActive: true,
       });
       setIsEditing(false);
     }
@@ -239,7 +245,6 @@ const CheckListScreen = React.memo(() => {
               validateOnChange={true}
               onSubmit={(values) => {
                 saveData(values);
-                setIsVisible(false);
               }}
             >
               {({

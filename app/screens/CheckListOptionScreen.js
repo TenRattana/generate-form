@@ -14,6 +14,7 @@ const validationSchema = Yup.object().shape({
   checkListOptionName: Yup.string().required(
     "The check list option name field is required."
   ),
+  isActive: Yup.boolean("The active field is required."),
 });
 
 const CheckListOptionScreen = React.memo(() => {
@@ -26,6 +27,7 @@ const CheckListOptionScreen = React.memo(() => {
   const [initialValues, setInitialValues] = useState({
     checkListOptionId: "",
     checkListOptionName: "",
+    isActive: true,
   });
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
@@ -68,6 +70,7 @@ const CheckListOptionScreen = React.memo(() => {
         setInitialValues({
           checkListOptionId: "",
           checkListOptionName: "",
+          isActive: true,
         });
         setIsEditing(false);
       };
@@ -80,6 +83,7 @@ const CheckListOptionScreen = React.memo(() => {
     const data = {
       CLOptionID: values.checkListOptionId,
       CLOptionName: values.checkListOptionName,
+      isActive: values.isActive,
     };
 
     try {
@@ -116,6 +120,7 @@ const CheckListOptionScreen = React.memo(() => {
         setInitialValues({
           checkListOptionId: checkListOptionData.CLOptionID ?? "",
           checkListOptionName: checkListOptionData.CLOptionName ?? "",
+          isActive: Boolean(checkListOptionData.IsActive),
         });
         setIsVisible(true);
         setIsEditing(true);
@@ -155,6 +160,7 @@ const CheckListOptionScreen = React.memo(() => {
       setInitialValues({
         checkListOptionId: "",
         checkListOptionName: "",
+        isActive: true,
       });
       setIsEditing(false);
     }
@@ -245,7 +251,6 @@ const CheckListOptionScreen = React.memo(() => {
               validateOnChange={true}
               onSubmit={(values) => {
                 saveData(values);
-                setIsVisible(false);
               }}
             >
               {({

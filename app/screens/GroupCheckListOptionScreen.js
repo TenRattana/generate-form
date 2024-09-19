@@ -15,9 +15,7 @@ const validationSchema = Yup.object().shape({
     "The group check list option name field is required."
   ),
   description: Yup.string().required("The description field is required."),
-  displayOrder: Yup.number()
-    .typeError("The display order field must be numeric.")
-    .required("The display order field is required."),
+  isActive: Yup.boolean("The active field is required."),
 });
 
 const GroupCheckListOptionScreen = React.memo(() => {
@@ -31,7 +29,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
     groupCheckListOptionId: "",
     groupCheckListOptionName: "",
     description: "",
-    displayOrder: "",
+    isActive: true,
   });
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
@@ -77,7 +75,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
           groupCheckListOptionId: "",
           groupCheckListOptionName: "",
           description: "",
-          displayOrder: "",
+          isActive: true,
         });
         setIsEditing(false);
       };
@@ -91,7 +89,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
       GCLOptionID: values.groupCheckListOptionId,
       GCLOptionName: values.groupCheckListOptionName,
       Description: values.description,
-      DisplayOrder: values.displayOrder,
+      isActive: values.isActive,
     };
 
     try {
@@ -130,7 +128,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
           groupCheckListOptionName:
             groupCheckListOptionData.GCLOptionName ?? "",
           description: groupCheckListOptionData.Description ?? "",
-          displayOrder: groupCheckListOptionData.DisplayOrder ?? "",
+          isActive: Boolean(groupCheckListOptionData.IsActive),
         });
         setIsVisible(true);
         setIsEditing(true);
@@ -170,7 +168,7 @@ const GroupCheckListOptionScreen = React.memo(() => {
         groupCheckListOptionId: "",
         groupCheckListOptionName: "",
         description: "",
-        displayOrder: "",
+        isActive: true,
       });
       setIsEditing(false);
     }
@@ -180,7 +178,6 @@ const GroupCheckListOptionScreen = React.memo(() => {
     return [
       item.GCLOptionName,
       item.Description,
-      item.DisplayOrder,
       item.IsActive,
       item.GCLOptionID,
       item.GCLOptionID,
@@ -193,19 +190,18 @@ const GroupCheckListOptionScreen = React.memo(() => {
   const tableHead = [
     "Group Option Name",
     "Description",
-    "Display Order",
     "Status",
     "Change Status",
     "Edit",
     "Delete",
   ];
 
-  const actionIndex = [{ activeIndex: 4, editIndex: 5, delIndex: 6 }];
+  const actionIndex = [{ activeIndex: 3, editIndex: 4, delIndex: 5 }];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [3, 5, 1, 1, 1, 1, 1],
+    flexArr: [3, 5, 1, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,
@@ -267,7 +263,6 @@ const GroupCheckListOptionScreen = React.memo(() => {
               validateOnChange={true}
               onSubmit={(values) => {
                 saveData(values);
-                setIsVisible(false);
               }}
             >
               {({
@@ -307,18 +302,6 @@ const GroupCheckListOptionScreen = React.memo(() => {
                     value={values.description}
                     error={touched.description && Boolean(errors.description)}
                     errorMessage={touched.description ? errors.description : ""}
-                  />
-
-                  <Inputs
-                    placeholder="Enter Display Order"
-                    label="Display Order"
-                    handleChange={handleChange("displayOrder")}
-                    handleBlur={handleBlur("displayOrder")}
-                    value={values.displayOrder}
-                    error={touched.displayOrder && Boolean(errors.displayOrder)}
-                    errorMessage={
-                      touched.displayOrder ? errors.displayOrder : ""
-                    }
                   />
 
                   <View

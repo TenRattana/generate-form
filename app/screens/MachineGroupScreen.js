@@ -15,9 +15,6 @@ const validationSchema = Yup.object().shape({
     "The machine group name field is required."
   ),
   description: Yup.string().required("The description field is required."),
-  displayOrder: Yup.number()
-    .typeError("The display order field must be numeric.")
-    .required("The display order field is required."),
   isActive: Yup.boolean("The active field is required."),
 });
 
@@ -31,7 +28,6 @@ const MachineGroupScreen = React.memo(() => {
   const [initialValues, setInitialValues] = useState({
     machineGroupId: "",
     machineGroupName: "",
-    displayOrder: "",
     description: "",
     isActive: true,
   });
@@ -76,7 +72,6 @@ const MachineGroupScreen = React.memo(() => {
         setInitialValues({
           machineGroupId: "",
           machineGroupName: "",
-          displayOrder: "",
           description: "",
           isActive: true,
         });
@@ -91,7 +86,6 @@ const MachineGroupScreen = React.memo(() => {
     const data = {
       MGroupID: values.machineGroupId,
       MGroupName: values.machineGroupName,
-      DisplayOrder: values.displayOrder,
       Description: values.description,
       isActive: values.isActive,
     };
@@ -126,7 +120,6 @@ const MachineGroupScreen = React.memo(() => {
           machineGroupId: machineGroupData.MGroupID ?? "",
           machineGroupName: machineGroupData.MGroupName ?? "",
           description: machineGroupData.Description ?? "",
-          displayOrder: String(machineGroupData.DisplayOrder) ?? "",
           isActive: Boolean(machineGroupData.IsActive),
         });
         setIsEditing(true);
@@ -160,7 +153,6 @@ const MachineGroupScreen = React.memo(() => {
       setInitialValues({
         machineGroupId: "",
         machineGroupName: "",
-        displayOrder: "",
         description: "",
         isActive: true,
       });
@@ -172,7 +164,6 @@ const MachineGroupScreen = React.memo(() => {
   const tableData = machineGroup.map((item) => [
     item.MGroupName,
     item.Description,
-    item.DisplayOrder,
     item.IsActive,
     item.MGroupID,
     item.MGroupID,
@@ -182,7 +173,6 @@ const MachineGroupScreen = React.memo(() => {
   const tableHead = [
     "Machine Group Name",
     "Description",
-    "Priority",
     "Status",
     "Change Status",
     "Edit",
@@ -191,16 +181,16 @@ const MachineGroupScreen = React.memo(() => {
 
   const actionIndex = [
     {
-      activeIndex: 4,
-      editIndex: 5,
-      delIndex: 6,
+      activeIndex: 3,
+      editIndex: 4,
+      delIndex: 5,
     },
   ];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [2, 3, 1, 1, 1, 1, 1],
+    flexArr: [2, 3, 1, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,
@@ -259,7 +249,6 @@ const MachineGroupScreen = React.memo(() => {
               validateOnChange={true}
               onSubmit={(values) => {
                 saveData(values);
-                setIsVisible(false);
               }}
             >
               {({
@@ -297,18 +286,6 @@ const MachineGroupScreen = React.memo(() => {
                     value={values.description}
                     error={touched.description && Boolean(errors.description)}
                     errorMessage={touched.description ? errors.description : ""}
-                  />
-
-                  <Inputs
-                    placeholder="Enter Display Order"
-                    label="Display Order"
-                    handleChange={handleChange("displayOrder")}
-                    handleBlur={handleBlur("displayOrder")}
-                    value={values.displayOrder}
-                    error={touched.displayOrder && Boolean(errors.displayOrder)}
-                    errorMessage={
-                      touched.displayOrder ? errors.displayOrder : ""
-                    }
                   />
 
                   <View

@@ -23,6 +23,7 @@ const validationSchema = Yup.object().shape({
   checkListOptionId: Yup.array()
     .of(Yup.string())
     .min(1, "The check list option filed least one option must be selected"),
+  isActive: Yup.boolean("The active field is required."),
 });
 
 const MatchCheckListOptionScreen = React.memo(() => {
@@ -38,6 +39,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
     matchCheckListOptionId: "",
     checkListOptionId: [],
     groupCheckListOptionId: "",
+    isActive: true,
   });
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
@@ -93,6 +95,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
           matchCheckListOptionId: "",
           checkListOptionId: [],
           groupCheckListOptionId: "",
+          isActive: true,
         });
         setIsEditing(false);
       };
@@ -106,6 +109,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
       MCLOptionID: values.matchCheckListOptionId,
       GCLOptionID: values.groupCheckListOptionId,
       CLOptionID: JSON.stringify(values.checkListOptionId),
+      isActive: values.isActive,
     };
 
     try {
@@ -150,6 +154,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
           matchCheckListOptionId: matchCheckListOption.MCLOptionID ?? "",
           groupCheckListOptionId: matchCheckListOption.GCLOptionID ?? "",
           checkListOptionId: option,
+          isActive: Boolean(matchCheckListOption.IsActive),
         });
 
         setIsVisible(true);
@@ -191,6 +196,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
         matchCheckListOptionId: "",
         checkListOptionId: [],
         groupCheckListOptionId: "",
+        isActive: true,
       });
       setIsEditing(false);
     }
@@ -201,7 +207,6 @@ const MatchCheckListOptionScreen = React.memo(() => {
       const matchedOption = checkListOption.find(
         (group) => group.CLOptionID === option.CLOptionID
       );
-
       return [
         item.GCLOptionName,
         matchedOption?.CLOptionName,
@@ -236,11 +241,13 @@ const MatchCheckListOptionScreen = React.memo(() => {
       ? groupCheckListOption.filter((v) => v.IsActive)
       : dropgroupCheckListOption;
 
-  const actionIndex = {
-    activeIndex: 3,
-    editIndex: 4,
-    delIndex: 5,
-  };
+  const actionIndex = [
+    {
+      activeIndex: 3,
+      editIndex: 4,
+      delIndex: 5,
+    },
+  ];
 
   const customtableProps = {
     Tabledata: tableData,
@@ -307,7 +314,6 @@ const MatchCheckListOptionScreen = React.memo(() => {
               validateOnChange={true}
               onSubmit={(values) => {
                 saveData(values);
-                setIsVisible(false);
               }}
             >
               {({
@@ -375,11 +381,6 @@ const MatchCheckListOptionScreen = React.memo(() => {
                             ...form.touched,
                             [field.name]: true,
                           });
-                          console.log(
-                            "Dropdown Multi selected values: ",
-                            value
-                          );
-                          console.log("Formik field: ", field);
                         }}
                       />
                     )}

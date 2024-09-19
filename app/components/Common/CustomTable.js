@@ -149,7 +149,7 @@ const CustomTable = React.memo(
 
         return (
           <Pressable
-            style={styles.button}
+            style={responsive === "small" ? {alignSelf:'flex-start'} :styles.button}
             key={`cell-content-${cellIndex}`}
             onPress={handlePress}
           >

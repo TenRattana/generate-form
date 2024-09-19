@@ -37,14 +37,6 @@ const CustomTable = React.memo(
     ).current;
 
     useMemo(() => {
-      if (Array.isArray(actionIndex)) {
-        setAction(actionIndex);
-      } else {
-        setAction([]);
-      }
-    }, [actionIndex]);
-
-    useMemo(() => {
       setPage(0);
     }, [itemsPerPage, searchQuery, sortColumn, sortDirection]);
 
@@ -198,7 +190,7 @@ const CustomTable = React.memo(
             </View>
           ))}
           <View style={{ flexDirection: "row", marginTop: spacing.md }}>
-            {Object.entries(action[0]).map(
+            {Object.entries(actionIndex[0]).map(
               ([key, value]) =>
                 value >= 0 &&
                 renderActionButton(rowData[value], key, rowData, headerIndex)
@@ -243,7 +235,7 @@ const CustomTable = React.memo(
                         justifyContent: "center",
                       }}
                     >
-                      {action.map((actionItem, actionIndex) => {
+                      {actionIndex.map((actionItem, actionIndex) => {
                         const filteredEntries = Object.entries(
                           actionItem
                         ).filter(([key, value]) => value === cellIndex);

@@ -1,63 +1,62 @@
 import React from "react";
-import { View, Text } from "react-native";
-import { Button, Dialog } from "@rneui/themed";
+import { View, Pressable } from "react-native";
+import { Portal, Dialog, Text } from "react-native-paper";
 
 const SaveFormDialog = ({
   isVisible,
-  onSave,
-  onCancel,
-  onReset,
+  setShowDialogs,
   styles,
-  colors,
   responsive,
+  handleSubmit,
 }) => {
   console.log("SaveFormDialog");
 
   return (
-    <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
-      <Dialog.Title title="Save Form" titleStyle={{ alignSelf: "center" }} />
-      <Text
-        style={[
-          styles.textHeader,
-          styles.text,
-          {
-            justifyContent: "center",
-            color: colors.palette.dark,
-            fontWeight: "regular",
-          },
-        ]}
+    <Portal>
+      <Dialog
+        visible={isVisible}
+        onDismiss={() => setShowDialogs()}
+        style={styles.containerDialog}
+        contentStyle={styles.containerDialog}
       >
-        You are about to save the form. Are you sure?
-      </Text>
-      <View
-        style={[
-          styles.viewDialog,
-          {
-            flexDirection: responsive === "small" ? "column" : "row",
-            justifyContent: "center",
-          },
-        ]}
-      >
-        <Button
-          title="Save"
-          onPress={onSave}
-          titleStyle={styles.text}
-          containerStyle={[
-            styles.containerButton,
-            { width: responsive === "small" ? "100%" : "30%" },
-          ]}
-        />
-        <Button
-          title="Cancel"
-          onPress={onCancel}
-          titleStyle={styles.text}
-          containerStyle={[
-            styles.containerButton,
-            { width: responsive === "small" ? "100%" : "30%" },
-          ]}
-        />
-      </View>
-    </Dialog>
+        <Dialog.Title style={{ paddingLeft: 8 }}>Save Form</Dialog.Title>
+        <Dialog.Content>
+          <Text
+            style={[styles.textDark, { marginBottom: 10, paddingLeft: 10 }]}
+          >
+            You are about to save the form. Are you sure?
+          </Text>
+
+          <View
+            style={[
+              styles.containerButton,
+              {
+                flexDirection: responsive === "small" ? "column" : "row",
+                justifyContent: "center",
+              },
+            ]}
+          >
+            <Pressable
+              onPress={() => handleSubmit()}
+              style={[styles.button, styles.backMain, styles.bwidth]}
+            >
+              <Text style={[styles.textBold, styles.text, styles.textLight]}>
+                Save
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setShowDialogs()}
+              style={[styles.button, styles.backMain, styles.bwidth]}
+            >
+              <Text style={[styles.textBold, styles.text, styles.textLight]}>
+                Cancel
+              </Text>
+            </Pressable>
+          </View>
+        </Dialog.Content>
+      </Dialog>
+    </Portal>
   );
 };
 

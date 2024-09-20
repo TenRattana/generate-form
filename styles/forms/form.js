@@ -15,13 +15,15 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       flexWrap: responsive === "small" ? "nowrap" : "wrap",
     },
     layout1: {
+      display: "flex",
       padding: 10,
       width: responsive === "small" ? "100%" : 400,
-      backgroundColor: colors.palette.dark4,
+      backgroundColor: colors.main,
     },
     layout2: {
-      padding: 10,
-      width: responsive === "small" ? "100%" : width - 450,
+      display: "flex",
+      flex: 1,
+      margin: 10,
     },
     cardshow: {
       marginTop: 30,
@@ -30,6 +32,7 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       padding: 10,
     },
     card: {
+      display: "flex",
       marginTop: 30,
       marginVertical: 10,
       marginHorizontal: 15,
@@ -60,14 +63,25 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       paddingTop: 30,
     },
     button: {
-      padding: 10,
-      backgroundColor: colors.palette.background2,
-      textAlign: "center",
-      borderRadius: 4,
-      marginBottom: 5,
-      flexDirection: "row",
-      justifyContent: "space-between",
+      display: "flex",
+      height: 45,
       alignItems: "center",
+      justifyContent: "center",
+      marginVertical: "1%",
+      marginHorizontal: "3%",
+      borderRadius: 10,
+    },
+    backMain: {
+      backgroundColor: colors.main,
+    },
+    backLight: {
+      backgroundColor: colors.palette.light,
+    },
+    backDis: {
+      backgroundColor: colors.disable,
+    },
+    backSucceass: {
+      backgroundColor: colors.succeass,
     },
     textHeader: {
       fontSize: responsive === "small" ? fonts.xmd : fonts.lg,
@@ -81,10 +95,12 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       marginVertical: spacing.md,
     },
     containerButton: {
+      display: "flex",
       alignSelf: "center",
       width: "90%",
       marginVertical: "1%",
       marginHorizontal: "2%",
+      justifyContent: "flex-start",
     },
     section: {
       padding: "2%",
@@ -107,13 +123,25 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       color: colors.danger,
     },
     text: {
-      fontSize:
-        responsive === "small"
-          ? fonts.xsm
-          : responsive === "medium"
-          ? fonts.sm
-          : fonts.xsm,
-      color: colors.palette.light,
+      fontSize: responsive === "small" ? fonts.xsm : fonts.md,
+      color: colors.text,
+      textAlign: "left",
+    },
+    textBold: {
+      fontSize: responsive === "small" ? fonts.lg : fonts.lgx,
+      fontWeight: "bold",
+    },
+    textMain: {
+      color: colors.main,
+    },
+    textLight: {
+      color: colors.light,
+    },
+    textDark: {
+      color: colors.dark,
+    },
+    textError: {
+      color: colors.danger,
     },
     sectionHead: {
       fontSize: 24,
@@ -121,6 +149,20 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
       alignSelf: "center",
       marginVertical: 5,
       marginBottom: 20,
+    },
+    containerDialog: {
+      width:
+        responsive === "small"
+          ? "80%"
+          : responsive === "medium"
+          ? "70%"
+          : "60%",
+      alignSelf: "center",
+    },
+    bwidth: {
+      width: `${
+        responsive === "small" ? 98 : responsive === "medium" ? 40 : 30
+      }%`,
     },
   });
 };

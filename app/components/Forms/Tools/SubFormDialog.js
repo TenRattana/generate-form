@@ -1,104 +1,140 @@
 import React from "react";
-import { View, Text } from "react-native";
-import { Button, Dialog, Input } from "@rneui/themed";
+import { View, Pressable } from "react-native";
+import { Portal, Dialog, Text } from "react-native-paper";
+import Inputs from "../../Common/Inputs";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
+const validationSchemaSubForm = Yup.object().shape({
+  subFormName: Yup.string().required(
+    "The machine group name field is required."
+  ),
+  columns: Yup.number().required("The columns field is required."),
+  displayOrder: Yup.string().required("The display order field is required."),
+});
 
 const SubFormDialog = ({
   isVisible,
-  subForm,
-  onSave,
-  onCancel,
-  onDelete,
-  onChange,
+  setShowDialogs,
   styles,
-  colors,
-  responsive,
-  error,
   editMode,
+  subForm,
+  saveSubForm,
+  responsive,
 }) => {
   console.log("SubFormDialog");
 
   return (
-    <Dialog isVisible={isVisible} overlayStyle={styles.dialogContainer}>
-      <Dialog.Title
-        title={editMode ? "Edit subform detail" : "Create subform detail"}
-        titleStyle={{ alignSelf: "center" }}
-      />
-      <Input
-        label="Sub Form Name"
-        placeholder="Enter Sub Form Name"
-        value={subForm.subFormName || ""}
-        labelStyle={[styles.text, { color: colors.palette.dark }]}
-        inputStyle={[styles.text, { color: colors.palette.dark }]}
-        disabledInputStyle={styles.containerInput}
-        onChangeText={(text) => onChange("subFormName", text)}
-      />
-      {error.subFormName ? (
-        <Text style={styles.errorText}>{error.subFormName}</Text>
-      ) : null}
-      <Input
-        label="Sub Form Column"
-        placeholder="Enter Number of Columns"
-        value={subForm.columns || ""}
-        labelStyle={[styles.text, { color: colors.palette.dark }]}
-        inputStyle={[styles.text, { color: colors.palette.dark }]}
-        disabledInputStyle={styles.containerInput}
-        onChangeText={(text) => onChange("columns", text)}
-      />
-      {error.columns ? (
-        <Text style={styles.errorText}>{error.columns}</Text>
-      ) : null}
-      <Input
-        label="Sub Form Display Order"
-        placeholder="Enter Display Order Number"
-        value={subForm.displayOrder || ""}
-        labelStyle={[styles.text, { color: colors.palette.dark }]}
-        inputStyle={[styles.text, { color: colors.palette.dark }]}
-        disabledInputStyle={styles.containerInput}
-        onChangeText={(text) => onChange("displayOrder", text)}
-      />
-      {error.displayOrder ? (
-        <Text style={styles.errorText}>{error.displayOrder}</Text>
-      ) : null}
-      <View
-        style={[
-          styles.viewDialog,
-          {
-            flexDirection: responsive === "small" ? "column" : "row",
-            justifyContent: "center",
-          },
-        ]}
+    <Portal>
+      <Dialog
+        visible={isVisible}
+        onDismiss={() => setShowDialogs()}
+        style={styles.containerDialog}
+        contentStyle={styles.containerDialog}
       >
-        <Button
-          title={editMode ? "Update SubForm" : "Add SubForm"}
-          onPress={() => onSave(editMode ? "edit" : "add")}
-          titleStyle={styles.text}
-          containerStyle={[
-            styles.containerButton,
-            { width: responsive === "small" ? "100%" : "30%" },
-          ]}
-        />
-        {onDelete && editMode ? (
-          <Button
-            title="Delete Card"
-            onPress={onDelete}
-            titleStyle={styles.text}
-            containerStyle={[
-              styles.containerButton,
-              { width: responsive === "small" ? "100%" : "30%" },
-            ]}
-          />
-        ) : null}
-        <Button
-          title="Cancel"
-          onPress={onCancel}
-          titleStyle={styles.text}
-          containerStyle={[
-            styles.containerButton,
-            { width: responsive === "small" ? "100%" : "30%" },
-          ]}
-        />
-      </View>
-    </Dialog>
+        <Dialog.Title style={{ paddingLeft: 8 }}>
+          {editMode ? "Edit Subform Detail" : "Create Subform Detail"}
+        </Dialog.Title>
+        <Dialog.Content>
+          <Text
+            style={[styles.textDark, { marginBottom: 10, paddingLeft: 10 }]}
+          >
+            {editMode
+              ? "Edit the details of the sub form."
+              : "Enter the details for the new sub form."}
+          </Text>
+          <Formik
+            initialValues={subForm}
+            validationSchema={validationSchemaSubForm}
+            validateOnBlur={false}
+            validateOnChange={true}
+            onSubmit={(values) => {
+              saveSubForm(values, editMode ? "update" : "add");
+            }}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              values,
+              errors,
+              touched,
+              handleSubmit,
+              isValid,
+              dirty,
+            }) => (
+              <View>
+                <Inputs
+                  placeholder="Enter Sub Form Name"
+                  label="Sub Form Name"
+                  handleChange={handleChange("subFormName")}
+                  handleBlur={handleBlur("subFormName")}
+                  value={values.subFormName}
+                  error={touched.subFormName && Boolean(errors.subFormName)}
+                  errorMessage={touched.subFormName ? errors.subFormName : ""}
+                />
+
+                <Inputs
+                  placeholder="Enter Columns"
+                  label="Columns"
+                  handleChange={handleChange("columns")}
+                  handleBlur={handleBlur("columns")}
+                  value={values.columns}
+                  error={touched.columns && Boolean(errors.columns)}
+                  errorMessage={touched.columns ? errors.columns : ""}
+                />
+
+                <Inputs
+                  placeholder="Enter Display Order"
+                  label="Display Order"
+                  handleChange={handleChange("displayOrder")}
+                  handleBlur={handleBlur("displayOrder")}
+                  value={values.displayOrder}
+                  error={touched.displayOrder && Boolean(errors.displayOrder)}
+                  errorMessage={touched.displayOrder ? errors.displayOrder : ""}
+                />
+
+                <View
+                  style={[
+                    styles.containerButton,
+                    {
+                      flexDirection: responsive === "small" ? "column" : "row",
+                      justifyContent: "center",
+                    },
+                  ]}
+                >
+                  <Pressable
+                    onPress={handleSubmit}
+                    style={[
+                      styles.button,
+                      styles.bwidth,
+                      isValid && dirty ? styles.backMain : styles.backDis,
+                    ]}
+                    disabled={!isValid || !dirty}
+                  >
+                    <Text
+                      style={[styles.textBold, styles.text, styles.textLight]}
+                    >
+                      {editMode ? "Update SubForm" : "Add SubForm"}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => setShowDialogs()}
+                    style={[styles.button, styles.backMain, styles.bwidth]}
+                  >
+                    <Text
+                      style={[styles.textBold, styles.text, styles.textLight]}
+                    >
+                      Cancel
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </Formik>
+        </Dialog.Content>
+      </Dialog>
+    </Portal>
   );
 };
 

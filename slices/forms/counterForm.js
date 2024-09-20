@@ -23,6 +23,8 @@ const subFormSlice = createSlice({
         machineId: sub.machineId,
         fields: [],
       }));
+
+      sort(state.subForms);
     },
     setField: (state, action) => {
       const { formState, checkList, checkListType } = action.payload;
@@ -44,6 +46,7 @@ const subFormSlice = createSlice({
               )?.CTypeName || "",
           }));
           state.subForms[index].fields = update;
+          sort(state.subForms[index].fields);
         }
       });
     },
@@ -61,6 +64,8 @@ const subFormSlice = createSlice({
         machineId: subForm.machineId,
         fields: [],
       });
+
+      sort(state.subForms);
     },
     updateSubForm: (state, action) => {
       const { subForm, selectedSubFormIndex } = action.payload;
@@ -75,6 +80,8 @@ const subFormSlice = createSlice({
         columns: parseColumns,
         displayOrder: parseDisplayOrder,
       };
+
+      sort(state.subForms);
     },
     deleteSubForm: (state, action) => {
       const { selectedSubFormIndex } = action.payload;

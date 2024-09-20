@@ -1,5 +1,5 @@
 const palette = {
-  main: "#3b5adf",
+  main: "#1ec9ff",
   disable: "#d0d0d0",
   primary: "#6200ee",
   secondary: "#03dac6",
@@ -16,7 +16,7 @@ const palette = {
   primaryLight: "rgba(90, 154, 230, 1)",
   transparent: "rgba(100, 100, 100, 0.5)",
   blue: "rgb(20, 148, 255)",
-  green: "#1be000",
+  green: "#ffb11e",
 };
 
 export const colors = {

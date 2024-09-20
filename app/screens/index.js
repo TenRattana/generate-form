@@ -7,5 +7,5 @@ export { default as MatchFormMachineScreen } from "./MatchFormMachineScreen";
 export { default as GroupCheckListOptionScreen } from "./GroupCheckListOptionScreen";
 export { default as MatchCheckListOptionScreen } from "./MatchCheckListOptionScreen";
 export { default as FormScreen } from "./FormScreen";
-
+export { default as TestComponent } from "./TestComponent";
 export * from "./Form";

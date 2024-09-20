@@ -201,19 +201,13 @@ const MatchCheckListOptionScreen = React.memo(() => {
     "Delete",
   ];
 
-  let dropcheckListOption = [];
+  const dropcheckListOption = Array.isArray(checkListOption)
+    ? checkListOption.filter((v) => v.IsActive)
+    : [];
 
-  dropcheckListOption =
-    Array.isArray(checkListOption) && checkListOption.length > 0
-      ? checkListOption.filter((v) => v.IsActive)
-      : dropcheckListOption;
-
-  let dropgroupCheckListOption = [];
-
-  dropgroupCheckListOption =
-    Array.isArray(groupCheckListOption) && groupCheckListOption.length > 0
-      ? groupCheckListOption.filter((v) => v.IsActive)
-      : dropgroupCheckListOption;
+  const dropgroupCheckListOption = Array.isArray(groupCheckListOption)
+    ? groupCheckListOption.filter((v) => v.IsActive)
+    : [];
 
   const actionIndex = [
     {
@@ -249,7 +243,8 @@ const MatchCheckListOptionScreen = React.memo(() => {
                     isActive: true,
                   });
                   setIsEditing(false);
-                  setIsVisible(true)}}
+                  setIsVisible(true);
+                }}
                 style={[styles.button, styles.backMain]}
               >
                 <Text style={[styles.text, styles.textLight]}>

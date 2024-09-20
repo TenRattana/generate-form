@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "../../config/axios";
 import {
@@ -15,7 +15,6 @@ import {
 import validator from "validator";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
-import { useFocusEffect } from "@react-navigation/native";
 
 export const useFormBuilder = (route) => {
   const dispatch = useDispatch();
@@ -87,49 +86,40 @@ export const useFormBuilder = (route) => {
     });
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-          const [
-            checkListResponse,
-            groupCheckListOptionResponse,
-            checkListTypeResponse,
-            dataTypeResponse,
-          ] = await Promise.all([
-            axios.post("CheckList_service.asmx/GetCheckLists"),
-            axios.post(
-              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
-            ),
-            axios.post("CheckListType_service.asmx/GetCheckListTypes"),
-            axios.post("DataType_service.asmx/GetDataTypes"),
-          ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [
+          checkListResponse,
+          groupCheckListOptionResponse,
+          checkListTypeResponse,
+          dataTypeResponse,
+        ] = await Promise.all([
+          axios.post("CheckList_service.asmx/GetCheckLists"),
+          axios.post(
+            "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+          ),
+          axios.post("CheckListType_service.asmx/GetCheckListTypes"),
+          axios.post("DataType_service.asmx/GetDataTypes"),
+        ]);
 
-          setCheckList(checkListResponse.data.data ?? []);
-          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
-          setCheckListType(checkListTypeResponse.data.data ?? []);
-          setDataType(dataTypeResponse.data.data ?? []);
-          setIsDataLoaded(true);
-          setIsLoading(true);
-        } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response ? error.response.data.errors : ["Something wrong!"],
-            "error"
-          );
-        }
-      };
+        setCheckList(checkListResponse.data.data ?? []);
+        setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
+        setCheckListType(checkListTypeResponse.data.data ?? []);
+        setDataType(dataTypeResponse.data.data ?? []);
+        setIsDataLoaded(true);
+        setIsLoading(true);
+      } catch (error) {
+        ShowMessages(
+          error.message || "Error",
+          error.response ? error.response.data.errors : ["Something wrong!"],
+          "error"
+        );
+      }
+    };
 
-      fetchData();
-
-      return () => {
-        dispatch(reset());
-        resetForm();
-        setForm({ formId: "", formName: "", description: "" });
-        setFormData({});
-      };
-    }, [])
-  );
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (isDataLoaded && (formId || machineId)) {
@@ -263,37 +253,45 @@ export const useFormBuilder = (route) => {
       SubFormData: JSON.stringify(state.subForms),
       FormData: JSON.stringify(form),
     };
+    console.log(data);
 
-    try {
-      await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
-      resetForm();
-    } catch (error) {
-      ShowMessages(
-        error.message || "Error",
-        error.response ? error.response.data.errors : ["Something wrong!"],
-        "error"
-      );
-    } finally {
-      setIsLoading(true);
-    }
+    // try {
+    //   await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
+    //   resetForm();
+    // } catch (error) {
+    //   ShowMessages(
+    //     error.message || "Error",
+    //     error.response ? error.response.data.errors : ["Something wrong!"],
+    //     "error"
+    //   );
+    // } finally {
+    //   setIsLoading(true);
+    // }
   };
   const handleSubmit = () => {
     console.log(formData);
   };
 
-  const saveSubForm = (option) => {
-    const payload = { subForm };
+  const saveSubForm = async (values, option) => {
+    const payload = { subForm: values };
 
-    if (option === "add") {
-      dispatch(addSubForm(payload));
-    } else if (selectedIndex.subForm !== null) {
-      payload.selectedSubFormIndex = selectedIndex.subForm;
-      option === "delete"
-        ? dispatch(deleteSubForm(payload))
-        : dispatch(updateSubForm(payload));
+    try {
+      if (option === "add") {
+        dispatch(addSubForm(payload));
+      } else if (selectedIndex.subForm !== null) {
+        payload.selectedSubFormIndex = selectedIndex.subForm;
+        option === "delete"
+          ? dispatch(deleteSubForm(payload))
+          : dispatch(updateSubForm(payload));
+      }
+    } catch (error) {
+    } finally {
+      setShowDialogs({
+        subForm: false,
+        field: false,
+        save: false,
+      });
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -313,13 +311,6 @@ export const useFormBuilder = (route) => {
       hint: "",
       displayOrder: "",
     });
-    setSubInForm({
-      subFormId: "",
-      subFormName: "",
-      formId: "",
-      columns: "",
-      displayOrder: "",
-    });
     setError({});
     setShowDialogs({ subForm: false, field: false, save: false });
     setSelectedIndex({ subForm: null, field: null });
@@ -328,30 +319,37 @@ export const useFormBuilder = (route) => {
     setTimeout(() => setResetDropdown(false), 0);
   };
 
-  const saveField = (option) => {
+  const saveField = async (values, option) => {
     const defaultDTypeID = dataType.find(
       (v) => v.DTypeName === "String"
     )?.DTypeID;
 
-    formState.dataTypeId = formState.dataTypeId || defaultDTypeID;
+    values.dataTypeId = values.dataTypeId || defaultDTypeID;
 
     const payload = {
-      formState,
+      formState: values,
       selectedSubFormIndex: selectedIndex.subForm,
       checkList,
       checkListType,
       dataType,
     };
-
-    if (option === "add") {
-      dispatch(addField(payload));
-    } else if (selectedIndex.subForm !== null) {
-      payload.selectedFieldIndex = selectedIndex.field;
-      option === "delete"
-        ? dispatch(deleteField(payload))
-        : dispatch(updateField(payload));
+    try {
+      if (option === "add") {
+        dispatch(addField(payload));
+      } else if (selectedIndex.subForm !== null) {
+        payload.selectedFieldIndex = selectedIndex.field;
+        option === "delete"
+          ? dispatch(deleteField(payload))
+          : dispatch(updateField(payload));
+      }
+    } catch (error) {
+    } finally {
+      setShowDialogs({
+        subForm: false,
+        field: false,
+        save: false,
+      });
     }
-    resetForm();
   };
 
   const handleChange = (fieldName, value) => {

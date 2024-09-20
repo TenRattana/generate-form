@@ -171,12 +171,9 @@ const MachineScreen = React.memo(() => {
     },
   ];
 
-  let dropmachineGroup = [];
-
-  dropmachineGroup =
-    Array.isArray(machineGroup) && machineGroup.length > 0
-      ? machineGroup.filter((v) => v.IsActive)
-      : dropmachineGroup;
+  const dropmachineGroup = Array.isArray(machineGroup)
+    ? machineGroup.filter((v) => v.IsActive)
+    : [];
 
   const customtableProps = {
     Tabledata: tableData,
@@ -206,7 +203,8 @@ const MachineScreen = React.memo(() => {
                     isActive: true,
                   });
                   setIsEditing(false);
-                  setIsVisible(true)}}
+                  setIsVisible(true);
+                }}
                 style={[styles.button, styles.backMain]}
               >
                 <Text style={[styles.text, styles.textLight]}>

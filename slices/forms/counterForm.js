@@ -28,22 +28,22 @@ const subFormSlice = createSlice({
     },
     setField: (state, action) => {
       const { formState, checkList, checkListType } = action.payload;
+      console.log(action.payload);
 
       state.subForms.forEach((sub, index) => {
         const matchingForm = formState.filter(
-          (form) => form.field.subFormId === sub.subFormId
+          (form) => form.subFormId === sub.subFormId
         );
 
         if (matchingForm) {
           const update = matchingForm.map((v) => ({
-            ...v.field,
+            ...v,
             CheckListName:
-              checkList.find((item) => item.CListID === v.field.checkListId)
+              checkList.find((item) => item.CListID === v.checkListId)
                 ?.CListName || "",
             CheckListTypeName:
-              checkListType.find(
-                (item) => item.CTypeID === v.field.checkListTypeId
-              )?.CTypeName || "",
+              checkListType.find((item) => item.CTypeID === v.checkListTypeId)
+                ?.CTypeName || "",
           }));
           state.subForms[index].fields = update;
           sort(state.subForms[index].fields);

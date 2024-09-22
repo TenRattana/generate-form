@@ -11,8 +11,11 @@ const DynamicForm = ({
   checkListType,
   style,
   checkList,
-  formData,
+  values,
   handleChange,
+  handleBlur,
+  touched,
+  errors,
   indexSubForm,
   groupCheckListOption,
 }) => {
@@ -25,6 +28,7 @@ const DynamicForm = ({
       ?.CheckListOptions.map((item) => ({
         label: item.CLOptionName,
       }));
+    console.log(field);
 
     switch (field.CheckListTypeName) {
       case "Textinput":
@@ -33,9 +37,13 @@ const DynamicForm = ({
             placeholder={field.placeholder}
             hint={field.hint}
             label={field.CheckListName}
-            name={field.matchCheckListId || `${indexSubForm}-${index}`}
-            formData={formData}
-            handleChange={(f, v) => handleChange(f, v)}
+            value={values.matchCheckListId || `${indexSubForm}-${index}`}
+            handleChange={handleChange("matchCheckListId")}
+            handleBlur={handleBlur("matchCheckListId")}
+            error={touched.matchCheckListId && Boolean(errors.matchCheckListId)}
+            errorMessage={
+              touched.matchCheckListId ? errors.matchCheckListId : ""
+            }
           />
         );
       case "Textaera":
@@ -43,38 +51,56 @@ const DynamicForm = ({
           <Textareas
             placeholder={field.placeholder}
             hint={field.hint}
-            label={field.ListName}
-            name={field.matchCheckListId || `${indexSubForm}-${index}`}
-            formData={formData}
-            handleChange={(f, v) => handleChange(f, v)}
+            label={field.CheckListName}
+            value={values.matchCheckListId || `${indexSubForm}-${index}`}
+            handleChange={handleChange("matchCheckListId")}
+            handleBlur={handleBlur("matchCheckListId")}
+            error={touched.matchCheckListId && Boolean(errors.matchCheckListId)}
+            errorMessage={
+              touched.matchCheckListId ? errors.matchCheckListId : ""
+            }
           />
         );
       case "Radio":
         return (
           <Radios
-            name={field.matchCheckListId || `${indexSubForm}-${index}`}
             option={option}
-            formData={formData}
+            hint={field.hint}
             handleChange={(f, v) => handleChange(f, v)}
+            value={values.matchCheckListId || `${indexSubForm}-${index}`}
+            handleBlur={handleBlur("matchCheckListId")}
+            error={touched.matchCheckListId && Boolean(errors.matchCheckListId)}
+            errorMessage={
+              touched.matchCheckListId ? errors.matchCheckListId : ""
+            }
           />
         );
       case "Dropdown":
         return (
           <Selects
-            name={field.matchCheckListId || `${indexSubForm}-${index}`}
             option={option}
             hint={field.hint}
-            formData={formData}
             handleChange={(f, v) => handleChange(f, v)}
+            value={values.matchCheckListId || `${indexSubForm}-${index}`}
+            handleBlur={handleBlur("matchCheckListId")}
+            error={touched.matchCheckListId && Boolean(errors.matchCheckListId)}
+            errorMessage={
+              touched.matchCheckListId ? errors.matchCheckListId : ""
+            }
           />
         );
       case "Checkbox":
         return (
           <Checkboxs
-            name={field.matchCheckListId || `${indexSubForm}-${index}`}
             option={option}
-            formData={formData}
+            hint={field.hint}
             handleChange={(f, v) => handleChange(f, v)}
+            value={values.matchCheckListId || `${indexSubForm}-${index}`}
+            handleBlur={handleBlur("matchCheckListId")}
+            error={touched.matchCheckListId && Boolean(errors.matchCheckListId)}
+            errorMessage={
+              touched.matchCheckListId ? errors.matchCheckListId : ""
+            }
           />
         );
       default:

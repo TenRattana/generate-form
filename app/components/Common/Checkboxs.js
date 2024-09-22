@@ -1,56 +1,43 @@
-import React, { useState, useEffect } from "react";
-import { CheckBox } from "@rneui/themed";
+import React, { useEffect, useState } from "react";
+import { Checkbox } from "react-native-paper";
 import { View, Text, StyleSheet } from "react-native";
 import { colors, spacing, fonts } from "../../../theme";
 
-const Checkboxs = ({ name, option, formData, handleChange }) => {
-  const [checkedOptions, setCheckedOptions] = useState({});
-  console.log("Checkboxs");
+const Checkboxs = ({ name, option, formData, handleChange, handleBlur, hint, error, errorMessage }) => {
+  const [checkedOptions, setCheckedOptions] = useState([]);
 
   useEffect(() => {
-    const initialState = {};
-    if (option && option.length > 0) {
-      option.forEach((option) => {
-        const isChecked = Array.isArray(formData[name])
-          ? formData[name].includes(option.label)
-          : false;
-        initialState[option.label] = isChecked;
-      });
-    }
-
-    setCheckedOptions(initialState);
-  }, [formData, option]);
+    setCheckedOptions(formData[name] || []);
+  }, [formData, name]);
 
   const handleCheckBoxChange = (value) => {
-    const newCheckedOptions = {
-      ...checkedOptions,
-      [value]: !checkedOptions[value],
-    };
+    const newCheckedOptions = checkedOptions.includes(value)
+      ? checkedOptions.filter((item) => item !== value)
+      : [...checkedOptions, value];
 
     setCheckedOptions(newCheckedOptions);
-
-    const selectedOptions = Object.keys(newCheckedOptions).filter(
-      (key) => newCheckedOptions[key]
-    );
-
-    handleChange(name, selectedOptions);
+    handleChange(name, newCheckedOptions);
   };
 
   if (!option || option.length === 0) {
     return null;
   }
 
-  return option.map((option, LDetailID) => (
-    <View key={LDetailID} style={styles.container}>
-      <CheckBox
-        checked={checkedOptions[option.label] || false}
-        onPress={() => handleCheckBoxChange(option.label)}
-        containerStyle={styles.checkboxContainer}
-        textStyle={styles.checkboxText}
-      />
-      <Text style={styles.label}>{option.label}</Text>
+  return (
+    <View>
+      {hint && <Text style={styles.hint}>{hint}</Text>}
+      {option.map((item, index) => (
+        <View key={index} style={styles.container}>
+          <Checkbox
+            status={checkedOptions.includes(item.label) ? 'checked' : 'unchecked'}
+            onPress={() => handleCheckBoxChange(item.label)}
+          />
+          <Text style={styles.label}>{item.label}</Text>
+        </View>
+      ))}
+      {error && <Text style={styles.errorText}>{errorMessage}</Text>}
     </View>
-  ));
+  );
 };
 
 const styles = StyleSheet.create({
@@ -59,18 +46,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: spacing.xxxs,
   },
-  checkboxContainer: {
-    backgroundColor: colors.transparent,
-    borderWidth: 0,
-    marginRight: spacing.sm,
-  },
-  checkboxText: {
-    fontSize: fonts.body,
-    color: colors.text,
-  },
   label: {
     fontSize: fonts.body,
     color: colors.text,
+  },
+  hint: {
+    fontSize: fonts.sm,
+    marginBottom: spacing.xs,
+    color: colors.palette.gray90,
+  },
+  errorText: {
+    fontSize: fonts.sm,
+    color: colors.error,
   },
 });
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "../../config/axios";
 import {
@@ -59,16 +59,10 @@ export const useFormBuilder = (route) => {
     hint: "",
     displayOrder: "",
   });
-  const [formData, setFormData] = useState({});
-  const [error, setError] = useState({});
-  const [editMode, setEditMode] = useState(false);
-  const [resetDropdown, setResetDropdown] = useState(false);
   const [checkList, setCheckList] = useState([]);
   const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
-  const [shouldRender, setShouldRender] = useState("");
-  const [shouldRenderDT, setShouldRenderDT] = useState("");
   const { formId, machineId } = route.params || {};
   const [isLoading, setIsLoading] = useState(false);
   const { responsive } = useRes();
@@ -76,7 +70,8 @@ export const useFormBuilder = (route) => {
   const { colors, spacing, fonts } = useTheme();
   const styles = formStyles({ colors, spacing, fonts, responsive });
 
-  const ShowMessages = (textH, textT, color) => {
+  // Memoizing styles and Toast message function
+  const ShowMessages = useCallback((textH, textT, color) => {
     Toast.show({
       type: "customToast",
       text1: textH,
@@ -84,8 +79,9 @@ export const useFormBuilder = (route) => {
       text1Style: [styles.text, { color: colors.palette.dark }],
       text2Style: [styles.text, { color: colors.palette.dark }],
     });
-  };
+  }, [styles, Toast, colors.palette.dark]);
 
+  // Fetch static data once
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -96,9 +92,7 @@ export const useFormBuilder = (route) => {
           dataTypeResponse,
         ] = await Promise.all([
           axios.post("CheckList_service.asmx/GetCheckLists"),
-          axios.post(
-            "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
-          ),
+          axios.post("GroupCheckListOption_service.asmx/GetGroupCheckListOptions"),
           axios.post("CheckListType_service.asmx/GetCheckListTypes"),
           axios.post("DataType_service.asmx/GetDataTypes"),
         ]);
@@ -110,32 +104,25 @@ export const useFormBuilder = (route) => {
         setIsDataLoaded(true);
         setIsLoading(true);
       } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response ? error.response.data.errors : ["Something wrong!"],
-          "error"
-        );
+        ShowMessages(error.message || "Error", error.response?.data?.errors || ["Something wrong!"], "error");
       }
     };
 
     fetchData();
   }, []);
 
+  // Fetch form data once dependencies are loaded
   useEffect(() => {
     if (isDataLoaded && (formId || machineId)) {
-      const fetchData = async () => {
+      const fetchFormData = async () => {
         let route = "";
         let data = {};
 
         if (formId) {
-          data = {
-            FormID: formId,
-          };
+          data = { FormID: formId };
           route = "Form_service.asmx/GetForm";
         } else if (machineId) {
-          data = {
-            MachineID: machineId,
-          };
+          data = { MachineID: machineId };
           route = "Form_service.asmx/GetFormView";
         }
         try {
@@ -151,7 +138,7 @@ export const useFormBuilder = (route) => {
           const subForms = [];
           const fields = [];
 
-          if (formData && formData.SubForm) {
+          if (formData?.SubForm) {
             formData.SubForm.forEach((item) => {
               const subForm = {
                 subFormId: item.SFormID || "",
@@ -180,81 +167,44 @@ export const useFormBuilder = (route) => {
                     displayOrder: itemOption.DisplayOrder || "",
                     expectedResult: "",
                   };
-
-                  fields.push({ field });
+                  fields.push(field);
                 });
               }
               subForms.push(subForm);
             });
           }
-          const payloadSF = {
-            subForms,
-          };
 
-          const payloadF = {
+          dispatch(setSubForm({ subForms }));
+          dispatch(setField({
             formState: fields,
             checkList,
             checkListType,
             groupCheckListOption,
             dataType,
-          };
-
-          dispatch(setSubForm(payloadSF));
-          dispatch(setField(payloadF));
+          }));
         } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response ? error.response.data.errors : ["Something wrong!"],
-            "error"
-          );
+          ShowMessages(error.message || "Error", error.response?.data?.errors || ["Something wrong!"], "error");
         } finally {
-          setIsLoading(true);
+          setIsLoading(false);
         }
       };
 
-      fetchData();
+      fetchFormData();
     }
   }, [formId, machineId, isDataLoaded]);
 
-  console.log(state);
-
-  const handleSubForm = (field, value) => {
-    let errorMessage = "";
-
-    if (field === "subFormName" && validator.isEmpty(value.trim())) {
-      errorMessage = "The Sub Form Name field is required.";
-    }
-    if (
-      (field === "columns" || field === "displayOrder") &&
-      !validator.isNumeric(value.trim())
-    ) {
-      errorMessage = `The Sub Form ${field} field must be numeric.`;
-    }
-
-    setError((prevError) => ({ ...prevError, [field]: errorMessage }));
-    setSubInForm((prevState) => ({ ...prevState, [field]: value }));
-  };
-
-  const handleForm = (field, value) => {
-    setForm((prevState) => ({ ...prevState, [field]: value }));
-  };
-
-  const handleFieldChange = (fieldName, value) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      [fieldName]: value,
-    }));
-  };
-
-  const saveForm = async () => {
-    setIsLoading(false);
+  // Memoize saveForm to avoid recreating the function on every render
+  const saveForm = useCallback(async () => {
+    setIsLoading(true);
 
     const data = {
       SubFormData: JSON.stringify(state.subForms),
       FormData: JSON.stringify(form),
     };
+
     console.log(data);
 
+    // You can uncomment the code below for saving
     // try {
     //   await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
     //   resetForm();
@@ -265,157 +215,23 @@ export const useFormBuilder = (route) => {
     //     "error"
     //   );
     // } finally {
-    //   setIsLoading(true);
+    //   setIsLoading(false);
     // }
-  };
-  const handleSubmit = () => {
-    console.log(formData);
-  };
-
-  const saveSubForm = async (values, option) => {
-    const payload = { subForm: values };
-
-    try {
-      if (option === "add") {
-        dispatch(addSubForm(payload));
-      } else if (selectedIndex.subForm !== null) {
-        payload.selectedSubFormIndex = selectedIndex.subForm;
-        option === "delete"
-          ? dispatch(deleteSubForm(payload))
-          : dispatch(updateSubForm(payload));
-      }
-    } catch (error) {
-    } finally {
-      setShowDialogs({
-        subForm: false,
-        field: false,
-        save: false,
-      });
-    }
-  };
-
-  const resetForm = () => {
-    setFormState({
-      matchCheckListId: "",
-      checkListId: "",
-      groupCheckListOptionId: "",
-      checkListTypeId: "",
-      dataTypeId: "",
-      dataTypeValue: "",
-      subFormId: "",
-      require: false,
-      minLength: "",
-      maxLength: "",
-      description: "",
-      placeholder: "",
-      hint: "",
-      displayOrder: "",
-    });
-    setError({});
-    setShowDialogs({ subForm: false, field: false, save: false });
-    setSelectedIndex({ subForm: null, field: null });
-    setEditMode(false);
-    setResetDropdown(true);
-    setTimeout(() => setResetDropdown(false), 0);
-  };
-
-  const saveField = async (values, option) => {
-    const defaultDTypeID = dataType.find(
-      (v) => v.DTypeName === "String"
-    )?.DTypeID;
-
-    values.dataTypeId = values.dataTypeId || defaultDTypeID;
-
-    const payload = {
-      formState: values,
-      selectedSubFormIndex: selectedIndex.subForm,
-      checkList,
-      checkListType,
-      dataType,
-    };
-    try {
-      if (option === "add") {
-        dispatch(addField(payload));
-      } else if (selectedIndex.subForm !== null) {
-        payload.selectedFieldIndex = selectedIndex.field;
-        option === "delete"
-          ? dispatch(deleteField(payload))
-          : dispatch(updateField(payload));
-      }
-    } catch (error) {
-    } finally {
-      setShowDialogs({
-        subForm: false,
-        field: false,
-        save: false,
-      });
-    }
-  };
-
-  const handleChange = (fieldName, value) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [fieldName]: value,
-    }));
-  };
-
-  useMemo(() => {
-    const checkListTypeItem = checkListType.find(
-      (item) => item.CTypeID === formState.checkListTypeId
-    )?.CTypeName;
-
-    if (["Dropdown", "Radio", "Checkbox"].includes(checkListTypeItem)) {
-      setShouldRender("detail");
-    } else if (["Textinput", "Textaera"].includes(checkListTypeItem)) {
-      setShouldRender("text");
-    } else {
-      setShouldRender(null);
-    }
-  }, [formState.checkListTypeId, checkListType]);
-
-  useMemo(() => {
-    const dataTypeItem = dataType.find(
-      (item) => item.DTypeID === formState.dataTypeId
-    )?.DTypeName;
-
-    dataTypeItem === "Float"
-      ? setShouldRenderDT(true)
-      : setShouldRenderDT(false);
-  }, [formState.dataTypeId, dataType]);
+  }, [form, state.subForms, ShowMessages]);
 
   return {
-    state,
-    showDialogs,
-    selectedIndex,
     form,
     subForm,
     formState,
-    error,
-    editMode,
-    resetDropdown,
-    checkList,
-    formData,
+    showDialogs,
+    selectedIndex,
     groupCheckListOption,
-    checkListType,
-    dataType,
-    shouldRender,
-    shouldRenderDT,
-    isDataLoaded,
-    isLoading,
-    ShowMessages,
-    setEditMode,
-    setShowDialogs,
-    setSelectedIndex,
+    setForm,
     setSubInForm,
     setFormState,
-    handleSubForm,
-    handleForm,
-    handleFieldChange,
+    setShowDialogs,
+    setSelectedIndex,
+    isLoading,
     saveForm,
-    saveSubForm,
-    resetForm,
-    saveField,
-    handleChange,
-    handleSubmit,
   };
 };

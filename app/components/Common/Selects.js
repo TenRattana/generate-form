@@ -3,18 +3,19 @@ import { Picker } from "@react-native-picker/picker";
 import { View, StyleSheet, Text } from "react-native";
 import { colors, spacing, fonts } from "../../../theme";
 
-const Selects = ({ hint, name, option, formData, handleChange }) => {
+const Selects = ({ hint, option, value, handleChange, handleBlur, error, errorMessage }) => {
   if (!option || option.length === 0) {
-    return "";
+    return null;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{hint}</Text>
+      {hint && <Text style={styles.label}>{hint}</Text>}
       <View style={styles.dropdown}>
         <Picker
-          selectedValue={formData[name]}
-          onValueChange={(value) => handleChange(name, value)}
+          selectedValue={value} 
+          onValueChange={(selectedValue) => handleChange(selectedValue)}
+          onBlur={handleBlur}
           style={styles.picker}
           itemStyle={styles.itemStyle}
         >
@@ -28,7 +29,7 @@ const Selects = ({ hint, name, option, formData, handleChange }) => {
           ))}
         </Picker>
       </View>
-      {hint ? <Text style={styles.label}>{hint}</Text> : null}
+      {error && <Text style={styles.errorText}>{errorMessage}</Text>}
     </View>
   );
 };
@@ -42,7 +43,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     backgroundColor: colors.background,
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
     elevation: 5,
   },
   picker: {
@@ -57,6 +57,10 @@ const styles = StyleSheet.create({
     fontSize: fonts.sm,
     marginBottom: spacing.xs,
     color: colors.palette.gray90,
+  },
+  errorText: {
+    fontSize: fonts.sm,
+    color: colors.error,
   },
 });
 

@@ -1,4 +1,17 @@
-import React, { useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "../../../config/axios";
+import {
+  setSubForm,
+  setField,
+  addSubForm,
+  updateSubForm,
+  deleteSubForm,
+  addField,
+  updateField,
+  deleteField,
+  reset,
+} from "../../../slices";
 import {
   View,
   Pressable,
@@ -20,6 +33,7 @@ import { useTheme, useToast, useRes } from "../../../contexts";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { Entypo, AntDesign } from "@expo/vector-icons";
+import { ScrollView } from "react-native-web";
 
 const validationSchemaForm = Yup.object().shape({
   formName: Yup.string().required("The form name field is required."),
@@ -28,83 +42,65 @@ const validationSchemaForm = Yup.object().shape({
 
 const FormBuilder = ({ route }) => {
   const {
-    state,
-    showDialogs,
-    form,
     checkList,
     checkListType,
-    formData,
     groupCheckListOption,
-    subForm,
-    editMode,
-    formState,
-    shouldRender,
-    shouldRenderDT,
     dataType,
-    setEditMode,
-    setShowDialogs,
-    setSelectedIndex,
-    setSubInForm,
+    formData,
     saveForm,
-    setFormState,
     handleChange,
     handleSubmit,
     saveSubForm,
     saveField,
   } = useFormBuilder(route);
 
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state.form);
+
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [showDialogs, setShowDialogs] = useState({
+    subForm: false,
+    field: false,
+    save: false,
+  });
+  const [selectedIndex, setSelectedIndex] = useState({
+    subForm: null,
+    field: null,
+  });
+  const [form, setForm] = useState({
+    formId: "",
+    formName: "",
+    description: "",
+  });
+  const [subForm, setSubInForm] = useState({
+    subFormId: "",
+    subFormName: "",
+    formId: "",
+    columns: "",
+    displayOrder: "",
+    machineId: "",
+  });
+  const [formState, setFormState] = useState({
+    matchCheckListId: "",
+    checkListId: "",
+    groupCheckListOptionId: "",
+    checkListTypeId: "",
+    dataTypeId: "",
+    dataTypeValue: "",
+    subFormId: "",
+    require: false,
+    minLength: "",
+    maxLength: "",
+    description: "",
+    placeholder: "",
+    hint: "",
+    displayOrder: "",
+  });
+
+  const [editMode, setEditMode] = useState(false);
   const { colors, spacing, fonts } = useTheme();
   const { responsive } = useRes();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnimDT = useRef(new Animated.Value(0)).current;
   const styles = formStyles({ colors, spacing, fonts, responsive });
-
-  const startAnimation = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      easing: Easing.in,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const startAnimationDT = () => {
-    Animated.timing(fadeAnimDT, {
-      toValue: 1,
-      duration: 800,
-      easing: Easing.in,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const resetAnimation = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 0,
-      useNativeDriver: true,
-    }).start();
-  };
-  const resetAnimationDT = () => {
-    Animated.timing(fadeAnimDT, {
-      toValue: 0,
-      duration: 0,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  useEffect(() => {
-    if (!editMode) {
-      resetAnimation();
-      startAnimation();
-    }
-  }, [shouldRender, editMode]);
-
-  useEffect(() => {
-    if (!editMode) {
-      resetAnimationDT();
-      startAnimationDT();
-    }
-  }, [shouldRenderDT, editMode]);
 
   const renderSubForm = ({ item, index }) => (
     <View style={{ marginTop: 30 }} key={`subForm-${index}`}>
@@ -117,7 +113,7 @@ const FormBuilder = ({ route }) => {
         }}
         style={[
           styles.button,
-          styles.backSucceass,
+          styles.backLight,
           {
             flexDirection: "row",
             justifyContent: "space-between",
@@ -125,7 +121,7 @@ const FormBuilder = ({ route }) => {
           },
         ]}
       >
-        <Text style={[styles.text, styles.textLight, { paddingLeft: 15 }]}>
+        <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
           Sub Form: {item.subFormName}
         </Text>
         <Entypo
@@ -149,10 +145,25 @@ const FormBuilder = ({ route }) => {
             setFormState(field);
             setShowDialogs((prev) => ({ ...prev, field: true }));
           }}
-          style={styles.button}
+          style={[
+            styles.button,
+            styles.backSucceass,
+            {
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            },
+          ]}
         >
-          <Text style={styles.text}>{field.CheckListName}</Text>
-          <Entypo name="chevron-right" size={18} color={colors.palette.light} />
+          <Text style={[styles.text, styles.textLight, { paddingLeft: 15 }]}>
+            {field.CheckListName}
+          </Text>
+          <Entypo
+            name="chevron-right"
+            size={18}
+            color={colors.palette.light}
+            style={{ paddingRight: 15 }}
+          />
         </Pressable>
       ))}
       <Pressable
@@ -160,8 +171,16 @@ const FormBuilder = ({ route }) => {
           setSelectedIndex((prev) => ({ ...prev, subForm: index }));
           setShowDialogs((prev) => ({ ...prev, field: true }));
         }}
+        style={[
+          styles.button,
+          styles.backLight,
+          {
+            flexDirection: "row",
+            alignItems: "center",
+          },
+        ]}
       >
-        <Text style={[styles.button, { color: colors.palette.blue }]}>
+        <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
           <AntDesign name="plus" size={16} color={colors.palette.blue} />
           Add Field
         </Text>
@@ -286,10 +305,6 @@ const FormBuilder = ({ route }) => {
         styles={styles}
         formState={formState}
         saveField={saveField}
-        fadeAnim={fadeAnim}
-        fadeAnimDT={fadeAnimDT}
-        shouldRender={shouldRender}
-        shouldRenderDT={shouldRenderDT}
         checkList={checkList}
         checkListType={checkListType}
         dataType={dataType}
@@ -304,7 +319,6 @@ const FormBuilder = ({ route }) => {
           checkListType={checkListType}
           checkList={checkList}
           formData={formData}
-          handleChange={handleChange}
           groupCheckListOption={groupCheckListOption}
           handleSubmit={handleSubmit}
         />

@@ -1,7 +1,13 @@
-import { StyleSheet, Text, View, FlatList } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Divider, Button } from "@rneui/themed";
-import DynamicForm from "./DynamicForm";
+import Selects from "../../Common/Selects";
+import Radios from "../../Common/Radios";
+import Checkboxs from "../../Common/Checkboxs";
+import Textareas from "../../Common/Textareas";
+import Inputs from "../../Common/Inputs";
+import { Formik } from "formik";
+import { ScrollView } from "react-native";
 
 const Layout2 = ({
   style,
@@ -9,63 +15,155 @@ const Layout2 = ({
   state,
   checkListType,
   checkList,
-  formData,
-  handleChange,
   groupCheckListOption,
-  handleSubmit,
 }) => {
   const { styles, colors, spacing, fonts, responsive } = style;
-  console.log("Layout2");
 
-  const renderLayout2 = () => (
-    <FlatList
-      data={state.subForms}
-      renderItem={({ item, index }) => (
-        <View style={styles.card} key={`card-${index}`}>
-          <Text style={styles.cardTitle}>{item.subFormName}</Text>
-          <View style={styles.formContainer}>
-            {item.fields.map((field, fieldIndex) => {
-              const containerStyle = {
-                flexBasis: `${
-                  responsive === "small" || responsive === "medium"
-                    ? 100
-                    : 100 / item.columns
-                }%`,
-                flexGrow: field.displayOrder || 1,
-                padding: 5,
-              };
-              return (
-                <View
-                  key={`field-${fieldIndex}-${item.subFormName}`}
-                  style={containerStyle}
-                >
-                  <DynamicForm
-                    style={{ styles, colors, spacing, fonts, responsive }}
-                    responsive={responsive}
-                    fields={[field]}
-                    formData={formData}
-                    handleChange={handleChange}
-                    checkListType={checkListType}
-                    checkList={checkList}
-                    indexSubForm={index}
-                    groupCheckListOption={groupCheckListOption}
-                  />
-                </View>
-              );
-            })}
-          </View>
+  const renderField = (
+    field,
+    values,
+    handleChange,
+    handleBlur,
+    touched,
+    errors
+  ) => {
+    const option = groupCheckListOption
+      .find((opt) => opt.GCLOptionID === field.groupCheckListOptionId)
+      ?.CheckListOptions.map((item) => ({
+        label: item.CLOptionName,
+        value: item.CLOptionID,
+      }));
+
+    const fieldName = `fields[${field.matchCheckListId}]`;
+
+    switch (field.CheckListTypeName) {
+      case "Textinput":
+        return (
+          <Inputs
+            key={fieldName}
+            placeholder={field.placeholder}
+            hint={field.hint}
+            label={field.CheckListName}
+            value={values[fieldName] || ""}
+            handleChange={handleChange(fieldName)}
+            handleBlur={handleBlur(fieldName)}
+            error={touched[fieldName] && Boolean(errors[fieldName])}
+            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+          />
+        );
+      case "Textarea":
+        return (
+          <Textareas
+            key={fieldName}
+            placeholder={field.placeholder}
+            hint={field.hint}
+            label={field.CheckListName}
+            value={values[fieldName] || ""}
+            handleChange={handleChange(fieldName)}
+            handleBlur={handleBlur(fieldName)}
+            error={touched[fieldName] && Boolean(errors[fieldName])}
+            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+          />
+        );
+      case "Radio":
+        return (
+          <Radios
+            key={fieldName}
+            option={option}
+            hint={field.hint}
+            handleChange={(value) => handleChange(fieldName)(value)}
+            value={values[fieldName] || ""}
+            handleBlur={handleBlur(fieldName)}
+            error={touched[fieldName] && Boolean(errors[fieldName])}
+            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+          />
+        );
+      case "Dropdown":
+        return (
+          <Selects
+            key={fieldName}
+            option={option}
+            hint={field.hint}
+            handleChange={handleChange(fieldName)}
+            value={values[fieldName] || ""}
+            handleBlur={handleBlur(fieldName)}
+            error={touched[fieldName] && Boolean(errors[fieldName])}
+            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+          />
+        );
+      case "Checkbox":
+        return (
+          <Checkboxs
+            key={fieldName}
+            option={option}
+            hint={field.hint}
+            handleChange={handleChange(fieldName)}
+            value={values[fieldName] || []}
+            handleBlur={handleBlur(fieldName)}
+            error={touched[fieldName] && Boolean(errors[fieldName])}
+            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getInitialValues = () => {
+    const initialValues = { fields: {} };
+    state.subForms.forEach((subForm) => {
+      subForm.fields.forEach((field) => {
+        initialValues.fields[field.matchCheckListId] = field.defaultValue || "";
+      });
+    });
+    return initialValues;
+  };
+
+  const onFormSubmit = (values) => {
+    console.log("Form values:", values);
+  };
+
+  const renderFields = (
+    subForm,
+    values,
+    handleChange,
+    handleBlur,
+    touched,
+    errors
+  ) => {
+    return subForm.fields.map((field, fieldIndex) => {
+      const containerStyle = {
+        flexBasis: `${
+          responsive === "small" || responsive === "medium"
+            ? 100
+            : 100 / subForm.columns
+        }%`,
+        flexGrow: field.displayOrder || 1,
+        padding: 5,
+      };
+
+      return (
+        <View
+          key={`field-${fieldIndex}-${subForm.subFormName}`}
+          style={containerStyle}
+        >
+          {renderField(
+            field,
+            values,
+            handleChange,
+            handleBlur,
+            touched,
+            errors
+          )}
         </View>
-      )}
-      contentContainerStyle={{ height: 700 }}
-      showsVerticalScrollIndicator={false}
-      keyExtractor={(item) => item.subFormName || `subForm-${item.subFormId}`}
-    />
-  );
+      );
+    });
+  };
 
   return (
-    <View>
+    <View style={{ padding: 20 }}>
       <Text style={[styles.textHeader, { color: colors.palette.dark }]}>
-        {form.formName ? form.formName : "Content Name"}
+        {form.formName || "Content Name"}
       </Text>
       <Divider
         style={{ left: -50 }}
@@ -77,17 +175,46 @@ const Layout2 = ({
           color: colors.palette.dark,
         }}
       />
-      {renderLayout2()}
-      {state.subForms.length > 0 && state.subForms[0].fields.length > 0 ? (
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Submit"
-            titleStyle={styles.text}
-            containerStyle={styles.containerButton}
-            onPress={() => handleSubmit()}
-          />
-        </View>
-      ) : null}
+
+      <Formik initialValues={getInitialValues()} onSubmit={onFormSubmit}>
+        {({
+          handleChange,
+          handleBlur,
+          values,
+          errors,
+          touched,
+          submitForm,
+        }) => (
+          <View>
+            {state.subForms.map((subForm, index) => (
+              <ScrollView canCancelContentTouches={styles.card} key={`subForm-${index}`}>
+                <Text style={styles.cardTitle}>{subForm.subFormName}</Text>
+                <View style={styles.formContainer}>
+                  {renderFields(
+                    subForm,
+                    values,
+                    handleChange,
+                    handleBlur,
+                    touched,
+                    errors
+                  )}
+                </View>
+              </ScrollView>
+            ))}
+            {state.subForms.length > 0 &&
+              state.subForms[0].fields.length > 0 && (
+                <View style={styles.buttonContainer}>
+                  <Button
+                    title="Submit"
+                    titleStyle={styles.text}
+                    containerStyle={styles.containerButton}
+                    onPress={submitForm}
+                  />
+                </View>
+              )}
+          </View>
+        )}
+      </Formik>
     </View>
   );
 };

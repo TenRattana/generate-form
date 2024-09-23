@@ -15,6 +15,7 @@ import {
 import validator from "validator";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const useFormBuilder = (route) => {
   const dispatch = useDispatch();
@@ -59,7 +60,9 @@ export const useFormBuilder = (route) => {
   const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
-  const { formId, machineId } = route.params || {};
+  const { formId, machineId, action } = route.params || {};
+  console.log(action);
+
   const [isLoading, setIsLoading] = useState(false);
   const { responsive } = useRes();
   const { Toast } = useToast();
@@ -79,40 +82,45 @@ export const useFormBuilder = (route) => {
     [styles, Toast, colors.palette.dark]
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [
-          checkListResponse,
-          groupCheckListOptionResponse,
-          checkListTypeResponse,
-          dataTypeResponse,
-        ] = await Promise.all([
-          axios.post("CheckList_service.asmx/GetCheckLists"),
-          axios.post(
-            "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
-          ),
-          axios.post("CheckListType_service.asmx/GetCheckListTypes"),
-          axios.post("DataType_service.asmx/GetDataTypes"),
-        ]);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const [
+            checkListResponse,
+            groupCheckListOptionResponse,
+            checkListTypeResponse,
+            dataTypeResponse,
+          ] = await Promise.all([
+            axios.post("CheckList_service.asmx/GetCheckLists"),
+            axios.post(
+              "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+            ),
+            axios.post("CheckListType_service.asmx/GetCheckListTypes"),
+            axios.post("DataType_service.asmx/GetDataTypes"),
+          ]);
 
-        setCheckList(checkListResponse.data.data ?? []);
-        setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
-        setCheckListType(checkListTypeResponse.data.data ?? []);
-        setDataType(dataTypeResponse.data.data ?? []);
-        setIsDataLoaded(true);
-        setIsLoading(true);
-      } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response?.data?.errors || ["Something wrong!"],
-          "error"
-        );
-      }
-    };
+          setCheckList(checkListResponse.data.data ?? []);
+          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
+          setCheckListType(checkListTypeResponse.data.data ?? []);
+          setDataType(dataTypeResponse.data.data ?? []);
+          setIsDataLoaded(true);
+          setIsLoading(true);
+        } catch (error) {
+          ShowMessages(
+            error.message || "Error",
+            error.response?.data?.errors || ["Something wrong!"],
+            "error"
+          );
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+      return () => {
+        dispatch(reset());
+      };
+    }, [])
+  );
 
   useEffect(() => {
     if (isDataLoaded && (formId || machineId)) {
@@ -131,11 +139,19 @@ export const useFormBuilder = (route) => {
           const formResponse = await axios.post(route, data);
           const formData = formResponse.data.data[0] ?? [];
 
-          setForm({
-            formId: formData.FormID,
-            formName: formData.FormName,
-            description: formData.Description,
-          });
+          if (action !== "copy") {
+            setForm({
+              formId: formData.FormID,
+              formName: formData.FormName,
+              description: formData.Description,
+            });
+          }else{
+            setForm({
+              formId: "",
+              formName: "",
+              description: ""
+            });
+          }
 
           const subForms = [];
           const fields = [];
@@ -199,7 +215,7 @@ export const useFormBuilder = (route) => {
 
       fetchFormData();
     }
-  }, [formId, machineId, isDataLoaded]);
+  }, [formId, machineId, isDataLoaded, action]);
 
   const saveForm = useCallback(async () => {
     setIsLoading(true);

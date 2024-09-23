@@ -102,6 +102,14 @@ const CustomTable = React.memo(
           );
           break;
         case "copyIndex":
+          icon = (
+            <FontAwesome6
+              name="edit"
+              size={20}
+              color={colors.palette.primary}
+            />
+          );
+          break;
         case "preIndex":
           icon = (
             <AntDesign name="copy1" size={20} color={colors.palette.danger} />

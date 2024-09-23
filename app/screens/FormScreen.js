@@ -58,6 +58,8 @@ const FormScreen = React.memo(({ navigation }) => {
         navigation.navigate("Create Form", { formId: item });
       } else if (action === "preIndex") {
         navigation.navigate("View Form", { formId: item });
+      } else if (action === "copyIndex") {
+        navigation.navigate("Create Form", { formId: item, action: "copy" });
       } else {
         if (action === "activeIndex") {
           await axios.post("Form_service.asmx/ChangeForm", {

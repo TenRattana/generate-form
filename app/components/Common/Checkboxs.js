@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Checkbox } from "react-native-paper";
+import { Checkbox, HelperText } from "react-native-paper";
 import { View, Text, StyleSheet } from "react-native";
 import { colors, spacing, fonts } from "../../../theme";
 
-const Checkboxs = ({ name, option, formData, handleChange, handleBlur, hint, error, errorMessage }) => {
+const Checkboxs = ({
+  option,
+  value,
+  handleChange,
+  hint,
+  handleBlur,
+  error,
+  errorMessage,
+}) => {
   const [checkedOptions, setCheckedOptions] = useState([]);
 
   useEffect(() => {
-    setCheckedOptions(formData[name] || []);
-  }, [formData, name]);
+    setCheckedOptions(value || []);
+  }, [value]);
 
   const handleCheckBoxChange = (value) => {
     const newCheckedOptions = checkedOptions.includes(value)
@@ -16,7 +24,7 @@ const Checkboxs = ({ name, option, formData, handleChange, handleBlur, hint, err
       : [...checkedOptions, value];
 
     setCheckedOptions(newCheckedOptions);
-    handleChange(name, newCheckedOptions);
+    handleChange(newCheckedOptions);
   };
 
   if (!option || option.length === 0) {
@@ -25,17 +33,26 @@ const Checkboxs = ({ name, option, formData, handleChange, handleBlur, hint, err
 
   return (
     <View>
-      {hint && <Text style={styles.hint}>{hint}</Text>}
       {option.map((item, index) => (
         <View key={index} style={styles.container}>
           <Checkbox
-            status={checkedOptions.includes(item.label) ? 'checked' : 'unchecked'}
+            status={
+              checkedOptions.includes(item.label) ? "checked" : "unchecked"
+            }
             onPress={() => handleCheckBoxChange(item.label)}
           />
           <Text style={styles.label}>{item.label}</Text>
         </View>
       ))}
-      {error && <Text style={styles.errorText}>{errorMessage}</Text>}
+
+      {hint ? (
+        <Text style={[styles.text, { opacity: 0.5 }]}>{hint}</Text>
+      ) : (
+        false
+      )}
+      <HelperText type="error" visible={error} style={{ left: -10 }}>
+        {errorMessage}
+      </HelperText>
     </View>
   );
 };

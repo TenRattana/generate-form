@@ -26,10 +26,6 @@ export const useFormBuilder = (route) => {
     field: false,
     save: false,
   });
-  const [selectedIndex, setSelectedIndex] = useState({
-    subForm: null,
-    field: null,
-  });
   const [form, setForm] = useState({
     formId: "",
     formName: "",
@@ -70,18 +66,19 @@ export const useFormBuilder = (route) => {
   const { colors, spacing, fonts } = useTheme();
   const styles = formStyles({ colors, spacing, fonts, responsive });
 
-  // Memoizing styles and Toast message function
-  const ShowMessages = useCallback((textH, textT, color) => {
-    Toast.show({
-      type: "customToast",
-      text1: textH,
-      text2: textT,
-      text1Style: [styles.text, { color: colors.palette.dark }],
-      text2Style: [styles.text, { color: colors.palette.dark }],
-    });
-  }, [styles, Toast, colors.palette.dark]);
+  const ShowMessages = useCallback(
+    (textH, textT, color) => {
+      Toast.show({
+        type: "customToast",
+        text1: textH,
+        text2: textT,
+        text1Style: [styles.text, { color: colors.palette.dark }],
+        text2Style: [styles.text, { color: colors.palette.dark }],
+      });
+    },
+    [styles, Toast, colors.palette.dark]
+  );
 
-  // Fetch static data once
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -92,7 +89,9 @@ export const useFormBuilder = (route) => {
           dataTypeResponse,
         ] = await Promise.all([
           axios.post("CheckList_service.asmx/GetCheckLists"),
-          axios.post("GroupCheckListOption_service.asmx/GetGroupCheckListOptions"),
+          axios.post(
+            "GroupCheckListOption_service.asmx/GetGroupCheckListOptions"
+          ),
           axios.post("CheckListType_service.asmx/GetCheckListTypes"),
           axios.post("DataType_service.asmx/GetDataTypes"),
         ]);
@@ -104,14 +103,17 @@ export const useFormBuilder = (route) => {
         setIsDataLoaded(true);
         setIsLoading(true);
       } catch (error) {
-        ShowMessages(error.message || "Error", error.response?.data?.errors || ["Something wrong!"], "error");
+        ShowMessages(
+          error.message || "Error",
+          error.response?.data?.errors || ["Something wrong!"],
+          "error"
+        );
       }
     };
 
     fetchData();
   }, []);
 
-  // Fetch form data once dependencies are loaded
   useEffect(() => {
     if (isDataLoaded && (formId || machineId)) {
       const fetchFormData = async () => {
@@ -175,15 +177,21 @@ export const useFormBuilder = (route) => {
           }
 
           dispatch(setSubForm({ subForms }));
-          dispatch(setField({
-            formState: fields,
-            checkList,
-            checkListType,
-            groupCheckListOption,
-            dataType,
-          }));
+          dispatch(
+            setField({
+              formState: fields,
+              checkList,
+              checkListType,
+              groupCheckListOption,
+              dataType,
+            })
+          );
         } catch (error) {
-          ShowMessages(error.message || "Error", error.response?.data?.errors || ["Something wrong!"], "error");
+          ShowMessages(
+            error.message || "Error",
+            error.response?.data?.errors || ["Something wrong!"],
+            "error"
+          );
         } finally {
           setIsLoading(false);
         }
@@ -193,7 +201,6 @@ export const useFormBuilder = (route) => {
     }
   }, [formId, machineId, isDataLoaded]);
 
-  // Memoize saveForm to avoid recreating the function on every render
   const saveForm = useCallback(async () => {
     setIsLoading(true);
 
@@ -205,32 +212,35 @@ export const useFormBuilder = (route) => {
     console.log(data);
 
     // You can uncomment the code below for saving
-    // try {
-    //   await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
-    //   resetForm();
-    // } catch (error) {
-    //   ShowMessages(
-    //     error.message || "Error",
-    //     error.response ? error.response.data.errors : ["Something wrong!"],
-    //     "error"
-    //   );
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    try {
+      await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
+    } catch (error) {
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }, [form, state.subForms, ShowMessages]);
 
   return {
     form,
+    state,
     subForm,
     formState,
     showDialogs,
-    selectedIndex,
+    checkList,
+    checkListType,
     groupCheckListOption,
+    dataType,
     setForm,
+    ShowMessages,
+    dispatch,
     setSubInForm,
     setFormState,
     setShowDialogs,
-    setSelectedIndex,
     isLoading,
     saveForm,
   };

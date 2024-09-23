@@ -18,6 +18,9 @@ const commonStyle = ({ colors, spacing, fonts, responsive }) => {
     textMain: {
       color: colors.main,
     },
+    testDis: {
+      color: colors.disable,
+    },
     textLight: {
       color: colors.light,
     },

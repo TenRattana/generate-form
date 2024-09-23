@@ -1,19 +1,27 @@
 import React from "react";
 import { Picker } from "@react-native-picker/picker";
+import { HelperText } from "react-native-paper";
 import { View, StyleSheet, Text } from "react-native";
 import { colors, spacing, fonts } from "../../../theme";
 
-const Selects = ({ hint, option, value, handleChange, handleBlur, error, errorMessage }) => {
+const Selects = ({
+  hint,
+  option,
+  value,
+  handleChange,
+  handleBlur,
+  error,
+  errorMessage,
+}) => {
   if (!option || option.length === 0) {
     return null;
   }
 
   return (
     <View style={styles.container}>
-      {hint && <Text style={styles.label}>{hint}</Text>}
       <View style={styles.dropdown}>
         <Picker
-          selectedValue={value} 
+          selectedValue={value}
           onValueChange={(selectedValue) => handleChange(selectedValue)}
           onBlur={handleBlur}
           style={styles.picker}
@@ -29,7 +37,14 @@ const Selects = ({ hint, option, value, handleChange, handleBlur, error, errorMe
           ))}
         </Picker>
       </View>
-      {error && <Text style={styles.errorText}>{errorMessage}</Text>}
+      {hint ? (
+        <Text style={[styles.text, { opacity: 0.5 }]}>{hint}</Text>
+      ) : (
+        false
+      )}
+      <HelperText type="error" visible={error} style={{ left: -10 }}>
+        {errorMessage}
+      </HelperText>
     </View>
   );
 };

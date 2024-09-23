@@ -68,79 +68,102 @@ const subFormSlice = createSlice({
       sort(state.subForms);
     },
     updateSubForm: (state, action) => {
-      const { subForm, selectedSubFormIndex } = action.payload;
+      const { subForm } = action.payload;
       const parseColumns = parseInt(subForm.columns, 10);
       const parseDisplayOrder = parseInt(subForm.displayOrder, 10);
 
-      state.subForms[selectedSubFormIndex] = {
-        ...state.subForms[selectedSubFormIndex],
-        subFormName: subForm.subFormName,
-        subFormId: subForm.subFormId,
-        formId: subForm.formId,
-        columns: parseColumns,
-        displayOrder: parseDisplayOrder,
-      };
+      state.subForms = state.subForms.map((sub) => {
+        if (sub.subFormId === subForm.subFormId) {
+          return {
+            ...sub,
+            subFormName: subForm.subFormName,
+            columns: parseColumns,
+            displayOrder: parseDisplayOrder,
+          };
+        }
+        return sub;
+      });
 
       sort(state.subForms);
     },
     deleteSubForm: (state, action) => {
-      const { selectedSubFormIndex } = action.payload;
-      state.subForms.splice(selectedSubFormIndex, 1);
+      const { values } = action.payload;
+      state.subForms = state.subForms.filter((v) => v.subFormId !== values);
     },
     addField: (state, action) => {
-      const { formState, selectedSubFormIndex, checkList, checkListType } =
-        action.payload;
+      const { formState, checkList, checkListType } = action.payload;
 
-      if (state.subForms[selectedSubFormIndex]) {
-        state.subForms[selectedSubFormIndex].fields = [
-          ...state.subForms[selectedSubFormIndex].fields,
-          {
-            ...formState,
-            CheckListName:
-              checkList.find((v) => v.CListID === formState.checkListId)
-                ?.CListName || "",
-            CheckListTypeName:
-              checkListType.find((v) => v.CTypeID === formState.checkListTypeId)
-                ?.CTypeName || "",
-          },
-        ];
-        sort(state.subForms[selectedSubFormIndex].fields);
-      }
+      state.subForms = state.subForms.map((sub) => {
+        if (sub.subFormId === formState.subFormId) {
+          const updatedFields = [
+            ...sub.fields,
+            {
+              ...formState,
+              CheckListName:
+                checkList.find((v) => v.CListID === formState.checkListId)
+                  ?.CListName || "",
+              CheckListTypeName:
+                checkListType.find(
+                  (v) => v.CTypeID === formState.checkListTypeId
+                )?.CTypeName || "",
+            },
+          ];
+
+          sort(updatedFields);
+
+          return {
+            ...sub,
+            fields: updatedFields,
+          };
+        }
+        return sub;
+      });
     },
     updateField: (state, action) => {
-      const {
-        formState,
-        selectedSubFormIndex,
-        selectedFieldIndex,
-        checkList,
-        checkListType,
-      } = action.payload;
+      const { formState, checkList, checkListType } = action.payload;
 
-      if (
-        state.subForms[selectedSubFormIndex] &&
-        state.subForms[selectedSubFormIndex].fields[selectedFieldIndex]
-      ) {
-        state.subForms[selectedSubFormIndex].fields[selectedFieldIndex] = {
-          ...formState,
-          CheckListName:
-            checkList.find((v) => v.CListID === formState.checkListId)
-              ?.CListName || "",
-          CheckListTypeName:
-            checkListType.find((v) => v.CTypeID === formState.checkListTypeId)
-              ?.CTypeName || "",
-        };
-        sort(state.subForms[selectedSubFormIndex].fields);
-      }
+      state.subForms = state.subForms.map((sub) => {
+        if (sub.subFormId === formState.subFormId) {
+          const updatedFields = sub.fields.map((field) => {
+            if (field.matchCheckListId === formState.matchCheckListId) {
+              return {
+                ...formState,
+                CheckListName:
+                  checkList.find((v) => v.CListID === formState.checkListId)
+                    ?.CListName || "",
+                CheckListTypeName:
+                  checkListType.find(
+                    (v) => v.CTypeID === formState.checkListTypeId
+                  )?.CTypeName || "",
+              };
+            }
+            return field;
+          });
+
+          sort(updatedFields);
+
+          return {
+            ...sub,
+            fields: updatedFields,
+          };
+        }
+        return sub;
+      });
     },
     deleteField: (state, action) => {
-      const { selectedSubFormIndex, selectedFieldIndex } = action.payload;
+      const { subFormId, field } = action.payload;
 
-      if (state.subForms[selectedSubFormIndex]) {
-        state.subForms[selectedSubFormIndex].fields = state.subForms[
-          selectedSubFormIndex
-        ].fields.filter((_, index) => index !== selectedFieldIndex);
-      }
+      state.subForms = state.subForms.map((subForm) => {
+        if (subForm.subFormId === subFormId) {
+          return {
+            ...subForm,
+            fields: subForm.fields.filter((f) => f.matchCheckListId !== field),
+          };
+        }
+        return subForm;
+      });
     },
+
     setExpected: (state, action) => {
       const { formData } = action.payload;
       console.log(formData);

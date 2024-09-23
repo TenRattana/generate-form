@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import React from "react";
 import { Divider, Button } from "@rneui/themed";
 import Selects from "../../Common/Selects";
@@ -6,8 +6,8 @@ import Radios from "../../Common/Radios";
 import Checkboxs from "../../Common/Checkboxs";
 import Textareas from "../../Common/Textareas";
 import Inputs from "../../Common/Inputs";
+import { Card } from "@rneui/themed";
 import { Formik } from "formik";
-import { ScrollView } from "react-native";
 
 const Layout2 = ({
   style,
@@ -133,12 +133,11 @@ const Layout2 = ({
   ) => {
     return subForm.fields.map((field, fieldIndex) => {
       const containerStyle = {
-        flexBasis: `${
+        flexBasis:
           responsive === "small" || responsive === "medium"
-            ? 100
-            : 100 / subForm.columns
-        }%`,
-        flexGrow: field.displayOrder || 1,
+            ? "100%"
+            : `${100 / subForm.columns}%`,
+        flexGrow: Number(field.displayOrder) || 1,
         padding: 5,
       };
 
@@ -147,6 +146,11 @@ const Layout2 = ({
           key={`field-${fieldIndex}-${subForm.subFormName}`}
           style={containerStyle}
         >
+          <Text
+            style={[styles.text, styles.textDark, { paddingLeft: spacing.sm }]}
+          >
+            {field.CheckListName}
+          </Text>
           {renderField(
             field,
             values,
@@ -160,8 +164,10 @@ const Layout2 = ({
     });
   };
 
+  console.log(getInitialValues());
+
   return (
-    <View style={{ padding: 20 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
       <Text style={[styles.textHeader, { color: colors.palette.dark }]}>
         {form.formName || "Content Name"}
       </Text>
@@ -187,7 +193,7 @@ const Layout2 = ({
         }) => (
           <View>
             {state.subForms.map((subForm, index) => (
-              <ScrollView canCancelContentTouches={styles.card} key={`subForm-${index}`}>
+              <View style={styles.card} key={`subForm-${index}`}>
                 <Text style={styles.cardTitle}>{subForm.subFormName}</Text>
                 <View style={styles.formContainer}>
                   {renderFields(
@@ -199,23 +205,24 @@ const Layout2 = ({
                     errors
                   )}
                 </View>
-              </ScrollView>
+              </View>
             ))}
-            {state.subForms.length > 0 &&
-              state.subForms[0].fields.length > 0 && (
-                <View style={styles.buttonContainer}>
-                  <Button
-                    title="Submit"
-                    titleStyle={styles.text}
-                    containerStyle={styles.containerButton}
-                    onPress={submitForm}
-                  />
-                </View>
-              )}
+            {state.subForms[0]?.fields.length > 0 ? (
+              <View style={styles.buttonContainer}>
+                <Button
+                  title="Submit"
+                  titleStyle={styles.text}
+                  containerStyle={styles.containerButton}
+                  onPress={submitForm}
+                />
+              </View>
+            ) : (
+              false
+            )}
           </View>
         )}
       </Formik>
-    </View>
+    </ScrollView>
   );
 };
 

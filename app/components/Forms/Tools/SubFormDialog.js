@@ -21,6 +21,7 @@ const SubFormDialog = ({
   subForm,
   saveSubForm,
   responsive,
+  onDelete,
 }) => {
   console.log("SubFormDialog");
 
@@ -78,7 +79,7 @@ const SubFormDialog = ({
                   label="Columns"
                   handleChange={handleChange("columns")}
                   handleBlur={handleBlur("columns")}
-                  value={values.columns}
+                  value={String(values.columns)}
                   error={touched.columns && Boolean(errors.columns)}
                   errorMessage={touched.columns ? errors.columns : ""}
                 />
@@ -88,7 +89,7 @@ const SubFormDialog = ({
                   label="Display Order"
                   handleChange={handleChange("displayOrder")}
                   handleBlur={handleBlur("displayOrder")}
-                  value={values.displayOrder}
+                  value={String(values.displayOrder)}
                   error={touched.displayOrder && Boolean(errors.displayOrder)}
                   errorMessage={touched.displayOrder ? errors.displayOrder : ""}
                 />
@@ -117,6 +118,21 @@ const SubFormDialog = ({
                       {editMode ? "Update SubForm" : "Add SubForm"}
                     </Text>
                   </Pressable>
+
+                  {editMode ? (
+                    <Pressable
+                      onPress={() => onDelete(values.subFormId)}
+                      style={[styles.button, styles.bwidth, styles.backMain]}
+                    >
+                      <Text
+                        style={[styles.textBold, styles.text, styles.textLight]}
+                      >
+                        Delete sub form
+                      </Text>
+                    </Pressable>
+                  ) : (
+                    false
+                  )}
 
                   <Pressable
                     onPress={() => setShowDialogs()}

@@ -7,7 +7,7 @@ const formStyles = ({ colors, spacing, fonts, responsive }) => {
 
   return StyleSheet.create({
     contentContainer: {
-      height: 600,
+      paddingBottom: 10,
     },
     container: {
       flex: 1,

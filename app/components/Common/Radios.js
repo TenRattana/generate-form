@@ -1,12 +1,22 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { RadioButton } from "react-native-paper";
+import { RadioButton, HelperText } from "react-native-paper";
 import { colors, spacing, fonts } from "../../../theme";
 
-const Radios = ({ option, value, handleChange, hint, handleBlur, error, errorMessage }) => {
+const Radios = ({
+  option,
+  value,
+  handleChange,
+  hint,
+  handleBlur,
+  error,
+  errorMessage,
+}) => {
+  if (!option || option.length === 0) {
+    return null;
+  }
   return (
     <View style={styles.container}>
-      {hint && <Text style={styles.hint}>{hint}</Text>} 
       <RadioButton.Group
         onValueChange={(newValue) => handleChange("matchCheckListId", newValue)}
         value={value}
@@ -18,7 +28,14 @@ const Radios = ({ option, value, handleChange, hint, handleBlur, error, errorMes
           </View>
         ))}
       </RadioButton.Group>
-      {error && <Text style={styles.errorText}>{errorMessage}</Text>} 
+      {hint ? (
+        <Text style={[styles.text, { opacity: 0.5 }]}>{hint}</Text>
+      ) : (
+        false
+      )}
+      <HelperText type="error" visible={error} style={{ left: -10 }}>
+        {errorMessage}
+      </HelperText>
     </View>
   );
 };

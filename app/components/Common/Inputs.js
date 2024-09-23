@@ -12,6 +12,7 @@ const Inputs = ({
   value,
   handleChange,
   handleBlur,
+  hint,
   mode,
 }) => {
   const { colors, fonts, spacing } = useTheme();
@@ -41,7 +42,11 @@ const Inputs = ({
         error={error}
         enterKeyHint="done"
       />
-
+      {hint ? (
+        <Text style={[styles.text, { opacity: 0.5 }]}>{hint}</Text>
+      ) : (
+        false
+      )}
       <HelperText type="error" visible={error} style={{ left: -10 }}>
         {errorMessage}
       </HelperText>

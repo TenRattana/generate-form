@@ -9,34 +9,26 @@ import Inputs from "../../Common/Inputs";
 
 const Layout2 = ({ style, form, state, groupCheckListOption }) => {
   const { styles, colors, spacing, responsive } = style;
-
+  
   const [formValues, setFormValues] = useState({});
 
   useEffect(() => {
     const initialValues = {};
     state.subForms.forEach((subForm) => {
       subForm.fields.forEach((field) => {
-        initialValues[field.matchCheckListId] = "";
+        initialValues[field.matchCheckListId] = field.expectedResult || ""; 
       });
     });
     setFormValues(initialValues);
   }, [state.subForms]);
 
   const handleChange = (fieldName, value) => {
-    console.log(fieldName , value);
-    
     setFormValues((prev) => ({
       ...prev,
-      [fieldName]: value, 
-      expectedResult: {
-        ...prev.expectedResult,
-        [fieldName]: value, 
-      },
+      [fieldName]: value,
     }));
   };
 
-  console.log(formValues);
-  
   const renderField = (field) => {
     const fieldName = field.matchCheckListId;
 
@@ -141,7 +133,15 @@ const Layout2 = ({ style, form, state, groupCheckListOption }) => {
   };
 
   const onFormSubmit = () => {
-    console.log("Form values:", formValues);
+    const updatedSubForms = state.subForms.map((subForm) => ({
+      ...subForm,
+      fields: subForm.fields.map((field) => ({
+        ...field,
+        expectedResult: formValues[field.matchCheckListId] || "",
+      })),
+    }));
+
+    console.log("Updated subForms:", updatedSubForms);
   };
 
   return (
@@ -164,16 +164,14 @@ const Layout2 = ({ style, form, state, groupCheckListOption }) => {
         {state.subForms.map((subForm, index) => (
           <View style={styles.card} key={`subForm-${index}`}>
             <Text style={styles.cardTitle}>{subForm.subFormName}</Text>
-            <View style={styles.formContainer}>
-              {renderFields(subForm)}
-            </View>
+            <View style={styles.formContainer}>{renderFields(subForm)}</View>
           </View>
         ))}
         {state.subForms[0]?.fields.length > 0 && (
           <View style={styles.buttonContainer}>
             <Pressable
               onPress={onFormSubmit}
-              style={[styles.button , styles.backMain]}
+              style={[styles.button, styles.backMain]}
             >
               <Text style={[styles.textBold, styles.text, styles.textLight]}>
                 Submit

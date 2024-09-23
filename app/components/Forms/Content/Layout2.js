@@ -1,107 +1,112 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
-import React from "react";
-import { Divider, Button } from "@rneui/themed";
+import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Divider } from "@rneui/themed";
 import Selects from "../../Common/Selects";
 import Radios from "../../Common/Radios";
 import Checkboxs from "../../Common/Checkboxs";
 import Textareas from "../../Common/Textareas";
 import Inputs from "../../Common/Inputs";
-import { Card } from "@rneui/themed";
-import { Formik } from "formik";
 
-const Layout2 = ({
-  style,
-  form,
-  state,
-  checkListType,
-  checkList,
-  groupCheckListOption,
-}) => {
-  const { styles, colors, spacing, fonts, responsive } = style;
+const Layout2 = ({ style, form, state, groupCheckListOption }) => {
+  const { styles, colors, spacing, responsive } = style;
 
-  const renderField = (
-    field,
-    values,
-    handleChange,
-    handleBlur,
-    touched,
-    errors
-  ) => {
-    const option = groupCheckListOption
-      .find((opt) => opt.GCLOptionID === field.groupCheckListOptionId)
-      ?.CheckListOptions.map((item) => ({
-        label: item.CLOptionName,
-        value: item.CLOptionID,
-      }));
+  const [formValues, setFormValues] = useState({});
 
-    const fieldName = `fields[${field.matchCheckListId}]`;
+  useEffect(() => {
+    const initialValues = {};
+    state.subForms.forEach((subForm) => {
+      subForm.fields.forEach((field) => {
+        initialValues[field.matchCheckListId] = "";
+      });
+    });
+    setFormValues(initialValues);
+  }, [state.subForms]);
+
+  const handleChange = (fieldName, value) => {
+    console.log(fieldName , value);
+    
+    setFormValues((prev) => ({
+      ...prev,
+      [fieldName]: value, 
+      expectedResult: {
+        ...prev.expectedResult,
+        [fieldName]: value, 
+      },
+    }));
+  };
+
+  console.log(formValues);
+  
+  const renderField = (field) => {
+    const fieldName = field.matchCheckListId;
 
     switch (field.CheckListTypeName) {
       case "Textinput":
         return (
           <Inputs
-            key={fieldName}
             placeholder={field.placeholder}
             hint={field.hint}
             label={field.CheckListName}
-            value={values[fieldName] || ""}
-            handleChange={handleChange(fieldName)}
-            handleBlur={handleBlur(fieldName)}
-            error={touched[fieldName] && Boolean(errors[fieldName])}
-            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+            value={formValues[fieldName] || ""}
+            handleChange={(value) => handleChange(fieldName, value)}
           />
         );
       case "Textarea":
         return (
           <Textareas
-            key={fieldName}
             placeholder={field.placeholder}
             hint={field.hint}
             label={field.CheckListName}
-            value={values[fieldName] || ""}
-            handleChange={handleChange(fieldName)}
-            handleBlur={handleBlur(fieldName)}
-            error={touched[fieldName] && Boolean(errors[fieldName])}
-            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
-          />
-        );
-      case "Radio":
-        return (
-          <Radios
-            key={fieldName}
-            option={option}
-            hint={field.hint}
-            handleChange={(value) => handleChange(fieldName)(value)}
-            value={values[fieldName] || ""}
-            handleBlur={handleBlur(fieldName)}
-            error={touched[fieldName] && Boolean(errors[fieldName])}
-            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+            value={formValues[fieldName] || ""}
+            handleChange={(value) => handleChange(fieldName, value)}
           />
         );
       case "Dropdown":
+        const options = groupCheckListOption
+          ?.find((opt) => opt.GCLOptionID === field.groupCheckListOptionId)
+          ?.CheckListOptions.map((item) => ({
+            label: item.CLOptionName,
+            value: item.CLOptionID,
+          }));
         return (
           <Selects
-            key={fieldName}
-            option={option}
+            option={options}
             hint={field.hint}
-            handleChange={handleChange(fieldName)}
-            value={values[fieldName] || ""}
-            handleBlur={handleBlur(fieldName)}
-            error={touched[fieldName] && Boolean(errors[fieldName])}
-            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+            label={field.CheckListName}
+            value={formValues[fieldName] || ""}
+            handleChange={(value) => handleChange(fieldName, value)}
+          />
+        );
+      case "Radio":
+        const radioOptions = groupCheckListOption
+          ?.find((opt) => opt.GCLOptionID === field.groupCheckListOptionId)
+          ?.CheckListOptions.map((item) => ({
+            label: item.CLOptionName,
+            value: item.CLOptionID,
+          }));
+        return (
+          <Radios
+            option={radioOptions}
+            hint={field.hint}
+            label={field.CheckListName}
+            value={formValues[fieldName] || ""}
+            handleChange={(value) => handleChange(fieldName, value)}
           />
         );
       case "Checkbox":
+        const checkboxOptions = groupCheckListOption
+          ?.find((opt) => opt.GCLOptionID === field.groupCheckListOptionId)
+          ?.CheckListOptions.map((item) => ({
+            label: item.CLOptionName,
+            value: item.CLOptionID,
+          }));
         return (
           <Checkboxs
-            key={fieldName}
-            option={option}
+            option={checkboxOptions}
             hint={field.hint}
-            handleChange={handleChange(fieldName)}
-            value={values[fieldName] || []}
-            handleBlur={handleBlur(fieldName)}
-            error={touched[fieldName] && Boolean(errors[fieldName])}
-            errorMessage={touched[fieldName] ? errors[fieldName] : ""}
+            label={field.CheckListName}
+            value={formValues[fieldName] || ""}
+            handleChange={(value) => handleChange(fieldName, value)}
           />
         );
       default:
@@ -109,35 +114,13 @@ const Layout2 = ({
     }
   };
 
-  const getInitialValues = () => {
-    const initialValues = { fields: {} };
-    state.subForms.forEach((subForm) => {
-      subForm.fields.forEach((field) => {
-        initialValues.fields[field.matchCheckListId] = field.defaultValue || "";
-      });
-    });
-    return initialValues;
-  };
-
-  const onFormSubmit = (values) => {
-    console.log("Form values:", values);
-  };
-
-  const renderFields = (
-    subForm,
-    values,
-    handleChange,
-    handleBlur,
-    touched,
-    errors
-  ) => {
+  const renderFields = (subForm) => {
     return subForm.fields.map((field, fieldIndex) => {
       const containerStyle = {
         flexBasis:
           responsive === "small" || responsive === "medium"
             ? "100%"
             : `${100 / subForm.columns}%`,
-        flexGrow: Number(field.displayOrder) || 1,
         padding: 5,
       };
 
@@ -151,20 +134,15 @@ const Layout2 = ({
           >
             {field.CheckListName}
           </Text>
-          {renderField(
-            field,
-            values,
-            handleChange,
-            handleBlur,
-            touched,
-            errors
-          )}
+          {renderField(field)}
         </View>
       );
     });
   };
 
-  console.log(getInitialValues());
+  const onFormSubmit = () => {
+    console.log("Form values:", formValues);
+  };
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
@@ -182,48 +160,34 @@ const Layout2 = ({
         }}
       />
 
-      <Formik initialValues={getInitialValues()} onSubmit={onFormSubmit}>
-        {({
-          handleChange,
-          handleBlur,
-          values,
-          errors,
-          touched,
-          submitForm,
-        }) => (
-          <View>
-            {state.subForms.map((subForm, index) => (
-              <View style={styles.card} key={`subForm-${index}`}>
-                <Text style={styles.cardTitle}>{subForm.subFormName}</Text>
-                <View style={styles.formContainer}>
-                  {renderFields(
-                    subForm,
-                    values,
-                    handleChange,
-                    handleBlur,
-                    touched,
-                    errors
-                  )}
-                </View>
-              </View>
-            ))}
-            {state.subForms[0]?.fields.length > 0 ? (
-              <View style={styles.buttonContainer}>
-                <Button
-                  title="Submit"
-                  titleStyle={styles.text}
-                  containerStyle={styles.containerButton}
-                  onPress={submitForm}
-                />
-              </View>
-            ) : (
-              false
-            )}
+      <View>
+        {state.subForms.map((subForm, index) => (
+          <View style={styles.card} key={`subForm-${index}`}>
+            <Text style={styles.cardTitle}>{subForm.subFormName}</Text>
+            <View style={styles.formContainer}>
+              {renderFields(subForm)}
+            </View>
+          </View>
+        ))}
+        {state.subForms[0]?.fields.length > 0 && (
+          <View style={styles.buttonContainer}>
+            <Pressable
+              onPress={onFormSubmit}
+              style={[styles.button , styles.backMain]}
+            >
+              <Text style={[styles.textBold, styles.text, styles.textLight]}>
+                Submit
+              </Text>
+            </Pressable>
           </View>
         )}
-      </Formik>
+      </View>
     </ScrollView>
   );
 };
 
 export default Layout2;
+
+const styles = StyleSheet.create({
+  // Add your styles here
+});

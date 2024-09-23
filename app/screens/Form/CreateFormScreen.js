@@ -34,7 +34,6 @@ const FormBuilder = ({ route }) => {
     formData,
     saveForm,
     state,
-    handleSubmit,
     dispatch,
     ShowMessages,
   } = useFormBuilder(route);
@@ -321,6 +320,40 @@ const FormBuilder = ({ route }) => {
       <View style={styles.layout1}>
         <Pressable
           onPress={() => {
+            setEditMode(false);
+            setShowDialogs((prev) => ({ ...prev, subForm: true }));
+            setSubInForm({
+              subFormId: "",
+              subFormName: "",
+              formId: "",
+              columns: "",
+              displayOrder: "",
+            });
+          }}
+          style={[
+            styles.button,
+            styles.backSucceass,
+            { flexDirection: "row", alignItems: "center" },
+          ]}
+        >
+          <AntDesign name="plus" size={16} color={colors.palette.blue} />
+          <Text style={[styles.text, styles.textLight, { marginLeft: 5 }]}>
+            Add Sub Form
+          </Text>
+        </Pressable>
+
+        <FlatList
+          data={state.subForms}
+          style={{ flexGrow: 0 }}
+          renderItem={renderSubForm}
+          keyExtractor={(item, index) => `subForm-${index}`}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
+          contentContainerStyle={styles.contentContainer}
+        />
+
+        <Pressable
+          onPress={() => {
             setShowDialogs((prev) => ({ ...prev, form: true }));
             setForm(form);
           }}
@@ -351,39 +384,6 @@ const FormBuilder = ({ route }) => {
         >
           <Text style={[styles.text, styles.textLight]}>Save Form</Text>
         </Pressable>
-
-        <Pressable
-          onPress={() => {
-            setEditMode(false);
-            setShowDialogs((prev) => ({ ...prev, subForm: true }));
-            setSubInForm({
-              subFormId: "",
-              subFormName: "",
-              formId: "",
-              columns: "",
-              displayOrder: "",
-            });
-          }}
-          style={[
-            styles.button,
-            styles.backSucceass,
-            { flexDirection: "row", alignItems: "center" },
-          ]}
-        >
-          <AntDesign name="plus" size={16} color={colors.palette.blue} />
-          <Text style={[styles.text, styles.textLight, { marginLeft: 5 }]}>
-            Add Sub Form
-          </Text>
-        </Pressable>
-
-        <FlatList
-          data={state.subForms}
-          renderItem={renderSubForm}
-          keyExtractor={(item, index) => `subForm-${index}`}
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}
-          contentContainerStyle={styles.contentContainer}
-        />
       </View>
 
       <FormDialog
@@ -403,7 +403,7 @@ const FormBuilder = ({ route }) => {
           setShowDialogs((prev) => ({ ...prev, save: false }))
         }
         styles={styles}
-        handleSubmit={handleSubmit}
+        saveForm={saveForm}
         responsive={responsive}
       />
 
@@ -444,7 +444,7 @@ const FormBuilder = ({ route }) => {
           checkList={checkList}
           formData={formData}
           groupCheckListOption={groupCheckListOption}
-          handleSubmit={handleSubmit}
+          // handleSubmit={handleSubmit}
         />
       </View>
     </View>

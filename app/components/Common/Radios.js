@@ -18,7 +18,7 @@ const Radios = ({
   return (
     <View style={styles.container}>
       <RadioButton.Group
-        onValueChange={(newValue) => handleChange("matchCheckListId", newValue)}
+        onValueChange={(newValue) => handleChange(newValue)}
         value={value}
       >
         {option.map((opt, index) => (

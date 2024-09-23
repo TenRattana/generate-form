@@ -7,7 +7,7 @@ const SaveFormDialog = ({
   setShowDialogs,
   styles,
   responsive,
-  handleSubmit,
+  saveForm,
 }) => {
   console.log("SaveFormDialog");
 
@@ -37,7 +37,7 @@ const SaveFormDialog = ({
             ]}
           >
             <Pressable
-              onPress={() => handleSubmit()}
+              onPress={() => saveForm()}
               style={[styles.button, styles.backMain, styles.bwidth]}
             >
               <Text style={[styles.textBold, styles.text, styles.textLight]}>

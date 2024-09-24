@@ -8,4 +8,5 @@ export { default as GroupCheckListOptionScreen } from "./GroupCheckListOptionScr
 export { default as MatchCheckListOptionScreen } from "./MatchCheckListOptionScreen";
 export { default as FormScreen } from "./FormScreen";
 export { default as TestComponent } from "./TestComponent";
+export { default as ExpectedResultScreen } from "./ExpectedResultScreen";
 export * from "./Form";

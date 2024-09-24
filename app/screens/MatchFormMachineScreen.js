@@ -20,7 +20,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const MatchFormMachineScreen = React.memo(({ navigation }) => {
-  const [form, setForm] = useState([]);
+  const [forms, setForm] = useState([]);
   const [machine, setMachine] = useState([]);
   const [matchForm, setMatchForm] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,8 +84,13 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     };
 
     try {
-      await axios.post("SaveForm", data);
-      const response = await axios.post("GetMatchFormMachines");
+      await axios.post(
+        "MatchFormMachine_service.asmx/SaveMatchFormMachine",
+        data
+      );
+      const response = await axios.post(
+        "MatchFormMachine_service.asmx/GetMatchFormMachines"
+      );
       setMatchForm(response.data.data ?? []);
       setIsVisible(!response.data.status);
     } catch (error) {
@@ -101,10 +106,22 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
 
   const handleAction = async (action, item) => {
     try {
-      if (action === "editIndex") {
-        const response = await axios.post("GetMatchFormMachine", {
-          MachineID: item,
+      if (action === "changeIndex") {
+        navigation.navigate("Create Form", { machineId: item });
+      } else if (action === "preIndex") {
+        navigation.navigate("View Form", { machineId: item });
+      } else if (action === "copyIndex") {
+        navigation.navigate("Create Form", {
+          machineId: item,
+          action: "copy",
         });
+      } else if (action === "editIndex") {
+        const response = await axios.post(
+          "MatchFormMachine_service.asmx/GetMatchFormMachine",
+          {
+            MachineID: item,
+          }
+        );
         const machineData = response.data.data[0] ?? {};
         setInitialValues({
           machineId: machineData.MachineID ?? "",
@@ -115,16 +132,19 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
         setIsEditing(true);
       } else {
         if (action === "delIndex") {
-          await axios.post("DeleteMatchForm", {
-            FormID: item.form,
-            MachineID: item.machine,
-          });
-          const response = await axios.post("GetMatchFormMachines");
+          const data = {
+            MachineID: item,
+          };
+          console.log(data);
+
+          await axios.post(
+            "MatchFormMachine_service.asmx/DeleteMatchFormMachine",
+            data
+          );
+          const response = await axios.post(
+            "MatchFormMachine_service.asmx/GetMatchFormMachines"
+          );
           setMatchForm(response.data.data || []);
-        } else if (action === "changeIndex") {
-          navigation.navigate("Create Form", { machineId: item });
-        } else if (action === "preIndex") {
-          navigation.navigate("View Form", { machineId: item });
         }
       }
     } catch (error) {
@@ -144,7 +164,7 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
       item.MachineID,
       item.MachineID,
       item.MachineID,
-      item.FormID,
+      item.MachineID,
     ];
   });
 
@@ -162,7 +182,7 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     ? machine.filter((v) => v.IsActive)
     : [];
 
-  const dropform = Array.isArray(form) ? form.filter((v) => v.IsActive) : [];
+  const dropform = Array.isArray(forms) ? forms.filter((v) => v.IsActive) : [];
 
   const actionIndex = [
     {
@@ -293,10 +313,10 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
                     name="formId"
                     component={({ field, form }) => (
                       <CustomDropdown
-                        title="Group Check List Option"
+                        title="Form"
                         labels="FormName"
                         values="FormID"
-                        data={isEditing ? machine : dropform}
+                        data={isEditing ? forms : dropform}
                         selectedValue={values.formId}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);

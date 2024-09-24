@@ -1,22 +1,29 @@
 import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Divider } from "@rneui/themed";
+import axios from "../../../../config/axios";
 import Selects from "../../Common/Selects";
 import Radios from "../../Common/Radios";
 import Checkboxs from "../../Common/Checkboxs";
 import Textareas from "../../Common/Textareas";
 import Inputs from "../../Common/Inputs";
 
-const Layout2 = ({ style, form, state, groupCheckListOption }) => {
+const Layout2 = ({
+  style,
+  form,
+  state,
+  groupCheckListOption,
+  ShowMessages,
+}) => {
   const { styles, colors, spacing, responsive } = style;
-  
+
   const [formValues, setFormValues] = useState({});
 
   useEffect(() => {
     const initialValues = {};
     state.subForms.forEach((subForm) => {
       subForm.fields.forEach((field) => {
-        initialValues[field.matchCheckListId] = field.expectedResult || ""; 
+        initialValues[field.matchCheckListId] = field.expectedResult || "";
       });
     });
     setFormValues(initialValues);
@@ -113,6 +120,7 @@ const Layout2 = ({ style, form, state, groupCheckListOption }) => {
           responsive === "small" || responsive === "medium"
             ? "100%"
             : `${100 / subForm.columns}%`,
+        flexGrow: field.displayOrder || 1,
         padding: 5,
       };
 
@@ -132,7 +140,7 @@ const Layout2 = ({ style, form, state, groupCheckListOption }) => {
     });
   };
 
-  const onFormSubmit = () => {
+  const onFormSubmit = async () => {
     const updatedSubForms = state.subForms.map((subForm) => ({
       ...subForm,
       fields: subForm.fields.map((field) => ({
@@ -141,7 +149,19 @@ const Layout2 = ({ style, form, state, groupCheckListOption }) => {
       })),
     }));
 
-    console.log("Updated subForms:", updatedSubForms);
+    const data = {
+      FormData: JSON.stringify(updatedSubForms),
+    };
+
+    try {
+      await axios.post("ExpectedResult_service.asmx/SaveExpectedResult", data);
+    } catch (error) {
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something went wrong!"],
+        "error"
+      );
+    }
   };
 
   return (

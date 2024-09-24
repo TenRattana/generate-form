@@ -145,11 +145,11 @@ export const useFormBuilder = (route) => {
               formName: formData.FormName,
               description: formData.Description,
             });
-          }else{
+          } else {
             setForm({
               formId: "",
               formName: "",
-              description: ""
+              description: "",
             });
           }
 
@@ -217,30 +217,6 @@ export const useFormBuilder = (route) => {
     }
   }, [formId, machineId, isDataLoaded, action]);
 
-  const saveForm = useCallback(async () => {
-    setIsLoading(true);
-
-    const data = {
-      SubFormData: JSON.stringify(state.subForms),
-      FormData: JSON.stringify(form),
-    };
-
-    console.log(data);
-
-    // You can uncomment the code below for saving
-    try {
-      await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
-    } catch (error) {
-      ShowMessages(
-        error.message || "Error",
-        error.response ? error.response.data.errors : ["Something wrong!"],
-        "error"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [form, state.subForms, ShowMessages]);
-
   return {
     form,
     state,
@@ -258,6 +234,5 @@ export const useFormBuilder = (route) => {
     setFormState,
     setShowDialogs,
     isLoading,
-    saveForm,
   };
 };

@@ -9,6 +9,7 @@ import {
 } from "../../../slices";
 import { View, Pressable, FlatList, Text } from "react-native";
 import { useFormBuilder } from "../../../customhooks";
+import axios from "../../../config/axios";
 import {
   Layout2,
   Inputs,
@@ -32,7 +33,6 @@ const FormBuilder = ({ route }) => {
     groupCheckListOption,
     dataType,
     formData,
-    saveForm,
     state,
     dispatch,
     ShowMessages,
@@ -119,6 +119,30 @@ const FormBuilder = ({ route }) => {
   const { colors, spacing, fonts } = useTheme();
   const { responsive } = useRes();
   const styles = formStyles({ colors, spacing, fonts, responsive });
+
+  const saveForm = useCallback(async () => {
+    const data = {
+      SubFormData: JSON.stringify(state.subForms),
+      FormData: JSON.stringify(form),
+    };
+
+    try {
+      await axios.post("MatchCheckList_service.asmx/SaveFormCheckList", data);
+    } catch (error) {
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something wrong!"],
+        "error"
+      );
+    } finally {
+      setShowDialogs({
+        form: false,
+        subForm: false,
+        field: false,
+        save: false,
+      });
+    }
+  }, [form, state.subForms, ShowMessages]);
 
   const saveSubForm = useCallback(async (values, option) => {
     const payload = { subForm: values };
@@ -444,6 +468,7 @@ const FormBuilder = ({ route }) => {
           checkList={checkList}
           formData={formData}
           groupCheckListOption={groupCheckListOption}
+          ShowMessages={ShowMessages}
           // handleSubmit={handleSubmit}
         />
       </View>

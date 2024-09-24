@@ -7,7 +7,7 @@ import { useTheme, useToast, useRes } from "../../contexts";
 import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
-const FormScreen = React.memo(({ navigation }) => {
+const ExpectedResultScreen = React.memo(({ navigation }) => {
   const [form, setForm] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +65,12 @@ const FormScreen = React.memo(({ navigation }) => {
           await axios.post("Form_service.asmx/ChangeForm", {
             FormID: item,
           });
+        } else if (action === "delIndex") {
+          await axios.post("Form_service.asmx/DeleteForm", {
+            FormID: item,
+          });
         }
+
         const response = await axios.post("Form_service.asmx/GetForms");
         setForm(response.data.data || []);
       }
@@ -90,6 +95,7 @@ const FormScreen = React.memo(({ navigation }) => {
       item.FormID,
       item.FormID,
       item.FormID,
+      item.FormID,
     ];
   });
 
@@ -100,6 +106,7 @@ const FormScreen = React.memo(({ navigation }) => {
     "Change Form",
     "Copy Template",
     "Preview",
+    "Delete",
   ];
 
   const actionIndex = [
@@ -107,13 +114,14 @@ const FormScreen = React.memo(({ navigation }) => {
       changeIndex: 3,
       copyIndex: 4,
       preIndex: 5,
+      delIndex: 6,
     },
   ];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [2, 4, 1, 1, 1, 1],
+    flexArr: [2, 4, 1, 1, 1, 1, 1],
     actionIndex,
     handleAction,
     searchQuery,
@@ -150,4 +158,4 @@ const FormScreen = React.memo(({ navigation }) => {
   );
 });
 
-export default FormScreen;
+export default ExpectedResultScreen;

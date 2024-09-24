@@ -19,6 +19,7 @@ import {
   FormScreen,
   TestComponent,
   CreateFormProperty,
+  ExpectedResultScreen,
 } from "./screens";
 
 const Drawer = createDrawerNavigator();
@@ -64,6 +65,7 @@ export default function App() {
                   name="Match Form & Machine"
                   component={MatchFormMachineScreen}
                 />
+                <Drawer.Screen name="Result" component={ExpectedResultScreen} />
                 <Drawer.Screen name="Test" component={TestComponent} />
                 <Drawer.Screen name="Perpo" component={CreateFormProperty} />
               </Drawer.Navigator>

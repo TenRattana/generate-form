@@ -469,7 +469,6 @@ const FormBuilder = ({ route }) => {
           formData={formData}
           groupCheckListOption={groupCheckListOption}
           ShowMessages={ShowMessages}
-          // handleSubmit={handleSubmit}
         />
       </View>
     </View>

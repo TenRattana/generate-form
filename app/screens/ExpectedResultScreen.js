@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import axios from "../../config/axios";
 import { Card } from "@rneui/themed";
@@ -9,12 +9,14 @@ import { useFocusEffect } from "@react-navigation/native";
 
 const ExpectedResultScreen = React.memo(({ navigation }) => {
   const [expectedResult, setExpectedResult] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = screenStyles({ colors, spacing, fonts, responsive });
   console.log("Forms");
+  console.log(expectedResult);
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({
@@ -30,10 +32,10 @@ const ExpectedResultScreen = React.memo(({ navigation }) => {
     useCallback(() => {
       const fetchData = async () => {
         try {
-          const [formResponse] = await Promise.all([
-            axios.post("Form_service.asmx/GetForms"),
+          const [expectedResultResponse] = await Promise.all([
+            axios.post("ExpectedResult_service.asmx/GetExpectedResults"),
           ]);
-          setForm(formResponse.data.data ?? []);
+          setExpectedResult(expectedResultResponse.data.data ?? []);
           setIsLoading(true);
         } catch (error) {
           ShowMessages(
@@ -70,8 +72,10 @@ const ExpectedResultScreen = React.memo(({ navigation }) => {
           });
         }
 
-        const response = await axios.post("Form_service.asmx/GetForms");
-        setForm(response.data.data || []);
+        const response = await axios.post(
+          "ExpectedResult_service.asmx/GetExpectedResults"
+        );
+        setExpectedResult(response.data.data || []);
       }
     } catch (error) {
       ShowMessages(
@@ -86,41 +90,44 @@ const ExpectedResultScreen = React.memo(({ navigation }) => {
     navigation.navigate("Create Form");
   };
 
-  const tableData = form.map((item) => {
-    return [
+  const convertToThaiDateTime = (dateString) => {
+    const date = new Date(dateString);
+  
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear() + 543;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+    return `${day}/${month}/${year} เวลา ${hours}:${minutes}`;
+  };
+  
+  const tableData = useMemo(() => {
+    return expectedResult.map((item) => [
+      item.MachineName,
       item.FormName,
-      item.Description,
-      item.IsActive,
-      item.FormID,
-      item.FormID,
-      item.FormID,
-      item.FormID,
-    ];
-  });
+      convertToThaiDateTime(item.CreateDate),
+      item.TableID,
+    ]);
+  }, [expectedResult]);
 
   const tableHead = [
+    "Machine Name",
     "Form Name",
-    "Form Description",
-    "Status ",
-    "Change Form",
-    "Copy Template",
+    "Time Submit",
     "Preview",
-    "Delete",
   ];
 
   const actionIndex = [
     {
-      changeIndex: 3,
-      copyIndex: 4,
-      preIndex: 5,
-      delIndex: 6,
+      preIndex: 3,
     },
   ];
 
   const customtableProps = {
     Tabledata: tableData,
     Tablehead: tableHead,
-    flexArr: [2, 4, 1, 1, 1, 1, 1],
+    flexArr: [3, 3, 3, 1],
     actionIndex,
     handleAction,
     searchQuery,

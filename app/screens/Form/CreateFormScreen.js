@@ -351,6 +351,7 @@ const FormBuilder = ({ route }) => {
               formId: "",
               columns: "",
               displayOrder: "",
+              machineId: "",
             });
           }}
           style={[

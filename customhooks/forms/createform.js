@@ -39,6 +39,7 @@ export const useFormBuilder = (route) => {
     formId: "",
     columns: "",
     displayOrder: "",
+    machineId: "",
   });
   const [formState, setFormState] = useState({
     matchCheckListId: "",
@@ -163,6 +164,7 @@ export const useFormBuilder = (route) => {
                 formId: item.FormID || "",
                 columns: item.Columns || "",
                 displayOrder: item.DisplayOrder || "",
+                machineId: formData.MachineID || "",
               };
               if (item.MatchCheckList) {
                 item.MatchCheckList.forEach((itemOption) => {

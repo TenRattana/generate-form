@@ -96,7 +96,6 @@ const FormBuilder = ({ route }) => {
     formId: "",
     columns: "",
     displayOrder: "",
-    machineId: "",
   });
   const [formState, setFormState] = useState({
     matchCheckListId: "",

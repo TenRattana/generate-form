@@ -17,6 +17,7 @@ const palette = {
   transparent: "rgba(100, 100, 100, 0.5)",
   blue: "rgb(20, 148, 255)",
   green: "#ffb11e",
+  yellow: "#bea400",
 };
 
 export const colors = {
@@ -29,6 +30,8 @@ export const colors = {
   main: palette.main,
   light: palette.light,
   dark: palette.dark,
+  dark4: palette.dark4,
   disable: palette.disable,
   succeass: palette.green,
+  yellow: palette.yellow,
 };

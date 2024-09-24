@@ -31,6 +31,7 @@ export const useFormBuilder = (route) => {
     formId: "",
     formName: "",
     description: "",
+    machineId: "",
   });
   const [subForm, setSubInForm] = useState({
     subFormId: "",
@@ -38,7 +39,6 @@ export const useFormBuilder = (route) => {
     formId: "",
     columns: "",
     displayOrder: "",
-    machineId: "",
   });
   const [formState, setFormState] = useState({
     matchCheckListId: "",
@@ -60,7 +60,7 @@ export const useFormBuilder = (route) => {
   const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
-  const { formId, machineId, action } = route.params || {};
+  const { formId, action } = route.params || {};
   console.log(action);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -123,7 +123,7 @@ export const useFormBuilder = (route) => {
   );
 
   useEffect(() => {
-    if (isDataLoaded && (formId || machineId)) {
+    if (isDataLoaded && formId) {
       const fetchFormData = async () => {
         let route = "";
         let data = {};
@@ -131,9 +131,6 @@ export const useFormBuilder = (route) => {
         if (formId) {
           data = { FormID: formId };
           route = "Form_service.asmx/GetForm";
-        } else if (machineId) {
-          data = { MachineID: machineId };
-          route = "Form_service.asmx/GetFormView";
         }
         try {
           const formResponse = await axios.post(route, data);
@@ -144,12 +141,14 @@ export const useFormBuilder = (route) => {
               formId: formData.FormID,
               formName: formData.FormName,
               description: formData.Description,
+              machineId: formData.MachineID || "",
             });
           } else {
             setForm({
               formId: "",
               formName: "",
               description: "",
+              machineId: "",
             });
           }
 
@@ -164,7 +163,6 @@ export const useFormBuilder = (route) => {
                 formId: item.FormID || "",
                 columns: item.Columns || "",
                 displayOrder: item.DisplayOrder || "",
-                machineId: "",
               };
               if (item.MatchCheckList) {
                 item.MatchCheckList.forEach((itemOption) => {
@@ -183,7 +181,7 @@ export const useFormBuilder = (route) => {
                     placeholder: itemOption.Placeholder || "",
                     hint: itemOption.Hint || "",
                     displayOrder: itemOption.DisplayOrder || "",
-                    expectedResult: "",
+                    expectedResult: itemOption.EResult || "",
                   };
                   fields.push(field);
                 });
@@ -215,7 +213,7 @@ export const useFormBuilder = (route) => {
 
       fetchFormData();
     }
-  }, [formId, machineId, isDataLoaded, action]);
+  }, [formId, isDataLoaded, action]);
 
   return {
     form,

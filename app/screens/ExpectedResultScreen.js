@@ -8,8 +8,7 @@ import screenStyles from "../../styles/screens/screen";
 import { useFocusEffect } from "@react-navigation/native";
 
 const ExpectedResultScreen = React.memo(({ navigation }) => {
-  const [form, setForm] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [expectedResult, setExpectedResult] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { colors, fonts, spacing } = useTheme();
   const { Toast } = useToast();

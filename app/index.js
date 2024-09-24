@@ -1,6 +1,7 @@
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { ThemeProvider, ToastProvider, ResponsiveProvider } from "../contexts";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import { Provider } from "react-redux";
 import { store } from "../store";
@@ -20,59 +21,69 @@ import {
   TestComponent,
   CreateFormProperty,
   ExpectedResultScreen,
+  Ball,
 } from "./screens";
 
 const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <ToastProvider>
-          <ResponsiveProvider>
-            <PaperProvider>
-              <Drawer.Navigator
-                screenOptions={{
-                  drawerStyle: {},
-                }}
-              >
-                <Drawer.Screen name="HomeScreen" component={HomeScreen} />
-                <Drawer.Screen
-                  name="Machine Group"
-                  component={MachineGroupScreen}
-                />
-                <Drawer.Screen name="Machine" component={MachineScreen} />
-                <Drawer.Screen name="Check List" component={CheckListScreen} />
-                <Drawer.Screen
-                  name="Check List Option"
-                  component={CheckListOptionScreen}
-                />
-                <Drawer.Screen
-                  name="Group Check List Option"
-                  component={GroupCheckListOptionScreen}
-                />
-                <Drawer.Screen
-                  name="Match Check List Option"
-                  component={MatchCheckListOptionScreen}
-                />
-                <Drawer.Screen
-                  name="Create Form"
-                  component={CreateFormScreen}
-                />
-                <Drawer.Screen name="View Form" component={ViewFormScreen} />
-                <Drawer.Screen name="Forms" component={FormScreen} />
-                <Drawer.Screen
-                  name="Match Form & Machine"
-                  component={MatchFormMachineScreen}
-                />
-                <Drawer.Screen name="Result" component={ExpectedResultScreen} />
-                <Drawer.Screen name="Test" component={TestComponent} />
-                <Drawer.Screen name="Perpo" component={CreateFormProperty} />
-              </Drawer.Navigator>
-            </PaperProvider>
-          </ResponsiveProvider>
-        </ToastProvider>
-      </ThemeProvider>
-    </Provider>
+    <GestureHandlerRootView>
+      <Provider store={store}>
+        <ThemeProvider>
+          <ToastProvider>
+            <ResponsiveProvider>
+              <PaperProvider>
+                <Drawer.Navigator
+                  screenOptions={{
+                    drawerStyle: {},
+                  }}
+                >
+                  <Drawer.Screen name="HomeScreen" component={HomeScreen} />
+                  <Drawer.Screen
+                    name="Machine Group"
+                    component={MachineGroupScreen}
+                  />
+                  <Drawer.Screen name="Machine" component={MachineScreen} />
+                  <Drawer.Screen
+                    name="Check List"
+                    component={CheckListScreen}
+                  />
+                  <Drawer.Screen
+                    name="Check List Option"
+                    component={CheckListOptionScreen}
+                  />
+                  <Drawer.Screen
+                    name="Group Check List Option"
+                    component={GroupCheckListOptionScreen}
+                  />
+                  <Drawer.Screen
+                    name="Match Check List Option"
+                    component={MatchCheckListOptionScreen}
+                  />
+                  <Drawer.Screen
+                    name="Create Form"
+                    component={CreateFormScreen}
+                  />
+                  <Drawer.Screen name="View Form" component={ViewFormScreen} />
+                  <Drawer.Screen name="Forms" component={FormScreen} />
+                  <Drawer.Screen
+                    name="Match Form & Machine"
+                    component={MatchFormMachineScreen}
+                  />
+                  <Drawer.Screen
+                    name="Result"
+                    component={ExpectedResultScreen}
+                  />
+                  <Drawer.Screen name="Test" component={TestComponent} />
+                  <Drawer.Screen name="Perpo" component={CreateFormProperty} />
+                  <Drawer.Screen name="Ball" component={Ball} />
+                </Drawer.Navigator>
+              </PaperProvider>
+            </ResponsiveProvider>
+          </ToastProvider>
+        </ThemeProvider>
+      </Provider>
+    </GestureHandlerRootView>
   );
 }

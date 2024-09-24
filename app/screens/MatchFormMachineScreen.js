@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { ScrollView, View, Pressable, Text } from "react-native";
 import axios from "../../config/axios";
@@ -13,6 +13,7 @@ import { Portal, Dialog } from "react-native-paper";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
 import screenStyles from "../../styles/screens/screen";
+import { useFocusEffect } from "@react-navigation/native";
 
 const validationSchema = Yup.object().shape({
   machineId: Yup.string().required("This machine field is required"),
@@ -48,32 +49,35 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [machineResponse, formResponse, matchFormResponse] =
-          await Promise.all([
-            axios.post("Machine_service.asmx/GetMachines"),
-            axios.post("Form_service.asmx/GetForms"),
-            axios.post("MatchFormMachine_service.asmx/GetMatchFormMachines"),
-          ]);
-        setMachine(machineResponse.data.data ?? []);
-        setForm(formResponse.data.data ?? []);
-        setMatchForm(matchFormResponse.data.data ?? []);
-        setIsLoading(true);
-      } catch (error) {
-        ShowMessages(
-          error.message || "Error",
-          error.response
-            ? error.response.data.errors
-            : ["Something went wrong!"],
-          "error"
-        );
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const [machineResponse, formResponse, matchFormResponse] =
+            await Promise.all([
+              axios.post("Machine_service.asmx/GetMachines"),
+              axios.post("Form_service.asmx/GetForms"),
+              axios.post("MatchFormMachine_service.asmx/GetMatchFormMachines"),
+            ]);
+          setMachine(machineResponse.data.data ?? []);
+          setForm(formResponse.data.data ?? []);
+          setMatchForm(matchFormResponse.data.data ?? []);
+          setIsLoading(true);
+        } catch (error) {
+          ShowMessages(
+            error.message || "Error",
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
+            "error"
+          );
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+      return () => {};
+    }, [])
+  );
 
   const saveData = async (values) => {
     setIsLoadingButton(true);
@@ -107,12 +111,12 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
   const handleAction = async (action, item) => {
     try {
       if (action === "changeIndex") {
-        navigation.navigate("Create Form", { machineId: item });
+        navigation.navigate("Create Form", { formId: item });
       } else if (action === "preIndex") {
-        navigation.navigate("View Form", { machineId: item });
+        navigation.navigate("View Form", { formId: item });
       } else if (action === "copyIndex") {
         navigation.navigate("Create Form", {
-          machineId: item,
+          formId: item,
           action: "copy",
         });
       } else if (action === "editIndex") {
@@ -160,9 +164,9 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
     return [
       item.MachineName,
       item.FormName,
-      item.MachineID,
-      item.MachineID,
-      item.MachineID,
+      item.FormID,
+      item.FormID,
+      item.FormID,
       item.MachineID,
       item.MachineID,
     ];

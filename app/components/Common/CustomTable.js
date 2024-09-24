@@ -1,9 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { View, Text, Pressable, Animated } from "react-native";
-import { DataTable, Searchbar } from "react-native-paper";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { DataTable, Searchbar, IconButton } from "react-native-paper";
 import customtableStyle from "../../../styles/components/customtable";
 import { useTheme, useRes } from "../../../contexts";
 import Dialog_check from "./Dialog_check";
@@ -84,35 +81,31 @@ const CustomTable = React.memo(
       switch (action) {
         case "editIndex":
           icon = (
-            <AntDesign name="edit" size={20} color={colors.palette.primary} />
+            <IconButton icon="pencil-box" size={27} iconColor={colors.main} />
           );
           break;
         case "delIndex":
           icon = (
-            <AntDesign name="delete" size={20} color={colors.palette.danger} />
+            <IconButton icon="trash-can" size={28} iconColor={colors.danger} />
           );
           break;
         case "changeIndex":
           icon = (
-            <FontAwesome6
-              name="edit"
-              size={20}
-              color={colors.palette.primary}
-            />
+            <IconButton icon="note-edit" size={28} iconColor={colors.dark} />
           );
           break;
         case "copyIndex":
           icon = (
-            <FontAwesome6
-              name="edit"
-              size={20}
-              color={colors.palette.primary}
+            <IconButton
+              icon="content-copy"
+              size={24}
+              iconColor={colors.dark4}
             />
           );
           break;
         case "preIndex":
           icon = (
-            <AntDesign name="copy1" size={20} color={colors.palette.danger} />
+            <IconButton icon="file-find" size={26} iconColor={colors.yellow} />
           );
           break;
         default:
@@ -157,17 +150,21 @@ const CustomTable = React.memo(
 
         return (
           <Pressable
-            style={responsive === "small" ? {alignSelf:'flex-start'} :styles.button}
+            style={
+              responsive === "small"
+                ? { alignSelf: "flex-start" }
+                : styles.button
+            }
             key={`cell-content-${cellIndex}`}
             onPress={handlePress}
           >
             <Animated.View
               style={{ transform: [{ scale: animations[rowIndex] }] }}
             >
-              <MaterialCommunityIcons
-                name={cell ? "toggle-switch" : "toggle-switch-off-outline"}
-                size={34}
-                color={cell ? colors.palette.green : colors.palette.primary}
+              <IconButton
+                icon={cell ? "toggle-switch" : "toggle-switch-off-outline"}
+                size={32}
+                iconColor={cell ? colors.succeass : colors.main}
               />
             </Animated.View>
           </Pressable>

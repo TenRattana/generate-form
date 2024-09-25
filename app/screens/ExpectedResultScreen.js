@@ -15,8 +15,6 @@ const ExpectedResultScreen = React.memo(({ navigation }) => {
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = screenStyles({ colors, spacing, fonts, responsive });
-  console.log("Forms");
-  console.log(expectedResult);
 
   const ShowMessages = (textH, textT, color) => {
     Toast.show({
@@ -55,27 +53,13 @@ const ExpectedResultScreen = React.memo(({ navigation }) => {
 
   const handleAction = async (action, item) => {
     try {
-      if (action === "changeIndex") {
-        navigation.navigate("Create Form", { formId: item });
-      } else if (action === "preIndex") {
-        navigation.navigate("View Form", { formId: item });
-      } else if (action === "copyIndex") {
-        navigation.navigate("Create Form", { formId: item, action: "copy" });
-      } else {
-        if (action === "activeIndex") {
-          await axios.post("Form_service.asmx/ChangeForm", {
-            FormID: item,
-          });
-        } else if (action === "delIndex") {
-          await axios.post("Form_service.asmx/DeleteForm", {
-            FormID: item,
-          });
-        }
+      if (action === "preIndex") {
+        const data = expectedResult.find((v) => v.TableID === item);
 
-        const response = await axios.post(
-          "ExpectedResult_service.asmx/GetExpectedResults"
-        );
-        setExpectedResult(response.data.data || []);
+        navigation.navigate("View Form", {
+          formId: data.FormID,
+          tableId: data.TableID,
+        });
       }
     } catch (error) {
       ShowMessages(
@@ -92,16 +76,16 @@ const ExpectedResultScreen = React.memo(({ navigation }) => {
 
   const convertToThaiDateTime = (dateString) => {
     const date = new Date(dateString);
-  
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear() + 543;
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-  
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
     return `${day}/${month}/${year} เวลา ${hours}:${minutes}`;
   };
-  
+
   const tableData = useMemo(() => {
     return expectedResult.map((item) => [
       item.MachineName,
@@ -111,12 +95,7 @@ const ExpectedResultScreen = React.memo(({ navigation }) => {
     ]);
   }, [expectedResult]);
 
-  const tableHead = [
-    "Machine Name",
-    "Form Name",
-    "Time Submit",
-    "Preview",
-  ];
+  const tableHead = ["Machine Name", "Form Name", "Time Submit", "Preview"];
 
   const actionIndex = [
     {

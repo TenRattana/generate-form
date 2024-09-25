@@ -14,10 +14,10 @@ const Layout2 = ({
   state,
   groupCheckListOption,
   ShowMessages,
+  formValues,
+  setFormValues,
 }) => {
   const { styles, colors, spacing, responsive } = style;
-
-  const [formValues, setFormValues] = useState({});
 
   useEffect(() => {
     const initialValues = {};
@@ -140,30 +140,6 @@ const Layout2 = ({
     });
   };
 
-  const onFormSubmit = async () => {
-    const updatedSubForms = state.subForms.map((subForm) => ({
-      ...subForm,
-      fields: subForm.fields.map((field) => ({
-        ...field,
-        expectedResult: formValues[field.matchCheckListId] || "",
-      })),
-    }));
-
-    const data = {
-      FormData: JSON.stringify(updatedSubForms),
-    };
-
-    try {
-      await axios.post("ExpectedResult_service.asmx/SaveExpectedResult", data);
-    } catch (error) {
-      ShowMessages(
-        error.message || "Error",
-        error.response ? error.response.data.errors : ["Something went wrong!"],
-        "error"
-      );
-    }
-  };
-
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
       <Text style={[styles.textHeader, { color: colors.palette.dark }]}>
@@ -187,25 +163,9 @@ const Layout2 = ({
             <View style={styles.formContainer}>{renderFields(subForm)}</View>
           </View>
         ))}
-        {state.subForms[0]?.fields.length > 0 && (
-          <View style={styles.buttonContainer}>
-            <Pressable
-              onPress={onFormSubmit}
-              style={[styles.button, styles.backMain]}
-            >
-              <Text style={[styles.textBold, styles.text, styles.textLight]}>
-                Submit
-              </Text>
-            </Pressable>
-          </View>
-        )}
       </View>
     </ScrollView>
   );
 };
 
 export default Layout2;
-
-const styles = StyleSheet.create({
-  // Add your styles here
-});

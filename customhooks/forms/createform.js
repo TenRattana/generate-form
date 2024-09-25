@@ -1,18 +1,7 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "../../config/axios";
-import {
-  setSubForm,
-  setField,
-  addSubForm,
-  updateSubForm,
-  deleteSubForm,
-  addField,
-  updateField,
-  deleteField,
-  reset,
-} from "../../slices";
-import validator from "validator";
+import { setSubForm, setField, reset } from "../../slices";
 import formStyles from "../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../contexts";
 import { useFocusEffect } from "@react-navigation/native";
@@ -117,105 +106,108 @@ export const useFormBuilder = (route) => {
       };
 
       fetchData();
-      return () => {
-        dispatch(reset());
-      };
+      return () => {};
     }, [])
   );
 
-  useEffect(() => {
-    if (isDataLoaded && formId) {
-      const fetchFormData = async () => {
-        let route = "";
-        let data = {};
+  useFocusEffect(
+    useCallback(() => {
+      if (isDataLoaded && formId) {
+        const fetchFormData = async () => {
+          let route = "";
+          let data = {};
 
-        if (formId) {
-          data = { FormID: formId };
-          route = "Form_service.asmx/GetForm";
-        }
-        try {
-          const formResponse = await axios.post(route, data);
-          const formData = formResponse.data.data[0] ?? [];
-
-          if (action !== "copy") {
-            setForm({
-              formId: formData.FormID,
-              formName: formData.FormName,
-              description: formData.Description,
-              machineId: formData.MachineID || "",
-            });
-          } else {
-            setForm({
-              formId: "",
-              formName: "",
-              description: "",
-              machineId: "",
-            });
+          if (formId) {
+            data = { FormID: formId };
+            route = "Form_service.asmx/GetForm";
           }
+          try {
+            const formResponse = await axios.post(route, data);
+            const formData = formResponse.data.data[0] ?? [];
 
-          const subForms = [];
-          const fields = [];
-
-          if (formData?.SubForm) {
-            formData.SubForm.forEach((item) => {
-              const subForm = {
-                subFormId: item.SFormID || "",
-                subFormName: item.SFormName || "",
-                formId: item.FormID || "",
-                columns: item.Columns || "",
-                displayOrder: item.DisplayOrder || "",
+            if (action !== "copy") {
+              setForm({
+                formId: formData.FormID,
+                formName: formData.FormName,
+                description: formData.Description,
                 machineId: formData.MachineID || "",
-              };
-              if (item.MatchCheckList) {
-                item.MatchCheckList.forEach((itemOption) => {
-                  const field = {
-                    matchCheckListId: itemOption.MCListID || "",
-                    checkListId: itemOption.CListID || "",
-                    groupCheckListOptionId: itemOption.GCLOptionID || "",
-                    checkListTypeId: itemOption.CTypeID || "",
-                    dataTypeId: itemOption.DTypeID || "",
-                    dataTypeValue: itemOption.DTypeValue || "",
-                    subFormId: itemOption.SFormID || "",
-                    require: itemOption.Required || false,
-                    minLength: itemOption.MinLength || "",
-                    maxLength: itemOption.MaxLength || "",
-                    description: itemOption.Description || "",
-                    placeholder: itemOption.Placeholder || "",
-                    hint: itemOption.Hint || "",
-                    displayOrder: itemOption.DisplayOrder || "",
-                    expectedResult: itemOption.EResult || "",
-                  };
-                  fields.push(field);
-                });
-              }
-              subForms.push(subForm);
-            });
+              });
+            } else {
+              setForm({
+                formId: "",
+                formName: "",
+                description: "",
+                machineId: "",
+              });
+            }
+
+            const subForms = [];
+            const fields = [];
+
+            if (formData?.SubForm) {
+              formData.SubForm.forEach((item) => {
+                const subForm = {
+                  subFormId: item.SFormID || "",
+                  subFormName: item.SFormName || "",
+                  formId: item.FormID || "",
+                  columns: item.Columns || "",
+                  displayOrder: item.DisplayOrder || "",
+                  machineId: formData.MachineID || "",
+                };
+                if (item.MatchCheckList) {
+                  item.MatchCheckList.forEach((itemOption) => {
+                    const field = {
+                      matchCheckListId: itemOption.MCListID || "",
+                      checkListId: itemOption.CListID || "",
+                      groupCheckListOptionId: itemOption.GCLOptionID || "",
+                      checkListTypeId: itemOption.CTypeID || "",
+                      dataTypeId: itemOption.DTypeID || "",
+                      dataTypeValue: itemOption.DTypeValue || "",
+                      subFormId: itemOption.SFormID || "",
+                      require: itemOption.Required || false,
+                      minLength: itemOption.MinLength || "",
+                      maxLength: itemOption.MaxLength || "",
+                      description: itemOption.Description || "",
+                      placeholder: itemOption.Placeholder || "",
+                      hint: itemOption.Hint || "",
+                      displayOrder: itemOption.DisplayOrder || "",
+                      expectedResult: itemOption.EResult || "",
+                    };
+                    fields.push(field);
+                  });
+                }
+                subForms.push(subForm);
+              });
+            }
+
+            dispatch(setSubForm({ subForms }));
+            dispatch(
+              setField({
+                formState: fields,
+                checkList,
+                checkListType,
+                groupCheckListOption,
+                dataType,
+              })
+            );
+          } catch (error) {
+            ShowMessages(
+              error.message || "Error",
+              error.response?.data?.errors || ["Something wrong!"],
+              "error"
+            );
+          } finally {
+            setIsLoading(false);
           }
+        };
 
-          dispatch(setSubForm({ subForms }));
-          dispatch(
-            setField({
-              formState: fields,
-              checkList,
-              checkListType,
-              groupCheckListOption,
-              dataType,
-            })
-          );
-        } catch (error) {
-          ShowMessages(
-            error.message || "Error",
-            error.response?.data?.errors || ["Something wrong!"],
-            "error"
-          );
-        } finally {
-          setIsLoading(false);
-        }
+        fetchFormData();
+      }
+      return () => {
+        dispatch(reset());
       };
-
-      fetchFormData();
-    }
-  }, [formId, isDataLoaded, action]);
+    }, [formId, isDataLoaded, action])
+  );
 
   return {
     form,

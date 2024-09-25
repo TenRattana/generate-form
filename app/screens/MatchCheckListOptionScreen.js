@@ -202,11 +202,16 @@ const MatchCheckListOptionScreen = React.memo(() => {
   ];
 
   const dropcheckListOption = Array.isArray(checkListOption)
-    ? checkListOption.filter((v) => v.IsActive)
+    ? checkListOption.filter(
+        (v) => v.IsActive || v.CLOptionID === initialValues.checkListOptionId
+      )
     : [];
 
   const dropgroupCheckListOption = Array.isArray(groupCheckListOption)
-    ? groupCheckListOption.filter((v) => v.IsActive)
+    ? groupCheckListOption.filter(
+        (v) =>
+          v.IsActive || v.GCLOptionID === initialValues.groupCheckListOptionId
+      )
     : [];
 
   const actionIndex = [
@@ -310,8 +315,8 @@ const MatchCheckListOptionScreen = React.memo(() => {
                         labels="GCLOptionName"
                         values="GCLOptionID"
                         data={
-                          isEditing
-                            ? groupCheckListOption
+                          !isEditing
+                            ? groupCheckListOption.filter((v) => v.IsActive)
                             : dropgroupCheckListOption
                         }
                         selectedValue={values.groupCheckListOptionId}
@@ -347,7 +352,11 @@ const MatchCheckListOptionScreen = React.memo(() => {
                         title="Check List Option"
                         labels="CLOptionName"
                         values="CLOptionID"
-                        data={isEditing ? checkListOption : dropcheckListOption}
+                        data={
+                          !isEditing
+                            ? checkListOption.filter((v) => v.IsActive)
+                            : dropcheckListOption
+                        }
                         selectedValue={values.checkListOptionId || []}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);

@@ -21,6 +21,7 @@ import {
   TestComponent,
   CreateFormProperty,
   ExpectedResultScreen,
+  ScanFormScreen,
   Ball,
 } from "./screens";
 
@@ -78,6 +79,10 @@ export default function App() {
                   <Drawer.Screen name="Test" component={TestComponent} />
                   <Drawer.Screen name="Perpo" component={CreateFormProperty} />
                   <Drawer.Screen name="Ball" component={Ball} />
+                  <Drawer.Screen
+                    name="Screen Scan"
+                    component={ScanFormScreen}
+                  />
                 </Drawer.Navigator>
               </PaperProvider>
             </ResponsiveProvider>

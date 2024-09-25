@@ -7,7 +7,7 @@ import {
   updateField,
   deleteField,
 } from "../../../slices";
-import { View, Pressable, FlatList, Text } from "react-native";
+import { ScrollView, View, Pressable, FlatList, Text } from "react-native";
 import { useFormBuilder } from "../../../customhooks";
 import axios from "../../../config/axios";
 import {
@@ -84,6 +84,7 @@ const FormBuilder = ({ route }) => {
   });
 
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [formValues, setFormValues] = useState({});
   const [showDialogs, setShowDialogs] = useState({
     form: false,
     subForm: false,
@@ -469,6 +470,8 @@ const FormBuilder = ({ route }) => {
           formData={formData}
           groupCheckListOption={groupCheckListOption}
           ShowMessages={ShowMessages}
+          setFormValues={setFormValues}
+          formValues={formValues}
         />
       </View>
     </View>

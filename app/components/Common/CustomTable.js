@@ -70,11 +70,15 @@ const CustomTable = React.memo(
 
     const renderActionButton = (data, action, row, rowIndex) => {
       const handlePress = () => {
-        setDialogAction(action);
-        setDialogData(data);
-        setDialogTitle(action === "editIndex" ? "Edit" : "Delete");
-        setDialogMessage(`${row[0]}`);
-        setIsVisible(true);
+        if (action === "preIndex") {
+          handleDialog(action, data);
+        } else {
+          setDialogAction(action);
+          setDialogData(data);
+          setDialogTitle(action === "editIndex" ? "Edit" : "Delete");
+          setDialogMessage(`${row[0]}`);
+          setIsVisible(true);
+        }
       };
 
       let icon;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { ScrollView, View, Text } from "react-native";
+import { ScrollView, View, Text, Pressable } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Layout2, LoadingSpinner } from "../../components";
 import axios from "../../../config/axios";
@@ -8,7 +8,7 @@ import { setSubForm, setField, setExpected, reset } from "../../../slices";
 import { useTheme, useToast, useRes } from "../../../contexts";
 import { useFocusEffect } from "@react-navigation/native";
 
-const ViewFormScreen = ({ route }) => {
+const ScanFormScreen = ({ route }) => {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.form);
 
@@ -16,6 +16,7 @@ const ViewFormScreen = ({ route }) => {
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = formStyles({ colors, spacing, fonts, responsive });
+  const [formValues, setFormValues] = useState({});
   const [vform, setVForm] = useState({
     formId: "",
     formName: "",
@@ -24,7 +25,6 @@ const ViewFormScreen = ({ route }) => {
 
   console.log("ViewForm");
   const [formData, setFormData] = useState([]);
-  const [formValues, setFormValues] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [checkList, setCheckList] = useState([]);
@@ -186,6 +186,30 @@ const ViewFormScreen = ({ route }) => {
     }, [formId, tableId, isDataLoaded])
   );
 
+  const onFormSubmit = async () => {
+    const updatedSubForms = state.subForms.map((subForm) => ({
+      ...subForm,
+      fields: subForm.fields.map((field) => ({
+        ...field,
+        expectedResult: formValues[field.matchCheckListId] || "",
+      })),
+    }));
+
+    const data = {
+      FormData: JSON.stringify(updatedSubForms),
+    };
+
+    try {
+      await axios.post("ExpectedResult_service.asmx/SaveExpectedResult", data);
+    } catch (error) {
+      ShowMessages(
+        error.message || "Error",
+        error.response ? error.response.data.errors : ["Something went wrong!"],
+        "error"
+      );
+    }
+  };
+
   return (
     <ScrollView
       style={styles.scrollView}
@@ -202,12 +226,25 @@ const ViewFormScreen = ({ route }) => {
           formData={formData}
           groupCheckListOption={groupCheckListOption}
           ShowMessages={ShowMessages}
-          setFormValues={setFormValues}
           formValues={formValues}
+          setFormValues={setFormValues}
         />
       </View>
+
+      {state.subForms[0]?.fields.length > 0 && (
+        <View style={styles.buttonContainer}>
+          <Pressable
+            onPress={onFormSubmit}
+            style={[styles.button, styles.backMain]}
+          >
+            <Text style={[styles.textBold, styles.text, styles.textLight]}>
+              Submit
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </ScrollView>
   );
 };
 
-export default ViewFormScreen;
+export default ScanFormScreen;

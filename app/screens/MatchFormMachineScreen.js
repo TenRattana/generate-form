@@ -183,10 +183,14 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
   ];
 
   const dropmachine = Array.isArray(machine)
-    ? machine.filter((v) => v.IsActive)
+    ? machine.filter(
+        (v) => v.IsActive || v.MachineID === initialValues.machineId
+      )
     : [];
 
-  const dropform = Array.isArray(forms) ? forms.filter((v) => v.IsActive) : [];
+  const dropform = Array.isArray(forms)
+    ? forms.filter((v) => v.IsActive || v.FormID === initialValues.formId)
+    : [];
 
   const actionIndex = [
     {
@@ -288,7 +292,11 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
                         title="Machine"
                         labels="MachineName"
                         values="MachineID"
-                        data={isEditing ? machine : dropmachine}
+                        data={
+                          !isEditing
+                            ? machine.filter((v) => v.IsActive)
+                            : dropmachine
+                        }
                         selectedValue={values.machineId}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);
@@ -320,7 +328,11 @@ const MatchFormMachineScreen = React.memo(({ navigation }) => {
                         title="Form"
                         labels="FormName"
                         values="FormID"
-                        data={isEditing ? forms : dropform}
+                        data={
+                          !isEditing
+                            ? forms.filter((v) => v.IsActive)
+                            : dropform
+                        }
                         selectedValue={values.formId}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);

@@ -172,7 +172,9 @@ const MachineScreen = React.memo(() => {
   ];
 
   const dropmachineGroup = Array.isArray(machineGroup)
-    ? machineGroup.filter((v) => v.IsActive)
+    ? machineGroup.filter(
+        (v) => v.IsActive || v.MGroupID === initialValues.machineGroupId
+      )
     : [];
 
   const customtableProps = {
@@ -271,7 +273,11 @@ const MachineScreen = React.memo(() => {
                         title="Machine Group"
                         labels="MGroupName"
                         values="MGroupID"
-                        data={isEditing ? machineGroup : dropmachineGroup}
+                        data={
+                          !isEditing
+                            ? machineGroup.filter((v) => v.IsActive)
+                            : dropmachineGroup
+                        }
                         selectedValue={values.machineGroupId}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);

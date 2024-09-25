@@ -43,8 +43,19 @@ export default {
     web: {
       bundler: "metro",
     },
-    plugins: ["expo-router"],
+    plugins: [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+          microphonePermission:
+            "Allow $(PRODUCT_NAME) to access your microphone",
+          recordAudioAndroid: true,
+        },
+      ],
+    ],
     extra: getEnvVars(environment),
-    scheme: "generate-form", 
+    scheme: "generate-form",
   },
 };

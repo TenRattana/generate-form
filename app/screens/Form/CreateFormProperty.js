@@ -1,92 +1,50 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, FlatList } from "react-native";
-import { PanGestureHandler } from "react-native-gesture-handler";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
+import { StyleSheet, View, Text, Pressable } from "react-native";
+import QRCode from "react-native-qrcode-svg";
+import { Inputs } from "../../components";
 
-const CreateFormProperty = () => {
-  const [data, setData] = useState([
-    { id: "1", name: "Item 1" },
-    { id: "2", name: "Item 2" },
-    { id: "3", name: "Item 3" },
-    { id: "4", name: "Item 4" },
-  ]);
+const App = () => {
+  const [qrValue, setQrValue] = useState("");
 
-  const renderItem = (item, index) => {
-    const translateY = useSharedValue(0);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ translateY: translateY.value }],
-    }));
-
-    const onGestureEvent = (event) => {
-      translateY.value = event.translationY;
-    };
-
-    const onGestureEnd = () => {
-      const { translationY } = translateY;
-      let newData = [...data];
-
-      if (translationY > 50 && index < data.length - 1) {
-        const movedItem = newData.splice(index, 1)[0];
-        newData.splice(index + 1, 0, movedItem);
-      } else if (translationY < -50 && index > 0) {
-        const movedItem = newData.splice(index, 1)[0];
-        newData.splice(index - 1, 0, movedItem);
-      }
-
-      setData(newData);
-      translateY.value = withSpring(0);
-    };
-
+  const generateQR = (value) => {
     return (
-      <PanGestureHandler onGestureEvent={onGestureEvent} onEnded={onGestureEnd}>
-        <Animated.View style={[animatedStyle, styles.itemContainer]}>
-          <Text style={styles.itemText}>{item.name}</Text>
-        </Animated.View>
-      </PanGestureHandler>
+      <QRCode
+        value={value || "No input"}
+        size={200}
+        color="black"
+        backgroundColor="white"
+      />
     );
+  };
+
+  const handleChange = (value) => {
+    setQrValue(value);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Drag and Drop Example</Text>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => renderItem(item, index)}
-        contentContainerStyle={styles.list}
+      <Inputs
+        placeholder=""
+        label="QR Code Example"
+        value={qrValue}
+        handleChange={handleChange}
       />
+      {generateQR(qrValue)}
     </View>
   );
 };
 
-export default CreateFormProperty;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
-  title: {
-    fontSize: 24,
+  text: {
+    fontSize: 20,
     marginBottom: 20,
   },
-  list: {
-    gap: 10,
-  },
-  itemContainer: {
-    height: 60,
-    backgroundColor: "#1D1F27",
-    borderRadius: 5,
-    justifyContent: "center",
-    paddingHorizontal: 15,
-  },
-  itemText: {
-    color: "#FFF",
-    fontSize: 16,
-  },
 });
+
+export default App;

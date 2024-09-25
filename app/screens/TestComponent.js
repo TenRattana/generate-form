@@ -1,61 +1,79 @@
-import * as React from "react";
-import { View, StyleSheet, FlatList } from "react-native";
-import { Menu, Button, Provider, List } from "react-native-paper";
+import React, { useState } from "react";
+import { Text, View, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
+import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
 
-const MyDropdown = () => {
-  const [visible, setVisible] = React.useState(false);
-  const [selectedId, setSelectedId] = React.useState(null);
+const NUM_ITEMS = 10;
 
-  const showMenu = () => setVisible(true);
-  const hideMenu = () => setVisible(false);
+function getColor(i) {
+  const multiplier = 255 / (NUM_ITEMS - 1);
+  const colorVal = i * multiplier;
+  return `rgb(${colorVal}, ${Math.abs(128 - colorVal)}, ${255 - colorVal})`;
+}
 
-  const handleItemPress = (id) => {
-    setSelectedId(id);
-    hideMenu();
+const initialData = [...Array(NUM_ITEMS)].map((_, index) => {
+  const backgroundColor = getColor(index);
+  return {
+    key: `item-${index}`,
+    label: String(index + 1), // ใช้เลข 1 ถึง NUM_ITEMS
+    height: 100,
+    width: 60 + Math.random() * 40,
+    backgroundColor,
   };
-
-  const data = [
-    { title: "Item 1", value: 1 },
-    { title: "Item 2", value: 2 },
-    { title: "Item 3", value: 3 },
-    { title: "Item 4", value: 4 },
-  ];
-
-  return (
-    <Provider>
-      <View style={styles.container}>
-        <Button onPress={showMenu} style={styles.button}>
-          {selectedId ? `Selected: Item ${selectedId}` : "Select an item"}
-        </Button>
-
-        <Menu visible={visible} onDismiss={hideMenu} anchor={<View />}>
-          <FlatList
-            data={data}
-            keyExtractor={(item) => item.value.toString()}
-            renderItem={({ item }) => (
-              <List.Item
-                title={item.title}
-                onPress={() => handleItemPress(item.value)}
-                style={{
-                  backgroundColor:
-                    selectedId === item.value ? "#e0e0e0" : "white",
-                }}
-              />
-            )}
-          />
-        </Menu>
-      </View>
-    </Provider>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  button: {
-    marginBottom: 10,
-  },
 });
 
-export default MyDropdown;
+export default function App() {
+  const [data, setData] = useState(initialData);
+
+  const renderItem = ({ item, drag, isActive }) => {
+    return (
+      <ScaleDecorator>
+        <TouchableOpacity
+          onLongPress={drag} // เรียกใช้งาน drag เมื่อกดนาน
+          disabled={isActive} // ปิดการใช้งานเมื่อ item ถูกลาก
+          style={[
+            styles.rowItem,
+            { backgroundColor: isActive ? "red" : item.backgroundColor },
+          ]}
+        >
+          <Text style={styles.text}>{item.label}</Text>
+        </TouchableOpacity>
+      </ScaleDecorator>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <DraggableFlatList
+        data={data}
+        onDragEnd={({ data }) => setData(data)}
+        keyExtractor={(item) => item.key}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContainer}
+        scrollEnabled={true} // เปิดให้เลื่อน
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    paddingTop: 20, // เพิ่ม padding ข้างบนเพื่อให้มีพื้นที่ว่างสำหรับเนื้อหา
+  },
+  rowItem: {
+    height: 100,
+    width: "100%", // ขยายให้เต็มความกว้าง
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+  text: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  listContainer: {
+    padding: 10,
+  },
+});

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Layout2, LoadingSpinner } from "../../components";
 import axios from "../../../config/axios";
 import formStyles from "../../../styles/forms/form";
-import { setSubForm, setField, setExpected, reset } from "../../../slices";
+import { setSubForm, setField, reset } from "../../../slices";
 import { useTheme, useToast, useRes } from "../../../contexts";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -16,6 +16,7 @@ const ScanFormScreen = ({ route }) => {
   const { Toast } = useToast();
   const { responsive } = useRes();
   const styles = formStyles({ colors, spacing, fonts, responsive });
+
   const [formValues, setFormValues] = useState({});
   const [vform, setVForm] = useState({
     formId: "",
@@ -23,18 +24,17 @@ const ScanFormScreen = ({ route }) => {
     description: "",
   });
 
-  console.log("ViewForm");
   const [formData, setFormData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [checkList, setCheckList] = useState([]);
   const [groupCheckListOption, setGroupCheckListOption] = useState([]);
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
-  const { formId, tableId } = route.params || {};
+  const { machineId } = route.params || {};
+  const [found, setFound] = useState(false);
 
   const ShowMessages = useCallback(
-    (textH, textT, color) => {
+    (textH, textT) => {
       Toast.show({
         type: "customToast",
         text1: textH,
@@ -49,6 +49,7 @@ const ScanFormScreen = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
+        setIsLoading(true);
         try {
           const [
             checkListResponse,
@@ -64,117 +65,90 @@ const ScanFormScreen = ({ route }) => {
             axios.post("DataType_service.asmx/GetDataTypes"),
           ]);
 
-          setCheckList(checkListResponse.data.data ?? []);
-          setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
-          setCheckListType(checkListTypeResponse.data.data ?? []);
-          setDataType(dataTypeResponse.data.data ?? []);
-          setIsDataLoaded(true);
-          setIsLoading(true);
+          setCheckList(checkListResponse.data.data || []);
+          setGroupCheckListOption(groupCheckListOptionResponse.data.data || []);
+          setCheckListType(checkListTypeResponse.data.data || []);
+          setDataType(dataTypeResponse.data.data || []);
         } catch (error) {
           ShowMessages(
             error.message || "Error",
-            error.response?.data?.errors || ["Something wrong!"],
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
             "error"
           );
+        } finally {
+          setIsLoading(false);
         }
       };
 
       fetchData();
-      return () => {};
     }, [])
   );
 
   useFocusEffect(
     useCallback(() => {
       const fetchFormData = async () => {
-        if (!isDataLoaded || (!formId && !tableId)) return;
-
-        const requests = [];
-
-        if (formId) {
-          requests.push(
-            axios.post("Form_service.asmx/GetForm", { FormID: formId })
-          );
-        }
-        if (tableId) {
-          requests.push(
-            axios.post("ExpectedResult_service.asmx/GetExpectedResult", {
-              TableID: tableId,
-            })
-          );
-        }
+        if (!machineId) return;
 
         try {
-          const responses = await Promise.all(requests);
-          const formResponse = formId ? responses[0] : null;
-          const expectedResultResponse = tableId
-            ? responses[1].data.data[0]
-            : null;
-
-          const formData = formResponse?.data?.data[0] || {};
-
-          setVForm({
-            formId: formData.FormID || "",
-            formName: formData.FormName || "",
-            description: formData.Description || "",
-            machineId: formData.MachineID || "",
+          const response = await axios.post("Form_service.asmx/ScanForm", {
+            MachineID: machineId,
           });
+          const formData = response.data.data[0];
 
-          const subForms = [];
-          const fields = [];
-
-          formData?.SubForm?.forEach((item) => {
-            const subForm = {
-              subFormId: item.SFormID || "",
-              subFormName: item.SFormName || "",
-              formId: item.FormID || "",
-              columns: item.Columns || "",
-              displayOrder: item.DisplayOrder || "",
-              machineId: formData.MachineID || "",
-            };
-            subForms.push(subForm);
-
-            item.MatchCheckList?.forEach((itemOption) => {
-              const field = {
-                matchCheckListId: itemOption.MCListID || "",
-                checkListId: itemOption.CListID || "",
-                groupCheckListOptionId: itemOption.GCLOptionID || "",
-                checkListTypeId: itemOption.CTypeID || "",
-                dataTypeId: itemOption.DTypeID || "",
-                dataTypeValue: itemOption.DTypeValue || "",
-                subFormId: itemOption.SFormID || "",
-                require: itemOption.Required || false,
-                minLength: itemOption.MinLength || "",
-                maxLength: itemOption.MaxLength || "",
-                description: itemOption.Description || "",
-                placeholder: itemOption.Placeholder || "",
-                hint: itemOption.Hint || "",
-                displayOrder: itemOption.DisplayOrder || "",
-                expectedResult:
-                  expectedResultResponse?.[itemOption.MCListID] || "",
-              };
-              fields.push(field);
+          if (formData && formData.FormID) {
+            setVForm({
+              formId: formData.FormID,
+              formName: formData.FormName,
+              description: formData.Description,
+              machineId: formData.MachineID,
             });
-          });
 
-          dispatch(setSubForm({ subForms }));
-          dispatch(
-            setField({
-              formState: fields,
-              checkList,
-              checkListType,
-              groupCheckListOption,
-              dataType,
-            })
-          );
+            const fields =
+              formData.SubForm?.flatMap(
+                (item) =>
+                  item.MatchCheckList?.map((itemOption) => ({
+                    matchCheckListId: itemOption.MCListID,
+                    checkListId: itemOption.CListID,
+                    groupCheckListOptionId: itemOption.GCLOptionID,
+                    checkListTypeId: itemOption.CTypeID,
+                    dataTypeId: itemOption.DTypeID,
+                    dataTypeValue: itemOption.DTypeValue,
+                    subFormId: itemOption.SFormID,
+                    require: itemOption.Required,
+                    minLength: itemOption.MinLength,
+                    maxLength: itemOption.MaxLength,
+                    description: itemOption.Description,
+                    placeholder: itemOption.Placeholder,
+                    hint: itemOption.Hint,
+                    displayOrder: itemOption.DisplayOrder,
+                    expectedResult: "",
+                  })) || []
+              ) || [];
+
+            dispatch(setSubForm({ subForms: formData.SubForm }));
+            dispatch(
+              setField({
+                formState: fields,
+                checkList,
+                checkListType,
+                groupCheckListOption,
+                dataType,
+              })
+            );
+            setFound(true);
+          } else {
+            setFound(false);
+          }
         } catch (error) {
           ShowMessages(
             error.message || "Error",
-            error.response?.data?.errors || ["Something went wrong!"],
+            error.response
+              ? error.response.data.errors
+              : ["Something went wrong!"],
             "error"
           );
-        } finally {
-          setIsLoading(false);
         }
       };
 
@@ -183,7 +157,7 @@ const ScanFormScreen = ({ route }) => {
       return () => {
         dispatch(reset());
       };
-    }, [formId, tableId, isDataLoaded])
+    }, [machineId, checkList, checkListType, groupCheckListOption, dataType])
   );
 
   const onFormSubmit = async () => {
@@ -195,12 +169,11 @@ const ScanFormScreen = ({ route }) => {
       })),
     }));
 
-    const data = {
-      FormData: JSON.stringify(updatedSubForms),
-    };
+    const data = { FormData: JSON.stringify(updatedSubForms) };
 
     try {
       await axios.post("ExpectedResult_service.asmx/SaveExpectedResult", data);
+      ShowMessages("Success", "Form submitted successfully");
     } catch (error) {
       ShowMessages(
         error.message || "Error",
@@ -210,11 +183,23 @@ const ScanFormScreen = ({ route }) => {
     }
   };
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!found) {
+    return (
+      <View style={[styles.layout2]}>
+        <Text>Form not found</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       style={styles.scrollView}
       showsVerticalScrollIndicator={false}
-      nestedScrollEnabled={true}
+      nestedScrollEnabled
     >
       <View style={[styles.layout2]}>
         <Layout2

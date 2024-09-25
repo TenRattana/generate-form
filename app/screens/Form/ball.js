@@ -1,56 +1,71 @@
-import { Camera, CameraType } from "expo-camera/legacy";
-import { useState } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Camera } from "expo-camera/legacy";
+import { useEffect, useState } from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
 
-export default function App() {
-  const [type, setType] = useState(CameraType.back);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+export default function App({ navigation }) {
+  const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [qrValue, setQrValue] = useState(null);
 
-  if (!permission) {
-    // Camera permissions are still loading
-    return <View />;
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (scanned && qrValue) {
+      handleAction(qrValue);
+    }
+  }, [scanned, qrValue]);
+
+  if (hasPermission === null) {
+    return <View />; // Loading state
   }
 
-  if (!permission.granted) {
-    // Camera permissions are not granted yet
+  if (!hasPermission) {
     return (
       <View style={styles.container}>
         <Text style={{ textAlign: "center" }}>
           We need your permission to show the camera
         </Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Button
+          onPress={() => Camera.requestCameraPermissionsAsync()}
+          title="Grant Permission"
+        />
       </View>
     );
   }
 
+  const handleAction = () => {
+    try {
+      if (qrValue) {
+        navigation.navigate("Screen Scan", {
+          machineId: qrValue,
+        });
+        setScanned(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleBarCodeScanned = ({ type, data }) => {
-    setScanned(true);
-    setQrValue(data);
-    console.log(
-      `Bar code with type ${type} and data ${data} has been scanned!`
-    );
+    if (!scanned) {
+      setScanned(true);
+      setQrValue(data);
+      console.log(
+        `Bar code with type ${type} and data ${data} has been scanned!`
+      );
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={styles.camera}
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-      >
-        <View style={styles.buttonContainer}>
-          {scanned && (
-            <TouchableOpacity
-              onPress={() => setScanned(false)}
-              style={styles.button}
-            >
-              <Text style={styles.text}>Tap to Scan Again</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </Camera>
-      {scanned && (
+      {!scanned ? (
+        <Camera style={styles.camera} onBarCodeScanned={handleBarCodeScanned} />
+      ) : (
         <View style={styles.resultContainer}>
           <Text style={styles.resultText}>Scanned QR Code: {qrValue}</Text>
         </View>
@@ -67,20 +82,19 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
   },
-  buttonContainer: {
+  resultContainer: {
     flex: 1,
-    flexDirection: "row",
-    backgroundColor: "transparent",
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: "flex-end",
+    justifyContent: "center",
     alignItems: "center",
   },
-  text: {
+  resultText: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
+    color: "black",
+    marginBottom: 20,
+  },
+  text: {
+    fontSize: 18,
+    color: "blue",
+    textDecorationLine: "underline",
   },
 });

@@ -9,4 +9,6 @@ export { default as MatchCheckListOptionScreen } from "./MatchCheckListOptionScr
 export { default as FormScreen } from "./FormScreen";
 export { default as TestComponent } from "./TestComponent";
 export { default as ExpectedResultScreen } from "./ExpectedResultScreen";
+export { default as CameraScan } from "./CameraScan";
+export { default as GenerateQR } from "./GenerateQR";
 export * from "./Form";

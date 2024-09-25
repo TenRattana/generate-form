@@ -2,7 +2,7 @@ import { Camera } from "expo-camera/legacy";
 import { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
-export default function App({ navigation }) {
+export default function CameraScan({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [qrValue, setQrValue] = useState(null);
@@ -21,7 +21,7 @@ export default function App({ navigation }) {
   }, [scanned, qrValue]);
 
   if (hasPermission === null) {
-    return <View />; // Loading state
+    return <View />;
   }
 
   if (!hasPermission) {

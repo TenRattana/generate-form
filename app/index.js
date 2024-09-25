@@ -21,8 +21,8 @@ import {
   TestComponent,
   CreateFormProperty,
   ExpectedResultScreen,
-  ScanFormScreen,
-  Ball,
+  CameraScan,
+  GenerateQR,
 } from "./screens";
 
 const Drawer = createDrawerNavigator();
@@ -77,12 +77,11 @@ export default function App() {
                     component={ExpectedResultScreen}
                   />
                   <Drawer.Screen name="Test" component={TestComponent} />
-                  <Drawer.Screen name="Perpo" component={CreateFormProperty} />
-                  <Drawer.Screen name="Ball" component={Ball} />
                   <Drawer.Screen
-                    name="Screen Scan"
-                    component={ScanFormScreen}
+                    name="Generate QR Code"
+                    component={GenerateQR}
                   />
+                  <Drawer.Screen name="Scan QR Code" component={CameraScan} />
                 </Drawer.Navigator>
               </PaperProvider>
             </ResponsiveProvider>

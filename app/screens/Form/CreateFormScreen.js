@@ -24,6 +24,7 @@ import { useTheme, useToast, useRes } from "../../../contexts";
 import * as Yup from "yup";
 import { Entypo, AntDesign } from "@expo/vector-icons";
 import DraggableFlatList from "react-native-draggable-flatlist";
+import { IconButton } from "react-native-paper";
 
 const FormBuilder = React.memo(({ route }) => {
   const {
@@ -215,20 +216,23 @@ const FormBuilder = React.memo(({ route }) => {
           isActive ? styles.backDis : styles.backLight,
           {
             flexDirection: "row",
-            justifyContent: "space-between",
+            justifyContent: "flex-start",
             alignItems: "center",
           },
         ]}
       >
+        <IconButton
+          style={styles.icon}
+          color={colors.dark}
+          icon={
+            checkListType.find((v) => v.CTypeID === item.checkListTypeId)
+              ?.icon || ""
+          }
+          size={20}
+        />
         <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
           {item.CheckListName}
         </Text>
-        <Entypo
-          name="chevron-right"
-          size={18}
-          color={colors.palette.light}
-          style={{ paddingRight: 15 }}
-        />
       </Pressable>
     </View>
   );
@@ -308,6 +312,7 @@ const FormBuilder = React.memo(({ route }) => {
             placeholder: "",
             hint: "",
             displayOrder: "",
+            icon: "",
             subFormId: item.subFormId,
             matchCheckListId: uniqueMatchCheckListId,
           });

@@ -286,6 +286,7 @@ const MachineScreen = React.memo(() => {
                             [field.name]: true,
                           });
                         }}
+                        lefticon={"application-settings"}
                       />
                     )}
                   />

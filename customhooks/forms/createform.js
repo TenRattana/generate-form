@@ -91,8 +91,31 @@ export const useFormBuilder = (route) => {
 
           setCheckList(checkListResponse.data.data ?? []);
           setGroupCheckListOption(groupCheckListOptionResponse.data.data ?? []);
-          setCheckListType(checkListTypeResponse.data.data ?? []);
-          setDataType(dataTypeResponse.data.data ?? []);
+          setCheckListType(
+            checkListTypeResponse.data?.data.map((v) => {
+              if (v.CTypeName === "Textinput") {
+                return { ...v, icon: "format-text" };
+              } else if (v.CTypeName === "Textarea") {
+                return { ...v, icon: "text-long" };
+              } else if (v.CTypeName === "Radio") {
+                return { ...v, icon: "order-bool-ascending" };
+              } else if (v.CTypeName === "Checkbox") {
+                return { ...v, icon: "order-bool-ascending-variant" };
+              } else if (v.CTypeName === "Dropdown") {
+                return { ...v, icon: "format-list-group" };
+              } else if (v.CTypeName === "Text") {
+                return { ...v, icon: "format-color-text" };
+              }
+            }) ?? []
+          );
+          setDataType(
+            dataTypeResponse.data?.data.map((v) =>
+              v.DTypeName === "String"
+                ? { ...v, icon: "format-color-text" }
+                : { ...v, icon: "numeric" }
+            ) ?? []
+          );
+
           setIsDataLoaded(true);
           setIsLoading(true);
         } catch (error) {

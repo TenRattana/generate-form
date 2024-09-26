@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Pressable, Text } from "react-native";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { StyleSheet, View, Text } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
 import { useTheme } from "../../../contexts";
+import { IconButton, Chip } from "react-native-paper";
 
 const CustomDropdownMulti = ({
   labels,
@@ -13,11 +12,12 @@ const CustomDropdownMulti = ({
   selectedValue,
   onValueChange,
   optionStyle,
+  lefticon,
 }) => {
   const [options, setOptions] = useState([]);
   const [currentValue, setCurrentValue] = useState(selectedValue || []);
-  const { colors, fonts, spacing } = useTheme();
-  console.log("CustomDropMul");
+  const { colors, spacing } = useTheme();
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     if (data && Array.isArray(data)) {
@@ -34,11 +34,19 @@ const CustomDropdownMulti = ({
     setCurrentValue(selectedValue || []);
   }, [selectedValue]);
 
+  useEffect(() => {
+    onValueChange(currentValue);
+  }, [currentValue, onValueChange]);
+
+  const handleChange = (selectedItems) => {
+    setCurrentValue(selectedItems);
+    console.log("Selected items:", selectedItems);
+  };
+
   const styles = StyleSheet.create({
     dropdown: {
       marginHorizontal: spacing.xsm,
       marginVertical: spacing.xsm,
-      marginTop: 0,
       height: 50,
       borderBottomColor: "gray",
       borderBottomWidth: 0.5,
@@ -66,26 +74,6 @@ const CustomDropdownMulti = ({
       justifyContent: "space-between",
       alignItems: "center",
     },
-    selectedStyle: {
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      borderRadius: 14,
-      backgroundColor: "white",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.2,
-      shadowRadius: 1.41,
-      marginLeft: 12,
-      marginVertical: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      elevation: 2,
-    },
-    textSelectedStyle: {
-      marginRight: 5,
-      fontSize: 16,
-    },
     clearIcon: {
       top: 10,
       justifyContent: "center",
@@ -97,6 +85,7 @@ const CustomDropdownMulti = ({
   return (
     <View>
       <MultiSelect
+        ref={dialogRef}
         style={styles.dropdown}
         placeholderStyle={[styles.placeholderStyle, optionStyle]}
         selectedTextStyle={[styles.selectedTextStyle, optionStyle]}
@@ -110,35 +99,38 @@ const CustomDropdownMulti = ({
         placeholder={`Select ${title}`}
         searchPlaceholder={`Search ${title}...`}
         value={currentValue}
-        onChange={(selectedItems) => {
-          setCurrentValue(selectedItems);
-          onValueChange(selectedItems);
-        }}
+        onChange={handleChange}
         renderLeftIcon={() => (
-          <AntDesign
+          <IconButton
             style={styles.icon}
             color={optionStyle ? colors.palette.dark : colors.dark}
-            name="addusergroup"
+            icon={
+              options.find((v) => v.value === currentValue)?.icon ||
+              lefticon ||
+              "check-all"
+            }
             size={20}
           />
         )}
         renderRightIcon={() => (
           <View style={styles.clearIcon}>
             {currentValue.length > 0 ? (
-              <AntDesign
-                name="close"
-                size={20}
+              <IconButton
+                style={styles.icon}
                 color={optionStyle ? colors.palette.dark : colors.dark}
+                icon="window-close"
+                size={20}
                 onPress={() => {
                   setCurrentValue([]);
                   onValueChange([]);
                 }}
               />
             ) : (
-              <Entypo
-                name="chevron-down"
-                size={20}
+              <IconButton
+                style={styles.icon}
                 color={optionStyle ? colors.palette.dark : colors.dark}
+                icon="chevron-down"
+                size={20}
               />
             )}
           </View>
@@ -146,21 +138,12 @@ const CustomDropdownMulti = ({
         renderItem={(item) => (
           <View style={styles.item}>
             <Text style={styles.selectedTextStyle}>{item.label}</Text>
-            <AntDesign
-              style={styles.icon}
-              color="black"
-              name="Safety"
-              size={20}
-            />
           </View>
         )}
         renderSelectedItem={(item, unSelect) => (
-          <Pressable onPress={() => unSelect && unSelect(item)}>
-            <View style={styles.selectedStyle}>
-              <Text style={styles.textSelectedStyle}>{item.label}</Text>
-              <AntDesign color="black" name="delete" size={17} />
-            </View>
-          </Pressable>
+          <Chip icon="trash-can" onPress={() => unSelect && unSelect(item)}>
+            {item.label}
+          </Chip>
         )}
       />
     </View>

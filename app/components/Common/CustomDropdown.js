@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
 import { useTheme } from "../../../contexts";
+import { IconButton } from "react-native-paper";
 
 const CustomDropdown = ({
   title,
@@ -13,6 +12,7 @@ const CustomDropdown = ({
   selectedValue,
   onValueChange,
   optionStyle,
+  lefticon,
 }) => {
   const [options, setOptions] = useState([]);
   const [currentValue, setCurrentValue] = useState(selectedValue);
@@ -25,6 +25,7 @@ const CustomDropdown = ({
         data.map((item) => ({
           label: item[labels] || "",
           value: item[values] || "",
+          icon: item?.icon || "",
         }))
       );
     }
@@ -43,6 +44,12 @@ const CustomDropdown = ({
     },
     icon: {
       marginRight: spacing.xxs,
+    },
+    item: {
+      padding: 17,
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      alignItems: "center",
     },
     placeholderStyle: {
       fontSize: fonts.md,
@@ -85,34 +92,56 @@ const CustomDropdown = ({
         onChange={(newValue) => {
           if (newValue) {
             setCurrentValue(newValue.value);
-            onValueChange(newValue.value);
+            onValueChange(
+              newValue.value,
+              options.find((v) => v.value === currentValue)?.icon
+            );
           }
         }}
         renderLeftIcon={() => (
-          <AntDesign
+          <IconButton
             style={styles.icon}
             color={optionStyle ? colors.palette.dark : colors.dark}
-            name="addusergroup"
+            icon={
+              options.find((v) => v.value === currentValue)?.icon ||
+              lefticon ||
+              "check-all"
+            }
             size={20}
           />
         )}
-        renderRightIcon={() => (
-          <View style={styles.clearIcon}>
-            {currentValue !== "" ? (
-              <AntDesign
-                name="close"
-                size={20}
+        renderItem={(item) => (
+          <View style={styles.item}>
+            {item.icon && (
+              <IconButton
+                style={styles.icon}
                 color={optionStyle ? colors.palette.dark : colors.dark}
+                icon={item.icon || "check-all"}
+                size={20}
+              />
+            )}
+            <Text style={styles.selectedTextStyle}>{item.label}</Text>
+          </View>
+        )}
+        renderRightIcon={() => (
+          <View>
+            {currentValue !== "" ? (
+              <IconButton
+                style={styles.icon}
+                color={optionStyle ? colors.palette.dark : colors.dark}
+                icon="window-close"
+                size={20}
                 onPress={() => {
                   setCurrentValue("");
                   onValueChange("");
                 }}
               />
             ) : (
-              <Entypo
-                name="chevron-down"
-                size={20}
+              <IconButton
+                style={styles.icon}
                 color={optionStyle ? colors.palette.dark : colors.dark}
+                icon="chevron-down"
+                size={20}
               />
             )}
           </View>

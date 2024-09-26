@@ -327,6 +327,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
                             [field.name]: true,
                           });
                         }}
+                        lefticon={"format-list-group"}
                       />
                     )}
                   />
@@ -365,10 +366,11 @@ const MatchCheckListOptionScreen = React.memo(() => {
                             [field.name]: true,
                           });
                         }}
+                        lefticon={"table-column-plus-after"}
                       />
                     )}
                   />
-
+                  {console.log(values)}
                   {touched.checkListOptionId && errors.checkListOptionId ? (
                     <Text
                       style={{

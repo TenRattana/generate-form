@@ -183,6 +183,7 @@ const FieldDialog = ({
                               [field.name]: true,
                             });
                           }}
+                          lefticon={"check-all"}
                         />
                       )}
                     />
@@ -197,7 +198,6 @@ const FieldDialog = ({
                         {errors.checkListId}
                       </Text>
                     )}
-
                     <Field
                       name="checkListTypeId"
                       component={({ field, form }) => (
@@ -205,6 +205,7 @@ const FieldDialog = ({
                           title="Check list Type"
                           labels="CTypeName"
                           values="CTypeID"
+                          lefticon={"card-text"}
                           data={editMode ? checkListType : dropcheckListType}
                           selectedValue={values.checkListTypeId}
                           onValueChange={(value) => {
@@ -254,6 +255,7 @@ const FieldDialog = ({
                                     [field.name]: true,
                                   });
                                 }}
+                                lefticon={"format-list-group"}
                               />
                             )}
                           />
@@ -279,6 +281,7 @@ const FieldDialog = ({
                                 title="Data Type"
                                 labels="DTypeName"
                                 values="DTypeID"
+                                lefticon={"text-recognition"}
                                 data={editMode ? dataType : dropdataType}
                                 selectedValue={values.dataTypeId}
                                 onValueChange={(value) => {

@@ -10,7 +10,6 @@ const validationSchemaSubForm = Yup.object().shape({
     "The machine group name field is required."
   ),
   columns: Yup.number().required("The columns field is required."),
-  displayOrder: Yup.string().required("The display order field is required."),
 });
 
 const SubFormDialog = ({
@@ -23,8 +22,6 @@ const SubFormDialog = ({
   responsive,
   onDelete,
 }) => {
-  console.log("SubFormDialog");
-
   return (
     <Portal>
       <Dialog
@@ -82,16 +79,6 @@ const SubFormDialog = ({
                   value={String(values.columns)}
                   error={touched.columns && Boolean(errors.columns)}
                   errorMessage={touched.columns ? errors.columns : ""}
-                />
-
-                <Inputs
-                  placeholder="Enter Display Order"
-                  label="Display Order"
-                  handleChange={handleChange("displayOrder")}
-                  handleBlur={handleBlur("displayOrder")}
-                  value={String(values.displayOrder)}
-                  error={touched.displayOrder && Boolean(errors.displayOrder)}
-                  errorMessage={touched.displayOrder ? errors.displayOrder : ""}
                 />
 
                 <View

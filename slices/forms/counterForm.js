@@ -14,21 +14,20 @@ const subFormSlice = createSlice({
     setSubForm: (state, action) => {
       const { subForms } = action.payload;
 
-      state.subForms = subForms.map((sub) => ({
+      state.subForms = subForms.map((sub, index) => ({
         subFormName: sub.subFormName,
         subFormId: sub.subFormId,
         formId: sub.formId,
         columns: parseInt(sub.columns, 10),
-        displayOrder: parseInt(sub.displayOrder, 10),
+        displayOrder: parseInt(index, 10),
         machineId: sub.machineId,
-        fields: [],
+        fields: sub?.fields || [],
       }));
 
       sort(state.subForms);
     },
     setField: (state, action) => {
       const { formState, checkList, checkListType } = action.payload;
-      console.log(action.payload);
 
       state.subForms.forEach((sub, index) => {
         const matchingForm = formState.filter(
@@ -36,8 +35,9 @@ const subFormSlice = createSlice({
         );
 
         if (matchingForm) {
-          const update = matchingForm.map((v) => ({
+          const update = matchingForm.map((v, index) => ({
             ...v,
+            displayOrder: parseInt(index, 10),
             CheckListName:
               checkList.find((item) => item.CListID === v.checkListId)
                 ?.CListName || "",
@@ -53,11 +53,11 @@ const subFormSlice = createSlice({
     addSubForm: (state, action) => {
       const { subForm } = action.payload;
       const parseColumns = parseInt(subForm.columns, 10);
-      const parseDisplayOrder = parseInt(subForm.displayOrder, 10);
+      const parseDisplayOrder = parseInt(state.subForms.length + 1, 10);
 
       state.subForms.push({
         subFormName: subForm.subFormName,
-        subFormId: subForm.subFormId,
+        subFormId: parseDisplayOrder,
         formId: subForm.formId,
         columns: parseColumns,
         displayOrder: parseDisplayOrder,
@@ -70,15 +70,14 @@ const subFormSlice = createSlice({
     updateSubForm: (state, action) => {
       const { subForm } = action.payload;
       const parseColumns = parseInt(subForm.columns, 10);
-      const parseDisplayOrder = parseInt(subForm.displayOrder, 10);
 
-      state.subForms = state.subForms.map((sub) => {
+      state.subForms = state.subForms.map((sub, index) => {
         if (sub.subFormId === subForm.subFormId) {
           return {
             ...sub,
             subFormName: subForm.subFormName,
             columns: parseColumns,
-            displayOrder: parseDisplayOrder,
+            displayOrder: parseInt(index, 10),
           };
         }
         return sub;
@@ -99,6 +98,7 @@ const subFormSlice = createSlice({
             ...sub.fields,
             {
               ...formState,
+              displayOrder: parseInt(sub.fields.length + 1, 10),
               CheckListName:
                 checkList.find((v) => v.CListID === formState.checkListId)
                   ?.CListName || "",
@@ -124,10 +124,11 @@ const subFormSlice = createSlice({
 
       state.subForms = state.subForms.map((sub) => {
         if (sub.subFormId === formState.subFormId) {
-          const updatedFields = sub.fields.map((field) => {
+          const updatedFields = sub.fields.map((field, index) => {
             if (field.matchCheckListId === formState.matchCheckListId) {
               return {
                 ...formState,
+                displayOrder: parseInt(index, 10),
                 CheckListName:
                   checkList.find((v) => v.CListID === formState.checkListId)
                     ?.CListName || "",
@@ -166,7 +167,6 @@ const subFormSlice = createSlice({
 
     setExpected: (state, action) => {
       const { formData } = action.payload;
-      console.log(formData);
 
       state.subForms.forEach((sub) => {
         sub.fields.forEach((field) => {

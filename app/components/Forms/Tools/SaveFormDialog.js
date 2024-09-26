@@ -9,8 +9,6 @@ const SaveFormDialog = ({
   responsive,
   saveForm,
 }) => {
-  console.log("SaveFormDialog");
-
   return (
     <Portal>
       <Dialog

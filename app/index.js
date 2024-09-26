@@ -19,28 +19,29 @@ import {
   ViewFormScreen,
   FormScreen,
   TestComponent,
-  CreateFormProperty,
-  ExpectedResultScreen,
-  CameraScan,
   GenerateQR,
+  CameraScan,
+  ExpectedResultScreen,
 } from "./screens";
 
 const Drawer = createDrawerNavigator();
 
-export default function App() {
+const App = () => {
   return (
-    <GestureHandlerRootView>
-      <Provider store={store}>
-        <ThemeProvider>
-          <ToastProvider>
-            <ResponsiveProvider>
-              <PaperProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <ToastProvider>
+          <ResponsiveProvider>
+            <PaperProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
                 <Drawer.Navigator
                   screenOptions={{
-                    drawerStyle: {},
+                    drawerStyle: {
+                      width: 240,
+                    },
                   }}
                 >
-                  <Drawer.Screen name="HomeScreen" component={HomeScreen} />
+                  <Drawer.Screen name="Home" component={HomeScreen} />
                   <Drawer.Screen
                     name="Machine Group"
                     component={MachineGroupScreen}
@@ -83,11 +84,13 @@ export default function App() {
                   />
                   <Drawer.Screen name="Scan QR Code" component={CameraScan} />
                 </Drawer.Navigator>
-              </PaperProvider>
-            </ResponsiveProvider>
-          </ToastProvider>
-        </ThemeProvider>
-      </Provider>
-    </GestureHandlerRootView>
+              </GestureHandlerRootView>
+            </PaperProvider>
+          </ResponsiveProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </Provider>
   );
-}
+};
+
+export default App;

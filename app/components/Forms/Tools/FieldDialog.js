@@ -32,7 +32,6 @@ const FieldDialog = ({
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnimDT = useRef(new Animated.Value(0)).current;
-  console.log(formState);
 
   const startAnimation = () => {
     Animated.timing(fadeAnim, {
@@ -392,20 +391,6 @@ const FieldDialog = ({
                         false
                       )}
                     </Animated.View>
-
-                    <Inputs
-                      placeholder="Enter Display Order"
-                      label="Display Order"
-                      handleChange={handleChange("displayOrder")}
-                      handleBlur={handleBlur("displayOrder")}
-                      value={String(values.displayOrder)}
-                      error={
-                        touched.displayOrder && Boolean(errors.displayOrder)
-                      }
-                      errorMessage={
-                        touched.displayOrder ? errors.displayOrder : ""
-                      }
-                    />
                   </ScrollView>
                   <View
                     style={{

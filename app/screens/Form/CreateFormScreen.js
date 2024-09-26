@@ -6,13 +6,14 @@ import {
   addField,
   updateField,
   deleteField,
+  setSubForm,
+  setField,
 } from "../../../slices";
-import { ScrollView, View, Pressable, FlatList, Text } from "react-native";
+import { View, Pressable, Text } from "react-native";
 import { useFormBuilder } from "../../../customhooks";
 import axios from "../../../config/axios";
 import {
   Layout2,
-  Inputs,
   FormDialog,
   SaveFormDialog,
   SubFormDialog,
@@ -20,11 +21,11 @@ import {
 } from "../../components";
 import formStyles from "../../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../../contexts";
-import { Formik } from "formik";
 import * as Yup from "yup";
 import { Entypo, AntDesign } from "@expo/vector-icons";
+import DraggableFlatList from "react-native-draggable-flatlist";
 
-const FormBuilder = ({ route }) => {
+const FormBuilder = React.memo(({ route }) => {
   const {
     form,
     setForm,
@@ -37,53 +38,14 @@ const FormBuilder = ({ route }) => {
     dispatch,
     ShowMessages,
   } = useFormBuilder(route);
-  console.log("FormBuilder");
 
   const validationSchemaField = Yup.object().shape({
     checkListId: Yup.string().required("Check List is required."),
     checkListTypeId: Yup.string().required("Check List Type is required."),
-    // dataTypeId: Yup.string().when("checkListTypeId", {
-    //   is: (checkListTypeId) =>
-    //     checkListType.find((v) => v.CTypeID === checkListTypeId)?.CTypeName &&
-    //     ["Radio", "Checkbox", "Dropdown"].includes(
-    //       checkListType.find((v) => v.CTypeID === checkListTypeId).CTypeName
-    //     ),
-    //   then: Yup.string().required("Data Type is required."),
-    //   otherwise: Yup.string().nullable(),
-    // }),
-    displayOrder: Yup.number()
-      .required("Display Order is required.")
-      .positive("Must be a positive number."),
-    // minLength: Yup.number().when("dataTypeId", {
-    //   is: (dataTypeId) =>
-    //     dataType.find((v) => v.DTypeID === dataTypeId)?.DTypeName ===
-    //     "Textinput",
-    //   then: Yup.number().min(0, "Minimum length must be at least 0").nullable(),
-    //   otherwise: Yup.number().nullable(),
-    // }),
-    // maxLength: Yup.number().when("dataTypeId", {
-    //   is: (dataTypeId) =>
-    //     dataType.find((v) => v.DTypeID === dataTypeId)?.DTypeName ===
-    //     "Textinput",
-    //   then: Yup.number()
-    //     .min(
-    //       Yup.ref("minLength"),
-    //       "Maximum length must be greater than or equal to Minimum length"
-    //     )
-    //     .nullable(),
-    //   otherwise: Yup.number().nullable(),
-    // }),
     placeholder: Yup.string().nullable(),
     hint: Yup.string().nullable(),
-    // dataTypeValue: Yup.string().when("dataTypeId", {
-    //   is: (dataTypeId) =>
-    //     dataType.find((v) => v.DTypeID === dataTypeId)?.DTypeName === "Number",
-    //   then: Yup.string().required("Value is required for Number type."),
-    //   otherwise: Yup.string().nullable(),
-    // }),
   });
 
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [formValues, setFormValues] = useState({});
   const [showDialogs, setShowDialogs] = useState({
     form: false,
@@ -99,7 +61,6 @@ const FormBuilder = ({ route }) => {
     displayOrder: "",
   });
   const [formState, setFormState] = useState({
-    matchCheckListId: "",
     checkListId: "",
     groupCheckListOptionId: "",
     checkListTypeId: "",
@@ -131,7 +92,7 @@ const FormBuilder = ({ route }) => {
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response ? error.response.data.errors : ["Something wrong!"],
+        error.response ? error.response.data.errors : ["Something went wrong!"],
         "error"
       );
     } finally {
@@ -142,9 +103,9 @@ const FormBuilder = ({ route }) => {
         save: false,
       });
     }
-  }, [form, state.subForms, ShowMessages]);
+  }, [form, state.subForms]);
 
-  const saveSubForm = useCallback(async (values, option) => {
+  const saveSubForm = useCallback((values, option) => {
     const payload = { subForm: values };
 
     try {
@@ -156,7 +117,7 @@ const FormBuilder = ({ route }) => {
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response?.data?.errors || ["Something wrong!"],
+        error.response?.data?.errors || ["Something went wrong!"],
         "error"
       );
     } finally {
@@ -202,13 +163,13 @@ const FormBuilder = ({ route }) => {
     [dataType, checkListType, checkList]
   );
 
-  const onDelete = useCallback(async (values) => {
+  const onDelete = useCallback((values) => {
     try {
       dispatch(deleteSubForm({ values }));
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response?.data?.errors || ["Something wrong!"],
+        error.response?.data?.errors || ["Something went wrong!"],
         "error"
       );
     } finally {
@@ -220,13 +181,13 @@ const FormBuilder = ({ route }) => {
     }
   }, []);
 
-  const onDeleteField = useCallback(async (subFormId, field) => {
+  const onDeleteField = useCallback((subFormId, field) => {
     try {
       dispatch(deleteField({ subFormId, field }));
     } catch (error) {
       ShowMessages(
         error.message || "Error",
-        error.response?.data?.errors || ["Something wrong!"],
+        error.response?.data?.errors || ["Something went wrong!"],
         "error"
       );
     } finally {
@@ -239,17 +200,19 @@ const FormBuilder = ({ route }) => {
     }
   }, []);
 
-  const renderSubForm = ({ item, index }) => (
-    <View style={{ marginTop: 30 }} key={`subForm-${index}`}>
+  const renderField = ({ item, drag, isActive }) => (
+    <View key={item.checkListId}>
       <Pressable
         onPress={() => {
-          setSubInForm(item, index);
-          setShowDialogs((prev) => ({ ...prev, subForm: true }));
           setEditMode(true);
+          setFormState(item);
+          setShowDialogs((prev) => ({ ...prev, field: true }));
         }}
+        onLongPress={drag}
+        disabled={isActive}
         style={[
           styles.button,
-          styles.backSucceass,
+          isActive ? styles.backDis : styles.backLight,
           {
             flexDirection: "row",
             justifyContent: "space-between",
@@ -257,7 +220,46 @@ const FormBuilder = ({ route }) => {
           },
         ]}
       >
-        <Text style={[styles.text, styles.textLight, { paddingLeft: 15 }]}>
+        <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
+          {item.CheckListName}
+        </Text>
+        <Entypo
+          name="chevron-right"
+          size={18}
+          color={colors.palette.light}
+          style={{ paddingRight: 15 }}
+        />
+      </Pressable>
+    </View>
+  );
+
+  const renderSubForm = ({ item, drag, isActive }) => (
+    <View style={{ marginTop: 30 }} key={item.subFormId}>
+      <Pressable
+        onPress={() => {
+          setSubInForm(item);
+          setShowDialogs((prev) => ({ ...prev, subForm: true }));
+          setEditMode(true);
+        }}
+        onLongPress={drag}
+        disabled={isActive}
+        style={[
+          styles.button,
+          isActive ? styles.backLight : styles.backSucceass,
+          {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.text,
+            isActive ? styles.textDark : styles.textLight,
+            { paddingLeft: 15 },
+          ]}
+        >
           Sub Form: {item.subFormName}
         </Text>
         <Entypo
@@ -268,43 +270,32 @@ const FormBuilder = ({ route }) => {
         />
       </Pressable>
 
-      {item.fields.map((field, idx) => (
-        <Pressable
-          key={`${field.CheckListName}-${idx}`}
-          onPress={() => {
-            setEditMode(true);
-            setFormState(() => ({
-              ...field,
-            }));
+      <DraggableFlatList
+        data={item.fields}
+        renderItem={renderField}
+        keyExtractor={(field, fieldIndex) =>
+          `${field.checkListId}-${fieldIndex}`
+        }
+        onDragEnd={({ data }) => {
+          let updatedSubForms = [];
+          state.subForms.forEach((subForm) => {
+            if (subForm.subFormId === item.subFormId) {
+              updatedSubForms.push(...data);
+            } else {
+              updatedSubForms.push(...subForm.fields);
+            }
+          });
+          dispatch(
+            setField({ formState: updatedSubForms, checkList, checkListType })
+          );
+        }}
+      />
 
-            setShowDialogs((prev) => ({ ...prev, field: true }));
-          }}
-          style={[
-            styles.button,
-            styles.backLight,
-            {
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            },
-          ]}
-        >
-          <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
-            {field.CheckListName}
-          </Text>
-          <Entypo
-            name="chevron-right"
-            size={18}
-            color={colors.palette.light}
-            style={{ paddingRight: 15 }}
-          />
-        </Pressable>
-      ))}
       <Pressable
         onPress={() => {
           setEditMode(false);
-          const uniqueMatchCheckListId = `field-${index}-${count}`;
-          setFormState(() => ({
+          const uniqueMatchCheckListId = `field-${count}`;
+          setFormState({
             checkListId: "",
             groupCheckListOptionId: "",
             checkListTypeId: "",
@@ -319,7 +310,7 @@ const FormBuilder = ({ route }) => {
             displayOrder: "",
             subFormId: item.subFormId,
             matchCheckListId: uniqueMatchCheckListId,
-          }));
+          });
           setShowDialogs((prev) => ({ ...prev, field: true }));
         }}
         style={[
@@ -367,14 +358,15 @@ const FormBuilder = ({ route }) => {
           </Text>
         </Pressable>
 
-        <FlatList
+        <DraggableFlatList
           data={state.subForms}
           style={{ flexGrow: 0 }}
           renderItem={renderSubForm}
           keyExtractor={(item, index) => `subForm-${index}`}
+          onDragEnd={({ data }) => dispatch(setSubForm({ subForms: data }))}
+          contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}
-          contentContainerStyle={styles.contentContainer}
         />
 
         <Pressable
@@ -418,7 +410,7 @@ const FormBuilder = ({ route }) => {
         setShowDialogs={() =>
           setShowDialogs((prev) => ({ ...prev, form: false }))
         }
-        setForm={(values) => setForm(values)}
+        setForm={setForm}
         responsive={responsive}
       />
 
@@ -476,6 +468,6 @@ const FormBuilder = ({ route }) => {
       </View>
     </View>
   );
-};
+});
 
 export default FormBuilder;

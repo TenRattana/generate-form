@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "../../config/axios";
 import { setSubForm, setField, reset } from "../../slices";
@@ -51,7 +51,6 @@ export const useFormBuilder = (route) => {
   const [checkListType, setCheckListType] = useState([]);
   const [dataType, setDataType] = useState([]);
   const { formId, action } = route.params || {};
-  console.log(action);
 
   const [isLoading, setIsLoading] = useState(false);
   const { responsive } = useRes();

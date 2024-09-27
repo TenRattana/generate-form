@@ -1,134 +1,56 @@
-import React, { useState } from "react";
+import React, { Component } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
-import formStyles from "../../styles/forms/form";
-import { useTheme } from "../../contexts";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
-const Test = () => {
-  const [dataSub, setDataSub] = useState(
-    {
-      checkListId: "CL004",
-      checkListTypeId: "CT03",
-      dataTypeId: "DT01",
-      dataTypeValue: "",
-      description: "",
-      displayOrder: 1,
-      expectedResult: "",
-      groupCheckListOptionId: "GCLO003",
-      hint: "",
-      matchCheckListId: 74,
-      maxLength: "",
-      minLength: "",
-      placeholder: "",
-      require: true,
-      subFormId: "SF032",
-    },
-    {
-      checkListId: "CL007",
-      checkListTypeId: "CT04",
-      dataTypeId: "DT01",
-      dataTypeValue: "",
-      description: "",
-      displayOrder: 2,
-      expectedResult: "",
-      groupCheckListOptionId: "GCLO004",
-      hint: "",
-      matchCheckListId: 75,
-      maxLength: "",
-      minLength: "",
-      placeholder: "",
-      require: false,
-      subFormId: "SF032",
-    },
-    {
-      checkListId: "CL005",
-      checkListTypeId: "CT05",
-      dataTypeId: "DT01",
-      dataTypeValue: "",
-      description: "",
-      displayOrder: 1,
-      expectedResult: "",
-      groupCheckListOptionId: "GCLO003",
-      hint: "",
-      matchCheckListId: 76,
-      maxLength: "",
-      minLength: "",
-      placeholder: "",
-      require: false,
-      subFormId: "SF033",
-    },
-    {
-      checkListId: "CL009",
-      checkListTypeId: "CT03",
-      dataTypeId: "DT01",
-      dataTypeValue: "",
-      description: "",
-      displayOrder: 1,
-      expectedResult: "",
-      groupCheckListOptionId: "GCLO005",
-      hint: "",
-      matchCheckListId: 77,
-      maxLength: "",
-      minLength: "",
-      placeholder: "",
-      require: false,
-      subFormId: "SF034",
-    }
-  );
+const exampleData = [...Array(20)].map((d, index) => ({
+  key: `item-${index}`, // For example only -- don't use index as your key!
+  label: index,
+  backgroundColor: `rgb(${Math.floor(Math.random() * 255)}, ${
+    index * 5
+  }, ${132})`,
+}));
 
-  const { colors, spacing, fonts } = useTheme();
-  const styles = formStyles({ colors, spacing, fonts });
+class Example extends Component {
+  state = {
+    data: exampleData,
+  };
 
-  const renderSubForm = ({ item, drag, isActive }) => (
-    <TouchableOpacity
-      onLongPress={drag}
-      disabled={isActive}
-      style={[
-        styles.button,
-        isActive ? styles.backLight : styles.backSuccess,
-        {
-          flexDirection: "row",
-          justifyContent: "space-between",
+  renderItem = ({ item, index, drag, isActive }) => {
+    return (
+      <TouchableOpacity
+        style={{
+          height: 100,
+          backgroundColor: isActive ? "blue" : item.backgroundColor,
           alignItems: "center",
-        },
-      ]}
-    >
-      <Text
-        style={[
-          styles.text,
-          isActive ? styles.textDark : styles.textLight,
-          { paddingLeft: 15 },
-        ]}
+          justifyContent: "center",
+        }}
+        onLongPress={drag}
       >
-        Sub Form: {item.subFormName}
-      </Text>
-    </TouchableOpacity>
-  );
+        <Text
+          style={{
+            fontWeight: "bold",
+            color: "white",
+            fontSize: 32,
+          }}
+        >
+          {item.label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
-  return (
-    <View
-      style={[
-        styles.container,
-        {
-          flex: 1,
-          paddingTop: 50,
-          overflow: "hidden",
-          backgroundColor: "#f5f5f5",
-        },
-      ]}
-    >
-      <View style={styles.layout1}>
+  render() {
+    return (
+      <View style={{ flex: 1 }}>
         <DraggableFlatList
-          data={dataSub.subForm}
-          renderItem={renderSubForm}
-          keyExtractor={(item) => item.subFormId}
-          onDragEnd={({ data }) =>
-            setDataSub((prev) => ({ ...prev, subForm: data }))
-          }
+          data={this.state.data}
+          renderItem={this.renderItem}
+          keyExtractor={(item, index) => `draggable-item-${item.key}`}
+          onDragEnd={({ data }) => this.setState({ data })}
         />
       </View>
-    </View>
-  );
-};
+    );
+  }
+}
 
-export default Test;
+export default Example;

@@ -10,7 +10,7 @@ import {
   Searchbars,
 } from "../components";
 import { Card } from "@rneui/themed";
-import { Portal, Switch, Dialog } from "react-native-paper";
+import { Portal, Switch, Dialog, Chip } from "react-native-paper";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
 import screenStyles from "../../styles/screens/screen";
@@ -274,7 +274,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
           visible={isVisible}
           onDismiss={() => setIsVisible(false)}
           style={styles.containerDialog}
-          contentStyle={styles.containerDialog}
+          contentStyle={[styles.containerDialog]}
         >
           <Dialog.Title style={{ paddingLeft: 8 }}>
             {isEditing ? "Edit" : "Create"}
@@ -303,6 +303,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
                 errors,
                 touched,
                 handleSubmit,
+                handleChange,
                 isValid,
                 dirty,
               }) => (
@@ -358,7 +359,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
                             ? checkListOption.filter((v) => v.IsActive)
                             : dropcheckListOption
                         }
-                        selectedValue={values.checkListOptionId || []}
+                        selectedValue={field.value || []}
                         onValueChange={(value) => {
                           setFieldValue(field.name, value);
                           form.setTouched({
@@ -370,7 +371,7 @@ const MatchCheckListOptionScreen = React.memo(() => {
                       />
                     )}
                   />
-                  {console.log(values)}
+
                   {touched.checkListOptionId && errors.checkListOptionId ? (
                     <Text
                       style={{

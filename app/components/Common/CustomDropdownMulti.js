@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { MultiSelect } from "react-native-element-dropdown";
+import { StyleSheet, View, Text, Pressable } from "react-native";
 import { useTheme } from "../../../contexts";
-import { IconButton, Chip } from "react-native-paper";
+import DropDownPicker from "react-native-dropdown-picker";
+import { Chip } from "react-native-paper";
 
 const CustomDropdownMulti = ({
   labels,
@@ -11,12 +11,10 @@ const CustomDropdownMulti = ({
   data,
   selectedValue,
   onValueChange,
-  optionStyle,
-  lefticon,
 }) => {
   const [options, setOptions] = useState([]);
   const [currentValue, setCurrentValue] = useState(selectedValue || []);
-  const [isOpen, setIsOpen] = useState(false); // เก็บค่าชั่วคราว
+  const [isOpen, setIsOpen] = useState(false);
   const { colors, spacing } = useTheme();
 
   useEffect(() => {
@@ -32,21 +30,28 @@ const CustomDropdownMulti = ({
 
   useEffect(() => {
     setCurrentValue(selectedValue || []);
-    setTempValue(selectedValue || []);
   }, [selectedValue]);
 
-  const handleConfirm = () => {
-    onValueChange(currentValue);
-    setIsOpen(false);
-  };
+  const handleValueChange = (value) => {
+    const newValue = currentValue.includes(value)
+      ? currentValue.filter((item) => item !== value)
+      : [...currentValue, value];
 
+    setCurrentValue(newValue);
+    onValueChange(newValue);
+  };
   const styles = StyleSheet.create({
+    container: {
+      marginVertical: 10,
+      paddingHorizontal: 16,
+      zIndex: 1,
+    },
     dropdown: {
-      marginHorizontal: spacing.xsm,
-      marginVertical: spacing.xsm,
       height: 50,
-      borderBottomColor: "gray",
-      borderBottomWidth: 0.5,
+      borderColor: "gray",
+      borderWidth: 1,
+      borderRadius: 8,
+      backgroundColor: "#fff",
     },
     placeholderStyle: {
       fontSize: 16,
@@ -66,9 +71,9 @@ const CustomDropdownMulti = ({
       marginRight: 5,
     },
     item: {
-      padding: 17,
+      marginTop: 10,
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "flex-start",
       alignItems: "center",
     },
     clearIcon: {
@@ -76,95 +81,62 @@ const CustomDropdownMulti = ({
       alignItems: "center",
       marginRight: spacing.xxs,
     },
+    chip: {
+      marginRight: 5,
+      marginBottom: 5,
+    },
   });
 
   return (
-    <View>
-      <MultiSelect
-        isOpen={isOpen}
-        style={styles.dropdown}
-        placeholderStyle={[styles.placeholderStyle, optionStyle]}
-        selectedTextStyle={[styles.selectedTextStyle, optionStyle]}
-        inputSearchStyle={[styles.inputSearchStyle, optionStyle]}
-        iconStyle={[styles.iconStyle, optionStyle]}
-        data={options}
-        search
-        maxHeight={300}
-        labelField="label"
-        valueField="value"
+    <View style={styles.container}>
+      <DropDownPicker
+        multiple
+        open={isOpen}
+        items={options}
+        value={currentValue}
+        setItems={setOptions}
+        setOpen={setIsOpen}
+        setValue={setCurrentValue}
+        onChangeItem={(item) => handleValueChange(item.value)}
         placeholder={`Select ${title}`}
-        searchPlaceholder={`Search ${title}...`}
-        value={tempValue} 
-        onChange={handleSelectItem} 
-        onClose={handleDropdownClose} 
-        renderLeftIcon={() => (
-          <IconButton
-            style={styles.icon}
-            color={optionStyle ? colors.palette.dark : colors.dark}
-            icon={lefticon || "check-all"}
-            size={20}
-          />
-        )}
-        renderRightIcon={() => (
-          <View style={styles.clearIcon}>
-            {tempValue.length > 0 ? (
-              <IconButton
-                style={styles.icon}
-                color={optionStyle ? colors.palette.dark : colors.dark}
-                icon="window-close"
-                size={20}
-                onPress={() => {
-                  setTempValue([]); // เคลียร์ค่าชั่วคราว
-                }}
-              />
-            ) : (
-              <IconButton
-                style={styles.icon}
-                color={optionStyle ? colors.palette.dark : colors.dark}
-                icon="chevron-down"
-                size={20}
-              />
-            )}
-          </View>
-        )}
-        renderItem={(item) => (
-          <View style={styles.item}>
-            <Text style={styles.selectedTextStyle}>{item.label}</Text>
-          </View>
-        )}
-      />
-
-      {/* แสดงผลการเลือกในรูปแบบ Chips */}
-      <View
-        style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          marginVertical: spacing.xsm,
+        style={styles.dropdown}
+        modalTitle="Select an item"
+        maxHeight={300}
+        searchable
+        searchPlaceholder="Search..."
+        searchContainerStyle={{
+          borderColor: "#DDDDDD",
+          borderWidth: 0.5,
+          height: 45,
+          margin: 6,
+          marginBottom: 8,
+          paddingHorizontal: 8,
         }}
-      >
-        {currentValue.map((selectedItem) => {
-          const selectedLabel = options.find(
-            (opt) => opt.value === selectedItem
-          )?.label;
-          return (
+        searchTextInputStyle={{
+          fontSize: 16,
+          textAlign: "left",
+          height: 40,
+        }}
+        customItemContainerStyle={{
+          backgroundColor: "#dfdfdf",
+        }}
+      />
+      {currentValue.length > 0 ? (
+        <View style={styles.item}>
+          {currentValue.map((item) => (
             <Chip
-              key={selectedItem}
+              key={item}
+              style={styles.chip}
               icon="close"
-              onPress={() => {
-                const updatedValue = currentValue.filter(
-                  (value) => value !== selectedItem
-                );
-                setTempValue(updatedValue); // ลบค่าชั่วคราว
-                setCurrentValue(updatedValue); // อัปเดต currentValue
-                onValueChange(updatedValue); // ส่งค่ากลับ
-              }}
-              style={{ marginRight: 5, marginBottom: 5 }}
+              onPress={() => handleValueChange(item)}
             >
-              {selectedLabel}
+              {options.find((option) => option.value === item)?.label || item}
             </Chip>
-          );
-        })}
-      </View>
+          ))}
+        </View>
+      ) : (
+        false
+      )}
     </View>
   );
 };

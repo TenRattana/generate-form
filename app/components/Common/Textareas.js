@@ -30,7 +30,7 @@ const Textareas = ({
         style={[styles.text, styles.textDark]}
         value={value}
         multiline
-        numberOfLines={4}
+        rows={4}
         right={
           value && (
             <TextInput.Icon

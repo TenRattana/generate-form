@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   addSubForm,
   updateSubForm,
@@ -23,8 +23,11 @@ import formStyles from "../../../styles/forms/form";
 import { useTheme, useToast, useRes } from "../../../contexts";
 import * as Yup from "yup";
 import { Entypo, AntDesign } from "@expo/vector-icons";
-import DraggableFlatList from "react-native-draggable-flatlist";
+import DraggableFlatList, {
+  ScaleDecorator,
+} from "react-native-draggable-flatlist";
 import { IconButton } from "react-native-paper";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const FormBuilder = React.memo(({ route }) => {
   const {
@@ -202,43 +205,34 @@ const FormBuilder = React.memo(({ route }) => {
   }, []);
 
   const renderField = ({ item, drag, isActive }) => (
-    <View key={item.checkListId}>
-      <Pressable
-        onPress={() => {
-          setEditMode(true);
-          setFormState(item);
-          setShowDialogs((prev) => ({ ...prev, field: true }));
-        }}
-        onLongPress={drag}
-        disabled={isActive}
-        style={[
-          styles.button,
-          isActive ? styles.backDis : styles.backLight,
-          {
-            flexDirection: "row",
-            justifyContent: "flex-start",
-            alignItems: "center",
-          },
-        ]}
-      >
-        <IconButton
-          style={styles.icon}
-          color={colors.dark}
-          icon={
-            checkListType.find((v) => v.CTypeID === item.checkListTypeId)
-              ?.icon || ""
-          }
-          size={20}
-        />
-        <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
-          {item.CheckListName}
-        </Text>
-      </Pressable>
-    </View>
+    <Pressable
+      onPress={() => {
+        setEditMode(true);
+        setFormState(item);
+        setShowDialogs((prev) => ({ ...prev, field: true }));
+      }}
+      onLongPress={drag}
+      disabled={isActive}
+      style={[styles.button, isActive ? styles.backDis : styles.backLight]}
+      key={item.checkListId}
+    >
+      <IconButton
+        style={styles.icon}
+        color={colors.dark}
+        icon={
+          checkListType.find((v) => v.CTypeID === item.checkListTypeId)?.icon ||
+          ""
+        }
+        size={20}
+      />
+      <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
+        {item.CheckListName}
+      </Text>
+    </Pressable>
   );
 
   const renderSubForm = ({ item, drag, isActive }) => (
-    <View style={{ marginTop: 30 }} key={item.subFormId}>
+    <View style={{ marginTop: 30 }}>
       <Pressable
         onPress={() => {
           setSubInForm(item);
@@ -250,12 +244,8 @@ const FormBuilder = React.memo(({ route }) => {
         style={[
           styles.button,
           isActive ? styles.backLight : styles.backSucceass,
-          {
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          },
         ]}
+        key={item.subFormId}
       >
         <Text
           style={[
@@ -274,7 +264,7 @@ const FormBuilder = React.memo(({ route }) => {
         />
       </Pressable>
 
-      <DraggableFlatList
+      {/* <DraggableFlatList
         data={item.fields}
         renderItem={renderField}
         keyExtractor={(field, fieldIndex) =>
@@ -293,7 +283,7 @@ const FormBuilder = React.memo(({ route }) => {
             setField({ formState: updatedSubForms, checkList, checkListType })
           );
         }}
-      />
+      /> */}
 
       <Pressable
         onPress={() => {
@@ -321,10 +311,7 @@ const FormBuilder = React.memo(({ route }) => {
         style={[
           styles.button,
           styles.backLight,
-          {
-            flexDirection: "row",
-            alignItems: "center",
-          },
+          { flexDirection: "row", alignItems: "center" },
         ]}
       >
         <Text style={[styles.text, styles.textDark, { paddingLeft: 15 }]}>
@@ -336,142 +323,144 @@ const FormBuilder = React.memo(({ route }) => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.layout1}>
-        <Pressable
-          onPress={() => {
-            setEditMode(false);
-            setShowDialogs((prev) => ({ ...prev, subForm: true }));
-            setSubInForm({
-              subFormId: "",
-              subFormName: "",
-              formId: "",
-              columns: "",
-              displayOrder: "",
-              machineId: "",
-            });
-          }}
-          style={[
-            styles.button,
-            styles.backSucceass,
-            { flexDirection: "row", alignItems: "center" },
-          ]}
-        >
-          <AntDesign name="plus" size={16} color={colors.palette.blue} />
-          <Text style={[styles.text, styles.textLight, { marginLeft: 5 }]}>
-            Add Sub Form
-          </Text>
-        </Pressable>
+    <GestureHandlerRootView>
+      <View style={styles.container}>
+        <View style={styles.layout1}>
+          <Pressable
+            onPress={() => {
+              setEditMode(false);
+              setShowDialogs((prev) => ({ ...prev, subForm: true }));
+              setSubInForm({
+                subFormId: "",
+                subFormName: "",
+                formId: "",
+                columns: "",
+                displayOrder: "",
+                machineId: "",
+              });
+            }}
+            style={[
+              styles.button,
+              styles.backSucceass,
+              { flexDirection: "row", alignItems: "center" },
+            ]}
+          >
+            <AntDesign name="plus" size={16} color={colors.palette.blue} />
+            <Text style={[styles.text, styles.textLight, { marginLeft: 5 }]}>
+              Add Sub Form
+            </Text>
+          </Pressable>
 
-        <DraggableFlatList
-          data={state.subForms}
-          style={{ flexGrow: 0 }}
-          renderItem={renderSubForm}
-          keyExtractor={(item, index) => `subForm-${index}`}
-          onDragEnd={({ data }) => dispatch(setSubForm({ subForms: data }))}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}
-        />
-
-        <Pressable
-          onPress={() => {
-            setShowDialogs((prev) => ({ ...prev, form: true }));
-            setForm(form);
-          }}
-          style={[
-            styles.button,
-            styles.backSucceass,
-            {
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            },
-          ]}
-        >
-          <Text style={[styles.text, styles.textLight, { paddingLeft: 15 }]}>
-            Header
-          </Text>
-          <Entypo
-            name="chevron-right"
-            size={18}
-            color={colors.palette.light}
-            style={{ paddingRight: 15 }}
+          <DraggableFlatList
+            data={state.subForms}
+            style={{ flexGrow: 0 }}
+            renderItem={renderSubForm}
+            keyExtractor={(item, index) => `subForm-${index}`}
+            onDragEnd={({ data }) => dispatch(setSubForm({ subForms: data }))}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
           />
-        </Pressable>
 
-        <Pressable
-          onPress={() => setShowDialogs((prev) => ({ ...prev, save: true }))}
-          style={[styles.button, styles.backSucceass]}
-        >
-          <Text style={[styles.text, styles.textLight]}>Save Form</Text>
-        </Pressable>
-      </View>
+          <Pressable
+            onPress={() => {
+              setShowDialogs((prev) => ({ ...prev, form: true }));
+              setForm(form);
+            }}
+            style={[
+              styles.button,
+              styles.backSucceass,
+              {
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              },
+            ]}
+          >
+            <Text style={[styles.text, styles.textLight, { paddingLeft: 15 }]}>
+              Header
+            </Text>
+            <Entypo
+              name="chevron-right"
+              size={18}
+              color={colors.palette.light}
+              style={{ paddingRight: 15 }}
+            />
+          </Pressable>
 
-      <FormDialog
-        form={form}
-        isVisible={showDialogs.form}
-        styles={styles}
-        setShowDialogs={() =>
-          setShowDialogs((prev) => ({ ...prev, form: false }))
-        }
-        setForm={setForm}
-        responsive={responsive}
-      />
+          <Pressable
+            onPress={() => setShowDialogs((prev) => ({ ...prev, save: true }))}
+            style={[styles.button, styles.backSucceass]}
+          >
+            <Text style={[styles.text, styles.textLight]}>Save Form</Text>
+          </Pressable>
+        </View>
 
-      <SaveFormDialog
-        isVisible={showDialogs.save}
-        setShowDialogs={() =>
-          setShowDialogs((prev) => ({ ...prev, save: false }))
-        }
-        styles={styles}
-        saveForm={saveForm}
-        responsive={responsive}
-      />
-
-      <SubFormDialog
-        isVisible={showDialogs.subForm}
-        setShowDialogs={() =>
-          setShowDialogs((prev) => ({ ...prev, subForm: false }))
-        }
-        editMode={editMode}
-        styles={styles}
-        subForm={subForm}
-        onDelete={onDelete}
-        saveSubForm={saveSubForm}
-      />
-      <FieldDialog
-        isVisible={showDialogs.field}
-        setShowDialogs={() =>
-          setShowDialogs((prev) => ({ ...prev, field: false }))
-        }
-        validationSchemaField={validationSchemaField}
-        editMode={editMode}
-        style={{ styles, colors, spacing }}
-        formState={formState}
-        saveField={saveField}
-        checkList={checkList}
-        checkListType={checkListType}
-        dataType={dataType}
-        responsive={responsive}
-        onDeleteField={onDeleteField}
-        groupCheckListOption={groupCheckListOption}
-      />
-      <View style={styles.layout2}>
-        <Layout2
+        <FormDialog
           form={form}
-          style={{ styles, spacing, fonts, colors, responsive }}
-          state={state}
-          checkListType={checkListType}
-          checkList={checkList}
-          formData={formData}
-          groupCheckListOption={groupCheckListOption}
-          ShowMessages={ShowMessages}
-          setFormValues={setFormValues}
-          formValues={formValues}
+          isVisible={showDialogs.form}
+          styles={styles}
+          setShowDialogs={() =>
+            setShowDialogs((prev) => ({ ...prev, form: false }))
+          }
+          setForm={setForm}
+          responsive={responsive}
         />
+
+        <SaveFormDialog
+          isVisible={showDialogs.save}
+          setShowDialogs={() =>
+            setShowDialogs((prev) => ({ ...prev, save: false }))
+          }
+          styles={styles}
+          saveForm={saveForm}
+          responsive={responsive}
+        />
+
+        <SubFormDialog
+          isVisible={showDialogs.subForm}
+          setShowDialogs={() =>
+            setShowDialogs((prev) => ({ ...prev, subForm: false }))
+          }
+          editMode={editMode}
+          styles={styles}
+          subForm={subForm}
+          onDelete={onDelete}
+          saveSubForm={saveSubForm}
+        />
+        <FieldDialog
+          isVisible={showDialogs.field}
+          setShowDialogs={() =>
+            setShowDialogs((prev) => ({ ...prev, field: false }))
+          }
+          validationSchemaField={validationSchemaField}
+          editMode={editMode}
+          style={{ styles, colors, spacing }}
+          formState={formState}
+          saveField={saveField}
+          checkList={checkList}
+          checkListType={checkListType}
+          dataType={dataType}
+          responsive={responsive}
+          onDeleteField={onDeleteField}
+          groupCheckListOption={groupCheckListOption}
+        />
+        <View style={styles.layout2}>
+          <Layout2
+            form={form}
+            style={{ styles, spacing, fonts, colors, responsive }}
+            state={state}
+            checkListType={checkListType}
+            checkList={checkList}
+            formData={formData}
+            groupCheckListOption={groupCheckListOption}
+            ShowMessages={ShowMessages}
+            setFormValues={setFormValues}
+            formValues={formValues}
+          />
+        </View>
       </View>
-    </View>
+    </GestureHandlerRootView>
   );
 });
 

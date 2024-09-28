@@ -5,6 +5,9 @@ import { PaperProvider } from "react-native-paper";
 import { Provider } from "react-redux";
 import { store } from "../store";
 
+import { useNavigation } from "expo-router";
+import { DrawerActions } from "@react-navigation/native";
+
 import {
   HomeScreen,
   MachineGroupScreen,
@@ -24,6 +27,21 @@ import {
 } from "./screens";
 
 const Drawer = createDrawerNavigator();
+const navigation = useNavigation();
+
+
+import { useNavigation } from 'expo-router';
+
+export default function MenuRoute() {
+  const homeLaypit = useNavigation('/');
+
+
+  // Same as the default results of `useNavigation()` when invoked in this route.
+  const machineGroupLayout = useNavigation('/orders/menu');
+
+  ... 
+}
+
 
 const App = () => {
   return (

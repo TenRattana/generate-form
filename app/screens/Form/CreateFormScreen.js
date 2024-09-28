@@ -213,7 +213,15 @@ const FormBuilder = React.memo(({ route }) => {
       }}
       onLongPress={drag}
       disabled={isActive}
-      style={[styles.button, isActive ? styles.backDis : styles.backLight]}
+      style={[
+        styles.button,
+        isActive ? styles.backDis : styles.backLight,
+        {
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          alignItems: "center",
+        },
+      ]}
       key={item.checkListId}
     >
       <IconButton
@@ -244,6 +252,11 @@ const FormBuilder = React.memo(({ route }) => {
         style={[
           styles.button,
           isActive ? styles.backLight : styles.backSucceass,
+          {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          },
         ]}
         key={item.subFormId}
       >
@@ -264,7 +277,8 @@ const FormBuilder = React.memo(({ route }) => {
         />
       </Pressable>
 
-      {/* <DraggableFlatList
+      <DraggableFlatList
+        activationDistance={1}
         data={item.fields}
         renderItem={renderField}
         keyExtractor={(field, fieldIndex) =>
@@ -283,7 +297,7 @@ const FormBuilder = React.memo(({ route }) => {
             setField({ formState: updatedSubForms, checkList, checkListType })
           );
         }}
-      /> */}
+      />
 
       <Pressable
         onPress={() => {
@@ -353,6 +367,7 @@ const FormBuilder = React.memo(({ route }) => {
 
           <DraggableFlatList
             data={state.subForms}
+            activationDistance={1}
             style={{ flexGrow: 0 }}
             renderItem={renderSubForm}
             keyExtractor={(item, index) => `subForm-${index}`}

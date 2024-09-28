@@ -43,6 +43,7 @@ class Example extends Component {
     return (
       <View style={{ flex: 1 }}>
         <DraggableFlatList
+          activationDistance={1}
           data={this.state.data}
           renderItem={this.renderItem}
           keyExtractor={(item, index) => `draggable-item-${item.key}`}
